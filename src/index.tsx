@@ -1,6 +1,7 @@
 import React, { FC, useState } from 'react'
 import ReactDOM from 'react-dom'
 import * as serviceWorker from './serviceWorker'
+import { PoseGroup } from 'react-pose'
 
 // Styles
 import './index.css'
@@ -10,6 +11,9 @@ import PageContext from './context/page-context'
 
 // Layout
 import Layout from './components/Layout'
+
+// Atoms
+import { APage } from './atoms/animations'
 
 // Pages
 import Home from './pages/Home'
@@ -25,7 +29,15 @@ const App: FC = () => {
         setPage: (newPage: number) => setPage(newPage)
       }}
     >
-      <Layout>{page === 0 && <Home />}</Layout>
+      <Layout>
+        <PoseGroup flipMove={false}>
+          {page === 0 && (
+            <APage key="Home">
+              <Home />
+            </APage>
+          )}
+        </PoseGroup>
+      </Layout>
     </PageContext.Provider>
   )
 }

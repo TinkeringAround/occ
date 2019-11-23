@@ -2,6 +2,9 @@ import React, { FC, useContext } from 'react'
 import styled from 'styled-components'
 import { Box, Text } from 'grommet'
 
+// Types
+import { IconType } from '../../atoms/icons'
+
 // Styles
 import { sizes, colors } from '../../styles'
 
@@ -24,7 +27,8 @@ const Aside = styled.aside`
 `
 
 // Consts
-const pages = ['My Reports']
+const pages = ['My Reports', 'Settings']
+const icons: Array<IconType> = ['home', 'settings']
 
 // ==========================================================
 const Navigation: FC = () => {
@@ -50,7 +54,7 @@ const Navigation: FC = () => {
         {pages.map((p: string, index: number) => (
           <Item
             key={'Page-' + index}
-            type="home"
+            type={icons[index]}
             content={p}
             setPage={setPage}
             index={index}

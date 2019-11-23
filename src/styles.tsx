@@ -10,5 +10,5 @@ export const colors = {
 
 // ==========================================================
 export const sizes = {
-  navigation: 250
+  navigation: 225
 }
