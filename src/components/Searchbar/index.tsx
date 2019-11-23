@@ -28,8 +28,7 @@ const Searchbar: FC<Props> = ({ addReport, filterReports }) => {
         <Icon
           type="search"
           color="lightblue"
-          size="1.5rem"
-          stroke={3}
+          size="1.25rem"
           margin="0 .5rem 0 1.5rem"
           onClick={filterReports}
         />
@@ -60,7 +59,7 @@ const Searchbar: FC<Props> = ({ addReport, filterReports }) => {
         }}
         onClick={() => addReport(options)}
       >
-        <Icon type="plus" color="lightblue" size="1.25rem" />
+        <Icon type="plus" color="lightblue" size="1rem" />
       </Box>
     </Box>
   )

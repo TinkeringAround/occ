@@ -3,12 +3,10 @@ import { Box } from 'grommet'
 
 // Components
 import Searchbar from '../../components/Searchbar'
+import ReportsTable from '../../components/ReportsTable'
 
 // ==========================================================
-interface Props {}
-
-// ==========================================================
-const Home: FC<Props> = () => {
+const Home: FC = () => {
   const addReport = () => {
     console.log('Add Report')
   }
@@ -17,11 +15,14 @@ const Home: FC<Props> = () => {
   }
 
   return (
-    <Box>
+    <Box align="center">
       {/* Searchbar */}
       <Searchbar addReport={addReport} filterReports={filterReports} />
 
-      {/* Content */}
+      {/* Table */}
+      <Box width="100%" align="center" justify="center" margin={{ top: '3rem' }}>
+        <ReportsTable />
+      </Box>
     </Box>
   )
 }
