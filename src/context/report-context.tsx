@@ -1,7 +1,7 @@
 import React from 'react'
 
 // Types
-import { TReport } from '../types/report'
+import { TReport } from '../types/configuration'
 
 // ==========================================================
 type ReportContextProps = {

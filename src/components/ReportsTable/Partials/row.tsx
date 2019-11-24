@@ -3,7 +3,7 @@ import styled from 'styled-components'
 import { Text } from 'grommet'
 
 // Types
-import { TReport } from '../../../types/report'
+import { TReport } from '../../../types/configuration'
 
 // Context
 import reportContext from '../../../context/report-context'

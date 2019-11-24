@@ -2,7 +2,7 @@ import React, { FC, Fragment, useContext } from 'react'
 import { Table, TableBody, Box } from 'grommet'
 
 // Types
-import { TReport } from '../../types/report'
+import { TReport } from '../../types/configuration'
 
 // Context
 import reportContext from '../../context/report-context'
