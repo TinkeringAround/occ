@@ -1,6 +1,6 @@
 import React, { FC, useContext, useState } from 'react'
-import styled, { StyledFunction } from 'styled-components'
-import { Text, TableRowProps } from 'grommet'
+import styled from 'styled-components'
+import { Text } from 'grommet'
 
 // Types
 import { TReport } from '../../../types/configuration'

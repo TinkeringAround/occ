@@ -8,6 +8,7 @@ import { ASubPage } from '../../atoms/animations'
 // Components
 import Searchbar from '../../components/Searchbar'
 import ReportsTable from '../../components/ReportsTable'
+import SPNewReport from '../../components/SPNewReport'
 
 // ==========================================================
 const Home: FC = () => {
@@ -37,7 +38,7 @@ const Home: FC = () => {
 
         {mode === 'newReport' && (
           <ASubPage key="Home-newReport">
-            <div>Test</div>
+            <SPNewReport />
           </ASubPage>
         )}
       </PoseGroup>
