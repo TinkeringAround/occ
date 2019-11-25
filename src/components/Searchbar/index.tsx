@@ -1,41 +1,54 @@
 import React, { FC, useState } from 'react'
 import { Box, TextInput, Keyboard } from 'grommet'
 
+// Styles
+import { colors } from '../../styles'
+
 // Atoms
 import Icon from '../../atoms/icons'
 
 // ==========================================================
 interface Props {
-  addReport: (url: string) => void
+  mode: 'normal' | 'newReport'
+  toggleMode: () => void
   filterReports: (options: string) => void
 }
 
 // ==========================================================
-const Searchbar: FC<Props> = ({ addReport, filterReports }) => {
+const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
   const [options, setOptions] = useState<string>('')
 
   return (
     <Box width="100%" height="50px" margin={{ top: '1rem' }} direction="row">
       {/* Bar */}
       <Box
-        background="white"
+        background={mode === 'normal' ? 'white' : colors['lightGrey']}
         flex="grow"
         direction="row"
         align="center"
         margin={{ left: '1rem' }}
-        style={{ borderRadius: 15, boxShadow: '0px 0px 20px 1px rgba(200 ,214 ,216, .25)' }}
+        style={{
+          borderRadius: 15,
+          boxShadow: '0px 0px 20px 1px rgba(200 ,214 ,216, .25)',
+          transition: 'all 0.25s ease'
+        }}
       >
         <Icon
           type="search"
-          color="lightblue"
+          color={mode === 'normal' ? 'lightblue' : 'darkGrey'}
           size="1.25rem"
           margin="0 .5rem 0 1.5rem"
-          onClick={filterReports}
+          onClick={mode === 'normal' ? filterReports : null}
         />
         <Box flex="grow" margin={{ right: '1rem' }}>
-          <Keyboard onEnter={() => filterReports(options)}>
+          <Keyboard
+            onEnter={() => {
+              if (mode === 'normal') filterReports(options)
+            }}
+          >
             <TextInput
-              placeholder="gingco.net"
+              disabled={mode === 'newReport'}
+              placeholder={mode === 'normal' ? 'gingco.net' : ''}
               plain
               value={options}
               onChange={(event: any) => setOptions(event.target.value)}
@@ -57,9 +70,17 @@ const Searchbar: FC<Props> = ({ addReport, filterReports }) => {
           boxShadow: '0px 0px 20px 1px rgba(200 ,214 ,216, .25)',
           cursor: 'pointer'
         }}
-        onClick={() => addReport(options)}
+        onClick={toggleMode}
       >
-        <Icon type="plus" color="lightblue" size="1rem" />
+        <Icon
+          type="plus"
+          color="lightblue"
+          size="1rem"
+          style={{
+            transform: `rotate(${mode === 'newReport' ? '45' : '0'}deg)`,
+            transition: 'all 0.5s ease'
+          }}
+        />
       </Box>
     </Box>
   )

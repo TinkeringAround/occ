@@ -1,7 +1,7 @@
 import React, { Fragment, FC } from 'react'
 
 // Styles:
-import { colors } from '../styles'
+import { colors, TColors } from '../styles'
 
 // Types:
 export type IconType =
@@ -136,8 +136,7 @@ interface Props {
   type: IconType
   size?: string
   margin?: string
-  color?: 'white' | 'lightblue' | 'darkGrey' | 'grey'
-  stroke?: number | null
+  color?: TColors
   style?: React.CSSProperties
   onClick?: any
 }
@@ -148,7 +147,6 @@ const Icon: FC<Props> = ({
   size = '1rem',
   margin = '0',
   color = 'white',
-  stroke = null,
   style,
   onClick = null
 }) => {
@@ -160,9 +158,8 @@ const Icon: FC<Props> = ({
         width: size,
         height: size,
         margin: margin,
-        fill: stroke ? 'transparent' : colors[color],
-        stroke: stroke ? colors[color] : 'transparent',
-        strokeWidth: stroke ? stroke : 0,
+        //@ts-ignore
+        fill: colors[color],
         verticalAlign: 'middle',
         cursor: onClick ? 'pointer' : 'inherit',
         ...style
