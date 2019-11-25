@@ -3,11 +3,14 @@ import { Box } from 'grommet'
 import styled from 'styled-components'
 
 // ===================================================================
-const PageBox = styled(Box)`
+const SBox = styled(Box)`
   position: relative;
+
+  width: 100%;
+  min-height: 100%;
 `
 
-export const APage = posed(PageBox)({
+export const APage = posed(SBox)({
   exit: {
     opacity: 0,
     left: '2.5%'
@@ -15,6 +18,23 @@ export const APage = posed(PageBox)({
   enter: {
     opacity: 1,
     left: 0,
-    delay: 250
+    delay: 500
   }
+})
+
+// ===================================================================
+const SLoadingSpinner = styled.div`
+  position: relative;
+
+  width: 100%;
+  min-height: 100%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+
+export const ALoadingSpinner = posed(SLoadingSpinner)({
+  exit: { opacity: 0 },
+  enter: { opacity: 1, delay: 250 }
 })

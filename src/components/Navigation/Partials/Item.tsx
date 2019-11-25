@@ -42,7 +42,7 @@ const Item: FC<Props> = ({ type, selected = false, content, setPage, index }) =>
     style={{ background: selected ? colors['whiteTransparent'] : '' }}
     onClick={() => setPage(index)}
   >
-    <Icon type={type} margin="0 1rem 0 1.5rem" size="1.5rem" />
+    <Icon type={type} margin="0 1rem" size="1.5rem" />
     <Text size=".8rem" weight="bold">
       {content}
     </Text>

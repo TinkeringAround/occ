@@ -23,6 +23,7 @@ function loadConfigFromFile() {
 }
 
 function createWindow() {
+  // Create Window
   mainWindow = new BrowserWindow({
     show: false,
     width: config.settings.width,
@@ -39,20 +40,20 @@ function createWindow() {
   mainWindow.on('closed', () => (mainWindow = null))
   mainWindow.on('ready-to-show', () => mainWindow.show())
 
-  // Dev Tools
-  if (isDev) mainWindow.webContents.openDevTools()
-
-  // Add Properties
-  global.config = {
-    initial: config,
-    updateConfiguration: newConfig => (config = newConfig)
-  }
+  // Show Dev Tools
+  //if (isDev) mainWindow.webContents.openDevTools()
 }
 
 // ==========================================================
 app.on('ready', () => {
   // Load Settings
   loadConfigFromFile()
+
+  // Add Properties
+  global.config = {
+    initial: config,
+    updateConfiguration: newConfig => (config = newConfig)
+  }
 
   // Create BrowserWindow
   createWindow()

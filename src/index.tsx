@@ -17,7 +17,10 @@ import ReportContext from './context/report-context'
 import Layout from './components/Layout'
 
 // Atoms
-import { APage } from './atoms/animations'
+import { APage, ALoadingSpinner } from './atoms/animations'
+
+// Components
+import LoadingSpinner from './components/LoadingSpinner'
 
 // Pages
 import Home from './pages/Home'
@@ -27,6 +30,7 @@ import { loadConfiguration, updateConfiguration } from './utility/fs'
 
 // ==========================================================
 const App: FC = () => {
+  const [loading, setLoading] = useState<boolean>(true)
   const [page, setPage] = useState<number>(0)
   const [report, setReport] = useState<TReport | null>(null)
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
@@ -74,6 +78,11 @@ const App: FC = () => {
     if (configuration) updateConfiguration(configuration)
   }, [configuration])
 
+  useEffect(() => {
+    setLoading(true)
+    setTimeout(() => setLoading(false), 1000)
+  }, [page])
+
   // ==========================================================
   return (
     <PageContext.Provider
@@ -94,8 +103,14 @@ const App: FC = () => {
         {configuration && (
           <Layout>
             <PoseGroup flipMove={false}>
-              {page === 0 && (
-                <APage key="Home">
+              {loading && (
+                <ALoadingSpinner key="LS">
+                  <LoadingSpinner />
+                </ALoadingSpinner>
+              )}
+
+              {!loading && (
+                <APage key={'Page-' + page}>
                   <Home />
                 </APage>
               )}

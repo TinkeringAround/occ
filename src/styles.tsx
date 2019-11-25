@@ -7,8 +7,8 @@ export const colors = {
   grey: 'rgb(160,160,160)',
   darkGrey: 'rgb(106,111,113)',
 
-  lightblue: 'rgb(83, 114, 243)',
-  lightblueHover: 'rgba(83,114,243,0.2)'
+  lightblue: 'rgb(19,95,246)', //'rgb(83, 114, 243)',
+  lightblueHover: 'rgba(19,95,246,0.35)'
 }
 
 // ==========================================================

@@ -23,7 +23,7 @@ const ReportsTable: FC = () => {
         <ReportsTableHeader />
 
         {/* Body */}
-        <TableBody>
+        <TableBody style={{ position: 'relative' }}>
           <TableSpacer />
 
           {reports.map((report: TReport, index: number) => (
