@@ -40,9 +40,9 @@ export const ALoadingSpinner = posed(SLoadingSpinner)({
 })
 
 // ===================================================================
-export const ASimple = posed(SBox)({
+export const ASimple = posed(Box)({
   exit: { opactiy: 0 },
-  enter: { opacity: 1 }
+  enter: { opacity: 1, delay: (props: any) => (props.delay ? props.delay : 500) }
 })
 
 // ===================================================================
@@ -62,19 +62,23 @@ export const ASubPage = posed(SSubPage)({
 })
 
 // ===================================================================
-const SSideBar = styled(Box)<{ height?: number }>`
+const SSideBar = styled.div<{ height: number }>`
   height: ${(props: any) => (props.height ? props.height : 450)}px;
+  width: 0px;
 
+  display: flex;
   align-items: flex-end;
 `
 
 export const ASideBar = posed(SSideBar)({
   exit: {
     opacity: 0,
-    width: 0
+    width: '0px',
+    delay: 100
   },
   enter: {
     opacity: 1,
-    width: 400
+    width: '400px',
+    delay: 100
   }
 })

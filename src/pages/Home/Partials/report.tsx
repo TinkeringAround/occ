@@ -1,26 +1,45 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useContext } from 'react'
 import { Box, TextInput, Keyboard, Form, Text } from 'grommet'
+
+// Types
+import { TReport } from '../../../types/configuration'
 
 // Styles
 import { colors } from '../../../styles'
 
+// Context
+import reportContext from '../../../context/report-context'
+
 // Atoms
 import SButton from '../../../atoms/sbutton'
+import Icon from '../../../atoms/icons'
 
 // Utility
 import { createReport } from '../../../utility/fs'
 
 // ==========================================================
-interface Props {}
+interface Props {
+  toggleModus: (modus: 'normal') => void
+}
 
 // ==========================================================
-const Report: FC<Props> = () => {
+const Report: FC<Props> = ({ toggleModus }) => {
+  const { addReport } = useContext(reportContext)
   const [project, setProject] = useState<string>('')
   const [url, setUrl] = useState<string>('')
 
   const checkInputAndCreateReport = () => {
-    // TODO: Check Input
-    // TODO: createReport()
+    const newReport: TReport = {
+      project: project,
+      url: url,
+      date: Date.now().toString(),
+      results: []
+    }
+    setProject('')
+    setUrl('')
+    toggleModus('normal')
+    addReport(newReport)
+    createReport(newReport, ['securityheaders'])
   }
 
   return (
@@ -61,21 +80,23 @@ const Report: FC<Props> = () => {
               />
               {/* Suites Checkboxes */}
             </Box>
+
             {/* Button */}
             <SButton
               background={colors['lightblue']}
               pad="1rem"
+              direction="row"
               justify="center"
               align="center"
               margin={{ top: '1rem' }}
               style={{ maxWidth: 250 }}
               onClick={checkInputAndCreateReport}
             >
+              <Icon type="create" size="1.25rem" color="white" margin="0 0.5rem 0 0" />
               <Text size="1rem" weight="bold" color="white">
                 Create Report
               </Text>
             </SButton>
-            {/* TODO: Suites */}
           </Form>
         </Keyboard>
       </Box>

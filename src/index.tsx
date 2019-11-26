@@ -36,14 +36,32 @@ const App: FC = () => {
   const [report, setReport] = useState<TReport | null>(null)
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
 
+  // Setup
+  // @ts-ignore
+  if (!window['statusInterval']) {
+    // Check status every 10 sek
+    // @ts-ignore
+    window['statusInterval'] = setInterval(async () => {
+      const newConfiguration: TConfiguration = loadConfiguration()
+      setConfiguration(newConfiguration)
+      console.log('Reload Configuration', newConfiguration)
+    }, 10000)
+  }
+
   // ==========================================================
-  const addReport = (report: TReport) => console.log('Add Report')
+  const addReport = (report: TReport) => {
+    if (configuration) {
+      const newReports = Array.from(configuration.reports)
+      newReports.push(report)
+      setConfiguration({
+        ...configuration,
+        reports: newReports
+      })
+    }
+  }
   const deleteReport = (report: TReport) => {
     if (configuration) {
-      const index = configuration.reports.findIndex(
-        (x: TReport) =>
-          x.project === report.project && x.url === report.url && x.date === report.date
-      )
+      const index = configuration.reports.indexOf(report)
       if (index >= 0) {
         const newReports = Array.from(configuration.reports)
         newReports.splice(index, 1)

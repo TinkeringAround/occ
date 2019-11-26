@@ -18,7 +18,6 @@ import { colors } from '../../styles'
 // ==========================================================
 const Home: FC = () => {
   const [mode, setMode] = useState<'normal' | 'newReport'>('normal')
-  //const [newReport, setNewReport] = useState<TReport | null>(null)
 
   const toggleMode = () => (mode === 'normal' ? setMode('newReport') : setMode('normal'))
   const filterReports = (searchOptions: string) => {
@@ -58,7 +57,7 @@ const Home: FC = () => {
             >
               New Report
             </Heading>
-            <Report />
+            <Report toggleModus={toggleMode} />
           </ASubPage>
         )}
       </PoseGroup>

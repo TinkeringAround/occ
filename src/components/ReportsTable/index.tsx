@@ -1,5 +1,6 @@
 import React, { FC, Fragment, useContext, useState } from 'react'
 import { Table, TableBody, Box } from 'grommet'
+import { PoseGroup } from 'react-pose'
 
 // Types
 import { TReport } from '../../types/configuration'
@@ -7,14 +8,14 @@ import { TReport } from '../../types/configuration'
 // Context
 import reportContext from '../../context/report-context'
 
+// Atoms
+import { ASideBar } from '../../atoms/animations'
+
 // Partials
 import ReportsTableHeader from './Partials/header'
 import ReportsTableRow from './Partials/row'
 import TableSpacer from './Partials/spacer'
-import { PoseGroup } from 'react-pose'
-
-// Atoms
-import { ASideBar } from '../../atoms/animations'
+import TableDetails from './Partials/details'
 
 // ==========================================================
 const ReportsTable: FC = () => {
@@ -48,17 +49,11 @@ const ReportsTable: FC = () => {
         </TableBody>
       </Table>
 
-      <PoseGroup flipMove={false}>
-        {selected > -1 && (
-          <ASideBar key="Home-Details" height={(2 * window.innerHeight) / 3}>
-            <Box
-              width="90%"
-              height="90%"
-              pad="1rem"
-              background="white"
-              style={{ borderRadius: 15, boxShadow: '0px 0px 20px 1px rgba(200, 214, 216, 0.25)' }}
-            >
-              Test
+      <PoseGroup flipMove={false} preEnterPose="exit">
+        {selected >= 0 && (
+          <ASideBar key="Table-Details" height={(2 * window.innerHeight) / 3}>
+            <Box width="100%" height="100%" align="end">
+              <TableDetails report={selected >= 0 ? reports[selected] : null} />
             </Box>
           </ASideBar>
         )}
