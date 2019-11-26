@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react'
+import React, { FC, useContext } from 'react'
 import styled from 'styled-components'
 import { Text } from 'grommet'
 
@@ -33,18 +33,19 @@ const Row = styled.tr<{ selected: boolean }>`
 
 // ==========================================================
 interface Props {
+  selected: boolean
+  setSelected: (rowReport: TReport) => void
   report: TReport
 }
 
 // ==========================================================
-const ReportsTableRow: FC<Props> = ({ report }) => {
+const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
   const { openReport } = useContext(reportContext)
-  const [selected, setSelected] = useState<boolean>(false)
 
   return (
     <Row
       selected={selected}
-      onClick={() => setSelected(!selected)}
+      onClick={() => setSelected(report)}
       onDoubleClick={() => openReport(report)}
     >
       <td style={{ borderTopLeftRadius: BORDER_RADIUS, borderBottomLeftRadius: BORDER_RADIUS }}>

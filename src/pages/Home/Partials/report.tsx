@@ -7,6 +7,9 @@ import { colors } from '../../../styles'
 // Atoms
 import SButton from '../../../atoms/sbutton'
 
+// Utility
+import { createReport } from '../../../utility/fs'
+
 // ==========================================================
 interface Props {}
 
@@ -14,6 +17,11 @@ interface Props {}
 const Report: FC<Props> = () => {
   const [project, setProject] = useState<string>('')
   const [url, setUrl] = useState<string>('')
+
+  const checkInputAndCreateReport = () => {
+    // TODO: Check Input
+    // TODO: createReport()
+  }
 
   return (
     <Box width="100%" pad="0 2rem">
@@ -61,6 +69,7 @@ const Report: FC<Props> = () => {
               align="center"
               margin={{ top: '1rem' }}
               style={{ maxWidth: 250 }}
+              onClick={checkInputAndCreateReport}
             >
               <Text size="1rem" weight="bold" color="white">
                 Create Report
