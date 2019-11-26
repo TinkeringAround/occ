@@ -49,19 +49,14 @@ export const ASimple = posed(SBox)({
 const SSubPage = styled(Box)`
   width: 100%;
 
-  margin-top: 3rem;
-
-  align-items: center;
-  justify-content: center;
+  margin-top: 2rem;
 `
 export const ASubPage = posed(SSubPage)({
   exit: {
-    opacity: 0,
-    left: '2.5%'
+    opacity: 0
   },
   enter: {
     opacity: 1,
-    left: 0,
     delay: 500
   }
 })

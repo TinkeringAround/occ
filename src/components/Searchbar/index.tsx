@@ -9,6 +9,7 @@ import { colors } from '../../styles'
 import Icon from '../../atoms/icons'
 import SButton from '../../atoms/sbutton'
 const SBar = styled(Box)<{ mode: 'normal' | 'newReport' }>`
+  height: 50px;
   border-radius: 15px;
   box-shadow: 0px 0px 20px 1px rgba(200, 214, 216, 0.25);
   transition: all 0.25s ease;
@@ -31,7 +32,13 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
   const [options, setOptions] = useState<string>('')
 
   return (
-    <Box width="100%" height="50px" margin={{ top: '1rem' }} direction="row">
+    <Box
+      width="100%"
+      height="50px"
+      margin={{ top: '1rem' }}
+      direction="row"
+      style={{ minHeight: '50px' }}
+    >
       {/* Bar */}
       <SBar
         mode={mode}
@@ -67,7 +74,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
 
       {/* Add */}
       <SButton
-        height="100%"
+        height="50px"
         width="50px"
         justify="center"
         align="center"

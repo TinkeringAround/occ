@@ -22,17 +22,16 @@ const Layout: FC = ({ children }) => (
     <Box
       height="100%"
       flex="grow"
-      background={colors['lightblue']}
-      style={{ position: 'relative' }}
+      background={colors['white']}
+      style={{
+        position: 'relative',
+        borderTopLeftRadius: 20,
+        borderBottomLeftRadius: 20,
+        padding: '1rem',
+        boxShadow: '0px 0px 20px 1px rgba(0, 0, 0, 0.25)'
+      }}
     >
-      <Box
-        width="calc(100% - 10px)"
-        height="calc(100% - 20px)"
-        background="white"
-        style={{ position: 'absolute', top: 10, right: 10, borderRadius: 20, padding: '1rem' }}
-      >
-        {children}
-      </Box>
+      {children}
     </Box>
   </Box>
 )

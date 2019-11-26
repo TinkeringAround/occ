@@ -24,10 +24,11 @@ const Aside = styled.aside`
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  -webkit-app-region: drag;
 `
 
 // Consts
-const pages = ['My Reports', 'Settings']
 const icons: Array<IconType> = ['home', 'settings']
 
 // ==========================================================
@@ -51,14 +52,13 @@ const Navigation: FC = () => {
 
       {/* Items */}
       <Box width="100%" margin="4rem 0 0">
-        {pages.map((p: string, index: number) => (
+        {icons.map((icon: IconType, index: number) => (
           <Item
             key={'Page-' + index}
-            type={icons[index]}
-            content={p}
+            type={icon}
             setPage={setPage}
             index={index}
-            selected={pages.indexOf(p) === page}
+            selected={index === page}
           />
         ))}
       </Box>

@@ -1,4 +1,4 @@
-import { TConfiguration } from '../types/configuration'
+import { TConfiguration, TReport, TSuites } from '../types/configuration'
 
 // ==========================================================
 export const loadConfiguration: () => TConfiguration = () => {
@@ -10,4 +10,13 @@ export const loadConfiguration: () => TConfiguration = () => {
 export const updateConfiguration = (configuration: TConfiguration) => {
   // @ts-ignore
   window.electron.remote.getGlobal('config').updateConfiguration(configuration)
+}
+
+// ==========================================================
+export const createReport: (report: TReport, suites: Array<TSuites>) => void = async (
+  report: TReport,
+  suites: Array<TSuites>
+) => {
+  // @ts-ignore
+  window.electron.remote.getGlobal('puppeteer').createReport(report, suites)
 }

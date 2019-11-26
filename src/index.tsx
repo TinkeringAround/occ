@@ -24,6 +24,7 @@ import LoadingSpinner from './components/LoadingSpinner'
 
 // Pages
 import Home from './pages/Home'
+import Settings from './pages/Settings'
 
 // Utility
 import { loadConfiguration, updateConfiguration } from './utility/fs'
@@ -111,7 +112,8 @@ const App: FC = () => {
 
               {!loading && (
                 <APage key={'Page-' + page}>
-                  <Home />
+                  {page === 0 && <Home />}
+                  {page === 1 && <Settings />}
                 </APage>
               )}
             </PoseGroup>

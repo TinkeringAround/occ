@@ -18,14 +18,15 @@ export type TReport = {
   results: Array<TResult>
 }
 
-export type TSuites = 'lighthouse'
+export type TSuites = 'securityheaders'
 
 export type TImage = {
   url: string
-  image: any
+  binary: any
 }
 
 export type TResult = {
+  url: string
   suite: TSuites
   images: Array<TImage>
 }

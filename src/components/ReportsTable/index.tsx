@@ -17,7 +17,7 @@ const ReportsTable: FC = () => {
   const { reports } = useContext(reportContext)
 
   return (
-    <Box width="100%" pad="0 0.75rem 0 1.5rem" margin="0 1rem">
+    <Box width="100%" pad="0 2rem">
       <Table>
         {/* Header */}
         <ReportsTableHeader />

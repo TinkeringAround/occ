@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Box, Text } from 'grommet'
+import { Box } from 'grommet'
 import styled from 'styled-components'
 
 // Styles
@@ -32,20 +32,16 @@ interface Props {
   type: IconType
   index: number
   setPage: (newNumber: number) => void
-  content: string
   selected: boolean
 }
 
 // ==========================================================
-const Item: FC<Props> = ({ type, selected = false, content, setPage, index }) => (
+const Item: FC<Props> = ({ type, selected = false, setPage, index }) => (
   <ItemWrapper
     style={{ background: selected ? colors['whiteTransparent'] : '' }}
     onClick={() => setPage(index)}
   >
-    <Icon type={type} margin="0 1rem" size="1.5rem" />
-    <Text size=".8rem" weight="bold">
-      {content}
-    </Text>
+    <Icon type={type} margin="0 1rem" size="75px" />
   </ItemWrapper>
 )
 
