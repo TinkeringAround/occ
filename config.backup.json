@@ -1,8 +1,8 @@
 {
   "reports": [
-    { "project": "MKN", "url": "mkn.de", "date": "15. August 2019", "results": [] },
-    { "project": "MKN", "url": "configurator.mkn.de", "date": "16. August 2019", "results": [] },
-    { "project": "Audi BKK", "url": "audibkk.de", "date": "20. August 2019", "results": [] }
+    { "project": "MKN", "url": "mkn.de", "date": "1574863597567", "results": [] },
+    { "project": "MKN", "url": "configurator.mkn.de", "date": "1574863597567", "results": [] },
+    { "project": "Audi BKK", "url": "audibkk.de", "date": "1574863597567", "results": [] }
   ],
   "settings": { "width": 1216, "height": 745 }
 }

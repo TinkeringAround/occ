@@ -15,12 +15,17 @@ import TableDetails from './Partials/details'
 
 // ==========================================================
 const ReportsTable: FC = () => {
-  const { reports, deleteReport } = useContext(reportContext)
+  const { reports, deleteReport, openReport } = useContext(reportContext)
   const [selected, setSelected] = useState<number>(-1)
 
   const deleteReportAndReset = (report: TReport) => {
-    deleteReport(report)
     setSelected(-1)
+    deleteReport(report)
+  }
+
+  const openReportAndReset = (report: TReport) => {
+    setSelected(-1)
+    openReport(report)
   }
 
   return (
@@ -50,21 +55,23 @@ const ReportsTable: FC = () => {
         </TableBody>
       </Table>
 
+      {/* Details */}
       <Box
         height={window.innerHeight / 2 + 'px'}
         width="30%"
         pad="1rem"
         background="white"
+        justify="between"
         margin={{ left: '2rem' }}
         style={{
           minWidth: '200px',
-          borderRadius: 15,
-          boxShadow: '0px 0px 20px 1px rgba(200, 214, 216, 0.25)'
+          borderRadius: 15
         }}
       >
         <TableDetails
           report={selected >= 0 ? reports[selected] : null}
           deleteReport={deleteReportAndReset}
+          openReport={openReportAndReset}
         />
       </Box>
     </Box>

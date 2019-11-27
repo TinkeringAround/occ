@@ -11,12 +11,14 @@ import reportContext from '../../../context/report-context'
 // Styles
 import { colors } from '../../../styles'
 
+// Utility
+import { unixTimeToSting } from '../../../utility/time'
+
 // Atoms
 const BORDER_RADIUS = 15
 const Row = styled.tr<{ selected: boolean }>`
   height: 60px;
 
-  box-shadow: 0px 0px 20px 1px rgba(200, 214, 216, 0.25);
   border-radius: ${BORDER_RADIUS}px;
 
   background: ${(props: any) => (props.selected ? colors['lightblue'] : 'white')};
@@ -65,7 +67,7 @@ const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
       </td>
       <td>
         <Text size="0.7rem" weight="bold" color={selected ? 'white' : colors['darkGrey']}>
-          {report.date}
+          {unixTimeToSting(Number(report.date))}
         </Text>
       </td>
       <td style={{ borderTopRightRadius: BORDER_RADIUS, borderBottomRightRadius: BORDER_RADIUS }}>

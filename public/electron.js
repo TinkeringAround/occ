@@ -21,6 +21,10 @@ var config = {
   },
   reports: []
 }
+
+function saveConfigurationToDisk() {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
+}
 // #endregion
 
 // ==========================================================
@@ -90,12 +94,10 @@ app.on('ready', async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
+  saveConfigurationToDisk()
 })
 
-app.on('quit', () => {
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
-})
+app.on('quit', saveConfigurationToDisk)
 
 app.on('activate', () => {
   if (mainWindow === null) createWindow()
@@ -104,7 +106,13 @@ app.on('activate', () => {
 
 // ==========================================================
 // #region Event Handler
-ipcMain.on('updateConfig', (event, newConfig) => (config = newConfig))
+ipcMain.on('updateConfig', (event, newConfig) => {
+  config = newConfig
+  saveConfigurationToDisk()
+
+  // Update Global Properties
+  global.config = config
+})
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 // #endregion
 
