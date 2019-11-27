@@ -2,20 +2,6 @@ var Crawler = require('simplecrawler')
 const curl = require('curl')
 
 //----------------------------------------------------------
-exports.getReport = (array, searchReport) => {
-  var result = null
-  array.forEach((report, index) => {
-    if (
-      report.url == searchReport.url &&
-      report.project == searchReport.project &&
-      report.date == searchReport.date
-    )
-      result = { report: report, index: index }
-  })
-  return result
-}
-
-//----------------------------------------------------------
 exports.contains = (array, search) => {
   var contains = false
   array.forEach(element => {

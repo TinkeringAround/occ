@@ -1,17 +1,18 @@
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, ipcMain } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const isDev = require('electron-is-dev')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 
-const { checkURL, contains, getReport } = require('./utility')
+const { checkURL, contains } = require('./utility')
 
 // Consts
 const CONFIG_PATH = '/Users/tmaier/Documents/Repos/occ/config.json'
 const TIMEOUT = 300000 // 5 Minutes
 
 // ==========================================================
+// #region Variables & Configuration
 let mainWindow, browser, puppeteerWindow
 var config = {
   settings: {
@@ -20,6 +21,7 @@ var config = {
   },
   reports: []
 }
+// #endregion
 
 // ==========================================================
 // #region SETUP
@@ -73,21 +75,14 @@ app.on('ready', async () => {
   loadConfigFromFile()
 
   // Add Properties
-  global.config = {
-    initial: config,
-    updateConfiguration: newConfig => (config = newConfig)
-  }
+  global.config = config
 
-  // Test
+  // Puppeteer
   puppeteerWindow = new BrowserWindow({
     width: 1080,
     height: 1920,
     show: false
   })
-  global.puppeteer = {
-    createReport: createReport,
-    deleteReport: deleteReport
-  }
 
   // Create BrowserWindow
   createWindow()
@@ -95,6 +90,7 @@ app.on('ready', async () => {
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
 })
 
 app.on('quit', () => {
@@ -107,11 +103,17 @@ app.on('activate', () => {
 // #endregion
 
 // ==========================================================
+// #region Event Handler
+ipcMain.on('updateConfig', (event, newConfig) => (config = newConfig))
+ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
+// #endregion
+
+// ==========================================================
 // #region REPORT HANDLER
 async function createReport(report, suites) {
   if (report && suites && browser && puppeteerWindow) {
     try {
-      const { url, project, date } = report
+      const { url } = report
       const reportResults = []
 
       const urlIsValid = await checkURL(url)
@@ -138,15 +140,14 @@ async function createReport(report, suites) {
           reportResults.push(securityHeadersResult)
         }
 
-        // Finalize Report
-        const newReport = {
-          url: url,
-          project: project,
-          date: date,
-          results: reportResults
+        // Send Update Event to Renderer for Update
+        if (mainWindow) {
+          console.log('Sending finished Report to Renderer')
+          mainWindow.webContents.send('reportFinished', {
+            report: report,
+            results: reportResults
+          })
         }
-        console.log(newReport)
-        config.reports.push(newReport)
       }
       return null
     } catch (error) {
@@ -154,18 +155,6 @@ async function createReport(report, suites) {
       return false
     }
   } else return null
-}
-
-function deleteReport(report) {
-  if (config.reports.length > 0) {
-    const result = getReport(config.reports, report)
-    if (result) {
-      config.reports.splice(result.index, 1)
-      return true
-    }
-    return false
-  }
-  return true
 }
 
 function exportReport(report) {}

@@ -15,7 +15,7 @@ import SButton from '../../../atoms/sbutton'
 import Icon from '../../../atoms/icons'
 
 // Utility
-import { createReport } from '../../../utility/fs'
+import { createReportInMain } from '../../../utility/fs'
 
 // ==========================================================
 interface Props {
@@ -39,7 +39,7 @@ const Report: FC<Props> = ({ toggleModus }) => {
     setUrl('')
     toggleModus('normal')
     addReport(newReport)
-    createReport(newReport, ['securityheaders'])
+    createReportInMain(newReport, ['securityheaders'])
   }
 
   return (

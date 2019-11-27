@@ -1,22 +1,22 @@
 import { TConfiguration, TReport, TSuites } from '../types/configuration'
 
 // ==========================================================
-export const loadConfiguration: () => TConfiguration = () => {
+export const loadConfigurationFromMain: () => TConfiguration = () => {
   // @ts-ignore
-  const config: TConfiguration = window.electron.remote.getGlobal('config').initial
+  const config: TConfiguration = window.electron.remote.getGlobal('config')
   return config
 }
 
-export const updateConfiguration = (configuration: TConfiguration) => {
+export const updateConfigInMain = (configuration: TConfiguration) => {
   // @ts-ignore
-  window.electron.remote.getGlobal('config').updateConfiguration(configuration)
+  window.electron.ipcRenderer.send('updateConfig', configuration)
 }
 
 // ==========================================================
-export const createReport: (report: TReport, suites: Array<TSuites>) => void = async (
+export const createReportInMain: (report: TReport, suites: Array<TSuites>) => void = async (
   report: TReport,
   suites: Array<TSuites>
 ) => {
   // @ts-ignore
-  window.electron.remote.getGlobal('puppeteer').createReport(report, suites)
+  window.electron.ipcRenderer.send('createReport', report, suites)
 }

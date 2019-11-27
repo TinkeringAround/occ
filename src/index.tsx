@@ -7,7 +7,7 @@ import { PoseGroup } from 'react-pose'
 import './index.css'
 
 // Types
-import { TConfiguration, TReport } from './types/configuration'
+import { TConfiguration, TReport, TResult } from './types/configuration'
 
 // Context
 import PageContext from './context/page-context'
@@ -27,7 +27,7 @@ import Home from './pages/Home'
 import Settings from './pages/Settings'
 
 // Utility
-import { loadConfiguration, updateConfiguration } from './utility/fs'
+import { loadConfigurationFromMain, updateConfigInMain } from './utility/fs'
 
 // ==========================================================
 const App: FC = () => {
@@ -35,18 +35,6 @@ const App: FC = () => {
   const [page, setPage] = useState<number>(0)
   const [report, setReport] = useState<TReport | null>(null)
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
-
-  // Setup
-  // @ts-ignore
-  if (!window['statusInterval']) {
-    // Check status every 10 sek
-    // @ts-ignore
-    window['statusInterval'] = setInterval(async () => {
-      const newConfiguration: TConfiguration = loadConfiguration()
-      setConfiguration(newConfiguration)
-      console.log('Reload Configuration', newConfiguration)
-    }, 10000)
-  }
 
   // ==========================================================
   const addReport = (report: TReport) => {
@@ -57,6 +45,32 @@ const App: FC = () => {
         ...configuration,
         reports: newReports
       })
+    }
+  }
+  const updateReport = (
+    event: any,
+    arg: {
+      report: TReport
+      results: Array<TResult>
+    }
+  ) => {
+    if (configuration) {
+      const { report, results } = arg
+      const index = configuration.reports.findIndex(
+        x => x.date === report.date && x.project === report.project && x.url === report.url
+      )
+      if (index >= 0) {
+        var newReports: Array<TReport> = Array.from(configuration.reports)
+        newReports[index] = {
+          ...newReports[index],
+          results: results
+        }
+
+        setConfiguration({
+          ...configuration,
+          reports: newReports
+        })
+      }
     }
   }
   const deleteReport = (report: TReport) => {
@@ -83,18 +97,24 @@ const App: FC = () => {
   // ==========================================================
   useEffect(() => {
     if (!configuration) {
-      const newConfiguration: TConfiguration = loadConfiguration()
-      setConfiguration(newConfiguration)
+      const initialConfig: TConfiguration = loadConfigurationFromMain()
+      setConfiguration(initialConfig)
     }
   }, [])
 
   useEffect(() => {
+    // @ts-ignore
+    window.electron.ipcRenderer.on('reportFinished', updateReport)
     window.addEventListener('resize', updateSettings)
-    return () => window.removeEventListener('resize', updateSettings)
+    return () => {
+      window.removeEventListener('resize', updateSettings)
+      // @ts-ignore
+      window.electron.ipcRenderer.removeAllListeners()
+    }
   })
 
   useEffect(() => {
-    if (configuration) updateConfiguration(configuration)
+    if (configuration) updateConfigInMain(configuration)
   }, [configuration])
 
   useEffect(() => {

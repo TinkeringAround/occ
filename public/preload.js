@@ -1,4 +1,4 @@
-const { remote } = require('electron')
+const { remote, ipcRenderer } = require('electron')
 const fs = require('fs')
 
 // ==========================================================
@@ -6,3 +6,4 @@ const fs = require('fs')
 window.electron = {}
 window.electron.fs = fs
 window.electron.remote = remote
+window.electron.ipcRenderer = ipcRenderer

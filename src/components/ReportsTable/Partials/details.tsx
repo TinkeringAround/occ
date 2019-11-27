@@ -1,4 +1,4 @@
-import React, { FC, useContext, Fragment } from 'react'
+import React, { FC, Fragment } from 'react'
 import { Text, Heading } from 'grommet'
 
 // Types
@@ -7,9 +7,6 @@ import { TReport } from '../../../types/configuration'
 // Styles
 import { colors } from '../../../styles'
 
-// Context
-import reportContext from '../../../context/report-context'
-
 // Atoms
 import SButton from '../../../atoms/sbutton'
 import Icon from '../../../atoms/icons'
@@ -17,12 +14,11 @@ import Icon from '../../../atoms/icons'
 // ==========================================================
 interface Props {
   report?: TReport | null
+  deleteReport: (report: TReport) => void
 }
 
 // ==========================================================
-const TableDetails: FC<Props> = ({ report = null }) => {
-  const { deleteReport } = useContext(reportContext)
-
+const TableDetails: FC<Props> = ({ report = null, deleteReport }) => {
   return (
     <Fragment>
       {report != null ? (
