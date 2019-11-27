@@ -60,25 +60,3 @@ export const ASubPage = posed(SSubPage)({
     delay: 500
   }
 })
-
-// ===================================================================
-const SSideBar = styled.div<{ height: number }>`
-  height: ${(props: any) => (props.height ? props.height : 450)}px;
-  width: 0px;
-
-  display: flex;
-  align-items: flex-end;
-`
-
-export const ASideBar = posed(SSideBar)({
-  exit: {
-    opacity: 0,
-    width: '0px',
-    delay: 100
-  },
-  enter: {
-    opacity: 1,
-    width: '400px',
-    delay: 100
-  }
-})

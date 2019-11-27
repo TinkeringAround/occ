@@ -1,5 +1,5 @@
 import React, { FC, useContext, Fragment } from 'react'
-import { Text, Heading, Box } from 'grommet'
+import { Text, Heading } from 'grommet'
 
 // Types
 import { TReport } from '../../../types/configuration'
@@ -24,14 +24,8 @@ const TableDetails: FC<Props> = ({ report = null }) => {
   const { deleteReport } = useContext(reportContext)
 
   return (
-    <Box
-      width="90%"
-      height="90%"
-      pad="1rem"
-      background="white"
-      style={{ borderRadius: 15, boxShadow: '0px 0px 20px 1px rgba(200, 214, 216, 0.25)' }}
-    >
-      {report != null && (
+    <Fragment>
+      {report != null ? (
         <Fragment>
           <Heading level="4" margin="0" color={colors['grey']} size="2rem">
             {report.project}
@@ -57,8 +51,17 @@ const TableDetails: FC<Props> = ({ report = null }) => {
             </Text>
           </SButton>
         </Fragment>
+      ) : (
+        <Fragment>
+          <Heading level="4" margin="0" color={colors['grey']} size="2rem">
+            Guidance
+          </Heading>
+          <Text size="0.75rem" color={colors['grey']}>
+            Click on Report for Details
+          </Text>
+        </Fragment>
       )}
-    </Box>
+    </Fragment>
   )
 }
 
