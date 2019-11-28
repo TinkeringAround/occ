@@ -29,7 +29,7 @@ const Aside = styled.aside`
 `
 
 // Consts
-const icons: Array<IconType> = ['home', 'settings']
+const icons: Array<IconType> = ['home', 'clipboard', 'settings']
 
 // ==========================================================
 const Navigation: FC = () => {

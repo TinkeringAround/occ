@@ -4,11 +4,14 @@ const fs = require('fs')
 const isDev = require('electron-is-dev')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
+const uuid = require('uuid/v1')
 
+// Utlity
 const { checkURL, contains } = require('./utility')
 
 // Consts
-const CONFIG_PATH = '/Users/tmaier/Documents/Repos/occ/config.json'
+const ROOT_PATH = process.cwd()
+const CONFIG_PATH = ROOT_PATH + '/config.json'
 const TIMEOUT = 300000 // 5 Minutes
 
 // ==========================================================
@@ -83,8 +86,8 @@ app.on('ready', async () => {
 
   // Puppeteer
   puppeteerWindow = new BrowserWindow({
-    width: 1080,
-    height: 1920,
+    width: 1920,
+    height: 1080,
     show: false
   })
 
@@ -107,6 +110,25 @@ app.on('activate', () => {
 // ==========================================================
 // #region Event Handler
 ipcMain.on('updateConfig', (event, newConfig) => {
+  // Check Differences => a report has been deleted, then delete not longer user Images
+  if (config.reports.length > newConfig.reports.length) {
+    var deletedReport = null
+    config.reports.forEach(report => {
+      const index = newConfig.reports.findIndex(
+        x => x.project == report.project && x.url == report.url && x.date == report.date
+      )
+      if (index < 0) deletedReport = report
+    })
+
+    if (deletedReport) {
+      deletedReport.results.forEach(result => {
+        result.images.forEach(image => {
+          if (fs.existsSync(image.path)) fs.unlinkSync(image.path)
+        })
+      })
+    }
+  }
+
   config = newConfig
   saveConfigurationToDisk()
 
@@ -128,9 +150,29 @@ async function createReport(report, suites) {
       console.log('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
 
       if (urlIsValid) {
+        // SSL Labs
+        if (contains(suites, ['ssllabs'])) {
+          const imagePath = await createDefaultReport(
+            'ssllabs',
+            'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
+            '#rating'
+          )
+          const ssllabsResult = {
+            url: url,
+            suite: 'ssllabs',
+            images: [
+              {
+                url: url,
+                path: imagePath
+              }
+            ]
+          }
+          reportResults.push(ssllabsResult)
+        }
+
         // Security Headers
         if (contains(suites, ['securityheaders'])) {
-          const image = await createDefaultReport(
+          const imagePath = await createDefaultReport(
             'securityheaders',
             'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
             '.reportBody'
@@ -141,11 +183,53 @@ async function createReport(report, suites) {
             images: [
               {
                 url: url,
-                binary: image
+                path: imagePath
               }
             ]
           }
           reportResults.push(securityHeadersResult)
+        }
+
+        // Seobility
+        if (contains(suites, ['seobility'])) {
+          const imagePath = await createDefaultReport(
+            'seobility',
+            'https://freetools.seobility.net/de/seocheck/' + url,
+            '#quickform'
+          )
+          const seobilityResult = {
+            url: url,
+            suite: 'seobility',
+            images: [
+              {
+                url: url,
+                path: imagePath
+              }
+            ]
+          }
+          reportResults.push(seobilityResult)
+        }
+
+        // Favicon-Checker
+        if (contains(suites, ['favicon-checker'])) {
+          const imagePath = await createDefaultReport(
+            'favicon-checker',
+            'https://realfavicongenerator.net/favicon_checker?protocol=https&site=' +
+              url +
+              '#.XWju45MzZhE',
+            '.alert'
+          )
+          const faviconResult = {
+            url: url,
+            suite: 'favicon-checker',
+            images: [
+              {
+                url: url,
+                path: imagePath
+              }
+            ]
+          }
+          reportResults.push(faviconResult)
         }
 
         // Send Update Event to Renderer for Update
@@ -172,7 +256,7 @@ function exportReport(report) {}
 // #region SUITES
 async function createDefaultReport(suite, url, selector) {
   return new Promise(async resolve => {
-    console.log('Creating ' + suite + ' report for: ', url)
+    console.log('Creating ' + suite + ' report.')
     try {
       // Load URL
       await puppeteerWindow.loadURL(url, { waitUntil: 'networkidel0', timeout: TIMEOUT })
@@ -185,16 +269,18 @@ async function createDefaultReport(suite, url, selector) {
       await page.waitFor(1000)
 
       // Take screenshot
-      const binary = await page.screenshot({
+      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+      await page.screenshot({
+        path: path,
         type: 'jpeg',
         quality: 70,
         fullPage: true
       })
-      console.log('Binary:', binary)
-      await page.close()
 
-      resolve(binary)
+      console.log(`Saved to file ${path}`)
+      resolve(path)
     } catch (error) {
+      console.log('An Error occured creating ' + suite + ' report. ' + error)
       resolve(null)
     }
   })

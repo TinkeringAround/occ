@@ -1,5 +1,5 @@
-import React, { FC, Fragment, useContext, useState } from 'react'
-import { Table, TableBody, Box } from 'grommet'
+import React, { FC, useContext, useState } from 'react'
+import { Box } from 'grommet'
 
 // Types
 import { TReport } from '../../types/configuration'
@@ -8,9 +8,8 @@ import { TReport } from '../../types/configuration'
 import reportContext from '../../context/report-context'
 
 // Partials
-import ReportsTableHeader from './Partials/header'
-import ReportsTableRow from './Partials/row'
-import TableSpacer from './Partials/spacer'
+import TableHeader from './Partials/header'
+import TableRow from './Partials/row'
 import TableDetails from './Partials/details'
 
 // ==========================================================
@@ -29,41 +28,47 @@ const ReportsTable: FC = () => {
   }
 
   return (
-    <Box width="100%" direction="row" pad="0 2rem" style={{ position: 'relative' }}>
-      <Table>
+    <Box height="100%" width="100%" direction="row" justify="between" pad="0 2rem">
+      <Box height="100%" width="70%" style={{ position: 'relative', overflowX: 'visible' }}>
         {/* Header */}
-        <ReportsTableHeader />
+        <TableHeader />
 
-        {/* Body */}
-        <TableBody style={{ position: 'relative' }}>
-          <TableSpacer />
-
+        <Box
+          margin="2rem 0 0"
+          pad={{ left: '6px' }}
+          style={{
+            position: 'relative',
+            width: '100%',
+            maxHeight: '100%',
+            overflowY: 'auto',
+            overflowX: 'visible'
+          }}
+        >
           {reports.map((report: TReport, index: number) => (
-            <Fragment key={'ReportsTable-Row-' + index}>
-              <ReportsTableRow
-                report={report}
-                selected={selected === index}
-                setSelected={(rowReport: TReport) => {
-                  const rowIndex = reports.indexOf(rowReport)
-                  if (rowIndex === selected) setSelected(-1)
-                  else setSelected(rowIndex)
-                }}
-              />
-              <TableSpacer height="1rem" />
-            </Fragment>
+            <TableRow
+              key={'ReportsTable-Row-' + index}
+              report={report}
+              selected={selected === index}
+              setSelected={(rowReport: TReport) => {
+                const rowIndex = reports.indexOf(rowReport)
+                if (rowIndex === selected) setSelected(-1)
+                else setSelected(rowIndex)
+              }}
+            />
           ))}
-        </TableBody>
-      </Table>
+        </Box>
+      </Box>
 
       {/* Details */}
       <Box
-        height={window.innerHeight / 2 + 'px'}
-        width="30%"
+        height="100%"
+        width="25%"
         pad="1rem"
         background="white"
         justify="between"
         margin={{ left: '2rem' }}
         style={{
+          minHeight: '100%',
           minWidth: '200px',
           borderRadius: 15
         }}

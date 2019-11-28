@@ -28,6 +28,7 @@ import Settings from './pages/Settings'
 
 // Utility
 import { loadConfigurationFromMain, updateConfigInMain } from './utility/fs'
+import Report from './pages/Report'
 
 // ==========================================================
 const App: FC = () => {
@@ -83,7 +84,10 @@ const App: FC = () => {
       }
     }
   }
-  const openReport = (report: TReport) => setReport(report)
+  const openReport = (report: TReport) => {
+    setReport(report)
+    setPage(1)
+  }
   const updateSettings = () => {
     setConfiguration({
       reports: configuration ? configuration.reports : [],
@@ -151,7 +155,8 @@ const App: FC = () => {
               {!loading && (
                 <APage key={'Page-' + page}>
                   {page === 0 && <Home />}
-                  {page === 1 && <Settings />}
+                  {page === 1 && <Report />}
+                  {page === 2 && <Settings />}
                 </APage>
               )}
             </PoseGroup>

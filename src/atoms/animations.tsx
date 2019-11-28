@@ -46,10 +46,17 @@ export const ASimple = posed(Box)({
 })
 
 // ===================================================================
-const SSubPage = styled(Box)`
+const SSubPage = styled.div<{ minHeight?: string }>`
+  height: 100%;
   width: 100%;
 
+  min-height: ${(props: any) => (props.minHeight ? props.minHeight : '85%')};
+  min-width: 100%;
+
   margin-top: 2rem;
+
+  display: flex;
+  flex-direction: column;
 `
 export const ASubPage = posed(SSubPage)({
   exit: {

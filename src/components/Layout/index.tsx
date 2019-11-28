@@ -14,7 +14,7 @@ const Layout: FC = ({ children }) => (
     height="100vh"
     background={colors['lightblue']}
     direction="row"
-    overflow="hidden"
+    overflow="visible"
   >
     <Navigation />
 

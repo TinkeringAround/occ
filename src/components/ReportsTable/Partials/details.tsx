@@ -25,7 +25,7 @@ const TableDetails: FC<Props> = ({ report = null, deleteReport, openReport }) =>
       {report != null ? (
         <Fragment>
           <Box>
-            <Heading level="4" margin="0" color={colors['darkGrey']} size="2rem">
+            <Heading level="4" margin="0" color={colors['darkGrey']} size="2rem" truncate>
               {report.project}
             </Heading>
             <Text size=".75rem" color={colors['grey']}>
@@ -56,7 +56,7 @@ const TableDetails: FC<Props> = ({ report = null, deleteReport, openReport }) =>
               direction="row"
               justify="center"
               align="center"
-              style={{ maxWidth: 250 }}
+              style={{ maxWidth: '100%' }}
               onClick={() => {
                 if (report) openReport(report)
               }}
@@ -73,7 +73,7 @@ const TableDetails: FC<Props> = ({ report = null, deleteReport, openReport }) =>
               justify="center"
               align="center"
               margin={{ top: '0.5rem' }}
-              style={{ maxWidth: 250 }}
+              style={{ maxWidth: '100%' }}
               onClick={() => {
                 if (report) deleteReport(report)
               }}
@@ -86,16 +86,14 @@ const TableDetails: FC<Props> = ({ report = null, deleteReport, openReport }) =>
           </Box>
         </Fragment>
       ) : (
-        <Fragment>
-          <Box>
-            <Heading level="4" margin="0" color={colors['darkGrey']} size="2rem">
-              Guidance
-            </Heading>
-            <Text size="0.75rem" color={colors['grey']}>
-              Click on Report for Details
-            </Text>
-          </Box>
-        </Fragment>
+        <Box>
+          <Heading level="4" margin="0" color={colors['darkGrey']} size="2rem">
+            Guidance
+          </Heading>
+          <Text size="0.75rem" color={colors['grey']}>
+            Click on Report for Details
+          </Text>
+        </Box>
       )}
     </Fragment>
   )

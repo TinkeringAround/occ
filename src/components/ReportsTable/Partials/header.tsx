@@ -1,5 +1,5 @@
 import React, { FC } from 'react'
-import { Text } from 'grommet'
+import { Text, Box } from 'grommet'
 
 // Styles
 import { colors } from '../../../styles'
@@ -10,27 +10,25 @@ const sizes = ['30%', '30%', '30%', '10%']
 
 // ==========================================================
 const ReportsTableHeader: FC = () => (
-  <thead>
-    <tr style={{ cursor: 'default' }}>
-      {columns.map((columnName: string, index: number) => (
-        <th
-          key={'Table-Header-' + index}
-          style={{ height: '1.5rem', width: sizes[index], textAlign: 'start' }}
+  <Box direction="row" style={{ position: 'absolute', top: 0, width: '100%' }}>
+    {columns.map((columnName: string, index: number) => (
+      <Box
+        key={'Table-Header-' + index}
+        style={{ height: '1.5rem', width: sizes[index], textAlign: 'start' }}
+      >
+        <Text
+          size="0.8rem"
+          weight="bold"
+          color={colors['grey']}
+          style={{
+            paddingLeft: index === 0 ? 'calc(.5rem + 6px)' : 0
+          }}
         >
-          <Text
-            size="0.8rem"
-            weight="bold"
-            color={colors['grey']}
-            style={{
-              paddingLeft: index === 0 ? '.5rem' : 0
-            }}
-          >
-            {columnName}
-          </Text>
-        </th>
-      ))}
-    </tr>
-  </thead>
+          {columnName}
+        </Text>
+      </Box>
+    ))}
+  </Box>
 )
 
 export default ReportsTableHeader

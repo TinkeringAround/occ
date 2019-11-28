@@ -10,8 +10,8 @@ import Icon, { IconType } from '../../../atoms/icons'
 
 // Components
 const ItemWrapper = styled(Box)`
-  width: 80%;
-  height: 50px;
+  width: 55px;
+  height: 55px;
 
   margin: 0 auto 1rem;
   border-radius: 10px;
@@ -41,7 +41,7 @@ const Item: FC<Props> = ({ type, selected = false, setPage, index }) => (
     style={{ background: selected ? colors['whiteTransparent'] : '' }}
     onClick={() => setPage(index)}
   >
-    <Icon type={type} margin="0 1rem" size="75px" />
+    <Icon type={type} margin="0 1rem" size="100%" />
   </ItemWrapper>
 )
 

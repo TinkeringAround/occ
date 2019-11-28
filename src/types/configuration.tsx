@@ -18,11 +18,11 @@ export type TReport = {
   results: Array<TResult>
 }
 
-export type TSuites = 'securityheaders'
+export type TSuites = 'securityheaders' | 'ssllabs' | 'seobility' | 'favicon-checker'
 
 export type TImage = {
   url: string
-  binary: any
+  path: any
 }
 
 export type TResult = {

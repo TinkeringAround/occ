@@ -23,6 +23,7 @@ export type IconType =
   | 'settings'
   | 'open'
   | 'create'
+  | 'clipboard'
 
 // ===================================================================
 const icons = {
@@ -135,12 +136,18 @@ const icons = {
     path: (
       <path d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm144 276c0 6.6-5.4 12-12 12h-92v92c0 6.6-5.4 12-12 12h-56c-6.6 0-12-5.4-12-12v-92h-92c-6.6 0-12-5.4-12-12v-56c0-6.6 5.4-12 12-12h92v-92c0-6.6 5.4-12 12-12h56c6.6 0 12 5.4 12 12v92h92c6.6 0 12 5.4 12 12v56z" />
     )
+  },
+  clipboard: {
+    viewBox: '0 0 384 512',
+    path: (
+      <path d="M336 64h-80c0-35.3-28.7-64-64-64s-64 28.7-64 64H48C21.5 64 0 85.5 0 112v352c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM192 40c13.3 0 24 10.7 24 24s-10.7 24-24 24-24-10.7-24-24 10.7-24 24-24zm144 418c0 3.3-2.7 6-6 6H54c-3.3 0-6-2.7-6-6V118c0-3.3 2.7-6 6-6h42v36c0 6.6 5.4 12 12 12h168c6.6 0 12-5.4 12-12v-36h42c3.3 0 6 2.7 6 6z" />
+    )
   }
 }
 
 // ===================================================================
 interface Props {
-  type: IconType
+  type: IconType | null
   size?: string
   margin?: string
   color?: TColors
@@ -160,7 +167,7 @@ const Icon: FC<Props> = ({
   return (
     <svg
       // @ts-ignore
-      viewBox={icons[type].viewBox}
+      viewBox={type ? icons[type].viewBox : '0 0 0 0'}
       style={{
         width: size,
         height: size,
@@ -169,14 +176,14 @@ const Icon: FC<Props> = ({
         fill: colors[color],
         verticalAlign: 'middle',
         cursor: onClick ? 'pointer' : 'inherit',
+        transition: 'all 0.25s ease',
         ...style
       }}
       onClick={onClick}
     >
-      {
-        // @ts-ignore
-        icons[type].path
-      }
+      {// Icon
+      // @ts-ignore
+      type ? icons[type].path : null}
     </svg>
   )
 }

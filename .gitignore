@@ -23,4 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Backup
-*.backup.json
+/images
+config.json
+config.backup.json
