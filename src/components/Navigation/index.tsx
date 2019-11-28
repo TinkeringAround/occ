@@ -10,6 +10,7 @@ import { sizes, colors } from '../../styles'
 
 // Context
 import pageContext from '../../context/page-context'
+import reportContext from '../../context/report-context'
 
 // Components
 import Item from './Partials/Item'
@@ -33,6 +34,7 @@ const icons: Array<IconType> = ['home', 'clipboard', 'settings']
 
 // ==========================================================
 const Navigation: FC = () => {
+  const { report } = useContext(reportContext)
   const { page, setPage } = useContext(pageContext)
 
   return (
@@ -59,6 +61,7 @@ const Navigation: FC = () => {
             setPage={setPage}
             index={index}
             selected={index === page}
+            enabled={index === 1 ? report != null : true}
           />
         ))}
       </Box>

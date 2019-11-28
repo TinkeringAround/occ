@@ -41,6 +41,7 @@ const App: FC = () => {
   const addReport = (report: TReport) => {
     if (configuration) {
       const newReports = Array.from(configuration.reports)
+      // TODO: Sort by Date
       newReports.push(report)
       setConfiguration({
         ...configuration,
@@ -102,6 +103,7 @@ const App: FC = () => {
   useEffect(() => {
     if (!configuration) {
       const initialConfig: TConfiguration = loadConfigurationFromMain()
+      // TODO: Sort by Date
       setConfiguration(initialConfig)
     }
   }, [])

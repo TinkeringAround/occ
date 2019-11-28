@@ -71,12 +71,13 @@ const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
           weight="bold"
           color={selected ? 'white' : colors['darkGrey']}
           margin={{ left: '1rem' }}
+          truncate
         >
           {report.project}
         </Text>
       </Box>
       <Box width={sizes[1]}>
-        <Text size="0.7rem" weight="bold" color={selected ? 'white' : colors['darkGrey']}>
+        <Text size="0.7rem" weight="bold" color={selected ? 'white' : colors['darkGrey']} truncate>
           {report.url}
         </Text>
       </Box>

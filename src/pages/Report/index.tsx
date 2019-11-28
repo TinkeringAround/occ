@@ -11,9 +11,11 @@ import reportContext from '../../context/report-context'
 const Report: FC = () => {
   const { report } = useContext(reportContext)
 
-  // @ts-ignore
-  const image = window.electron.fs.readFileSync(report.results[0].images[0].path)
-  console.log('Image', image)
+  if (report != null) {
+    // @ts-ignore
+    const image = window.electron.fs.readFileSync(report.results[0].images[0].path)
+    console.log('Image', image)
+  }
 
   return (
     <Box pad="1rem" style={{ position: 'relative' }}>

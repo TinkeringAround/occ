@@ -1,5 +1,4 @@
 import React, { FC } from 'react'
-import { Box } from 'grommet'
 import styled from 'styled-components'
 
 // Styles
@@ -9,21 +8,24 @@ import { colors } from '../../../styles'
 import Icon, { IconType } from '../../../atoms/icons'
 
 // Components
-const ItemWrapper = styled(Box)`
+const ItemWrapper = styled.div<{ enabled: boolean; selected: boolean }>`
   width: 55px;
   height: 55px;
 
   margin: 0 auto 1rem;
   border-radius: 10px;
 
+  display: flex
   flex-direction: row;
   align-items: center;
+
+  background: ${({ selected }) => (selected ? colors['whiteTransparent'] : '')};
 
   cursor: pointer;
   transition: all 0.25s ease;
 
   :hover {
-    background: ${colors['whiteHover']};
+    background: ${({ enabled }) => (enabled ? colors['whiteHover'] : 'inherit')};
   }
 `
 
@@ -33,15 +35,13 @@ interface Props {
   index: number
   setPage: (newNumber: number) => void
   selected: boolean
+  enabled: boolean
 }
 
 // ==========================================================
-const Item: FC<Props> = ({ type, selected = false, setPage, index }) => (
-  <ItemWrapper
-    style={{ background: selected ? colors['whiteTransparent'] : '' }}
-    onClick={() => setPage(index)}
-  >
-    <Icon type={type} margin="0 1rem" size="100%" />
+const Item: FC<Props> = ({ type, selected = false, setPage, index, enabled }) => (
+  <ItemWrapper enabled={enabled} selected={selected} onClick={() => setPage(index)}>
+    <Icon type={type} margin="0 1rem" size="100%" color={enabled ? 'white' : 'grey'} />
   </ItemWrapper>
 )
 
