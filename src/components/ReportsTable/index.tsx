@@ -1,5 +1,5 @@
-import React, { FC, useContext, useState } from 'react'
-import { Box } from 'grommet'
+import React, { FC, useContext, useState, useEffect } from 'react'
+import { Box, Text } from 'grommet'
 import { PoseGroup } from 'react-pose'
 
 // Types
@@ -18,6 +18,7 @@ import LoadingSpinner from '../LoadingSpinner'
 import TableHeader from './Partials/header'
 import TableRow from './Partials/row'
 import TableDetails from './Partials/details'
+import { colors } from '../../styles'
 
 // ==========================================================
 export interface Props {
@@ -40,6 +41,10 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
     openReport(report)
   }
 
+  useEffect(() => {
+    if (isChanging && selected >= 0) setSelected(-1)
+  }, [isChanging])
+
   return (
     <Box height="100%" width="100%" direction="row" justify="between" pad="0 2rem">
       <Box height="100%" width="70%" style={{ position: 'relative', overflowX: 'visible' }}>
@@ -59,9 +64,15 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
                 width: '100%',
                 height: '100%',
                 overflowY: 'auto',
-                overflowX: 'visible'
+                overflowX: 'visible',
+                alignItems: reports.length === 0 ? 'center' : 'unset'
               }}
             >
+              {reports.length === 0 && (
+                <Text size="1rem" color={colors['grey']} margin={{ top: '2rem' }}>
+                  No Results found.
+                </Text>
+              )}
               {reports.map((report: TReport, index: number) => (
                 <TableRow
                   key={'ReportsTable-Row-' + index}
