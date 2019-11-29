@@ -29,6 +29,7 @@ import Report from './pages/Report'
 
 // Utility
 import { loadConfigurationFromMain, updateConfigInMain, createReportInMain } from './utility/fs'
+import { sortReportsByTimestring } from './utility/time'
 
 // ==========================================================
 const App: FC = () => {
@@ -42,11 +43,11 @@ const App: FC = () => {
   const addReport = (report: TReport, suites: Array<TSuites>) => {
     if (configuration) {
       const newReports = Array.from(configuration.reports)
-      // TODO: Sort by Date
       newReports.push(report)
+      const sortedReports = sortReportsByTimestring(newReports)
       setConfiguration({
         ...configuration,
-        reports: newReports
+        reports: sortedReports
       })
 
       createReportInMain(report, suites)
@@ -96,7 +97,8 @@ const App: FC = () => {
         )
           setReport(null)
 
-        setConfiguration({ ...configuration, reports: newReports })
+        const sortedReports = sortReportsByTimestring(newReports)
+        setConfiguration({ ...configuration, reports: sortedReports })
       }
     }
   }
@@ -118,8 +120,11 @@ const App: FC = () => {
   useEffect(() => {
     if (!configuration) {
       const initialConfig: TConfiguration = loadConfigurationFromMain()
-      // TODO: Sort by Date
-      setConfiguration(initialConfig)
+      const sortedReports = sortReportsByTimestring(initialConfig.reports)
+      setConfiguration({
+        ...initialConfig,
+        reports: sortedReports
+      })
     }
   }, [])
 
