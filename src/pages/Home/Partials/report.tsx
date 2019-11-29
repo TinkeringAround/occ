@@ -89,11 +89,7 @@ const Report: FC<Props> = ({ toggleModus }) => {
     <Box width="100%" pad="0 2rem" direction="row" justify="between">
       {/* Formular */}
       <Box width="35%" height="100%">
-        <Keyboard
-          onEnter={() => {
-            // TODO
-          }}
-        >
+        <Keyboard onEnter={checkInputAndCreateReport}>
           <Form>
             <TextInput
               placeholder="Project"
