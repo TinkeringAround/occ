@@ -1,6 +1,12 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useContext, useEffect } from 'react'
 import { Box, Heading } from 'grommet'
 import { PoseGroup } from 'react-pose'
+
+// Types
+import { TReport } from '../../types/configuration'
+
+// Context
+import reportContext from '../../context/report-context'
 
 // Atoms
 import { ASubPage } from '../../atoms/animations'
@@ -17,12 +23,28 @@ import { colors } from '../../styles'
 
 // ==========================================================
 const Home: FC = () => {
+  const { reports } = useContext(reportContext)
   const [mode, setMode] = useState<'normal' | 'newReport'>('normal')
+  const [filteredReports, setFilteredReports] = useState<Array<TReport> | null>(null)
+  const [isFiltering, setIsFiltering] = useState<boolean>(false)
 
   const toggleMode = () => (mode === 'normal' ? setMode('newReport') : setMode('normal'))
   const filterReports = (searchOptions: string) => {
-    console.log('Filter Reports')
+    setIsFiltering(true)
+    if (searchOptions === '') setFilteredReports(null)
+    else {
+      const filterResult: Array<TReport> = reports.filter(
+        (x: TReport) =>
+          x.url.toLowerCase().includes(searchOptions.toLowerCase()) ||
+          x.project.toLowerCase().includes(searchOptions.toLowerCase())
+      )
+      setFilteredReports(filterResult)
+    }
   }
+
+  useEffect(() => {
+    if (isFiltering) setTimeout(() => setIsFiltering(false), 1000)
+  }, [filteredReports])
 
   const minHeight = `calc(${window.innerHeight - 50}px - 5rem)`
 
@@ -44,7 +66,10 @@ const Home: FC = () => {
             >
               My Reports
             </Heading>
-            <ReportsTable />
+            <ReportsTable
+              isChanging={isFiltering}
+              reports={filteredReports != null ? filteredReports : reports}
+            />
           </ASubPage>
         )}
 

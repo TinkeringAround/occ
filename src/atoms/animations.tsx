@@ -64,6 +64,6 @@ export const ASubPage = posed(SSubPage)({
   },
   enter: {
     opacity: 1,
-    delay: 500
+    delay: (props: any) => (props.delay ? props.delay : 500)
   }
 })

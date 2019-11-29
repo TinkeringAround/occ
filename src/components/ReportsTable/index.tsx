@@ -1,5 +1,6 @@
 import React, { FC, useContext, useState } from 'react'
 import { Box } from 'grommet'
+import { PoseGroup } from 'react-pose'
 
 // Types
 import { TReport } from '../../types/configuration'
@@ -7,14 +8,26 @@ import { TReport } from '../../types/configuration'
 // Context
 import reportContext from '../../context/report-context'
 
+// Atoms
+import { ASubPage } from '../../atoms/animations'
+
+// Components
+import LoadingSpinner from '../LoadingSpinner'
+
 // Partials
 import TableHeader from './Partials/header'
 import TableRow from './Partials/row'
 import TableDetails from './Partials/details'
 
 // ==========================================================
-const ReportsTable: FC = () => {
-  const { reports, deleteReport, openReport } = useContext(reportContext)
+export interface Props {
+  reports: Array<TReport>
+  isChanging: boolean
+}
+
+// ==========================================================
+const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
+  const { deleteReport, openReport } = useContext(reportContext)
   const [selected, setSelected] = useState<number>(-1)
 
   const deleteReportAndReset = (report: TReport) => {
@@ -33,30 +46,54 @@ const ReportsTable: FC = () => {
         {/* Header */}
         <TableHeader />
 
-        <Box
-          margin="2rem 0 0"
-          pad={{ left: '6px' }}
-          style={{
-            position: 'relative',
-            width: '100%',
-            maxHeight: '100%',
-            overflowY: 'auto',
-            overflowX: 'visible'
-          }}
-        >
-          {reports.map((report: TReport, index: number) => (
-            <TableRow
-              key={'ReportsTable-Row-' + index}
-              report={report}
-              selected={selected === index}
-              setSelected={(rowReport: TReport) => {
-                const rowIndex = reports.indexOf(rowReport)
-                if (rowIndex === selected) setSelected(-1)
-                else setSelected(rowIndex)
+        <PoseGroup flipMove={false}>
+          {!isChanging && (
+            <ASubPage
+              key="ReportsTable"
+              minHeight="95%"
+              delay={0}
+              style={{
+                margin: '2rem 0 0',
+                paddingLeft: '6px',
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                overflowY: 'auto',
+                overflowX: 'visible'
               }}
-            />
-          ))}
-        </Box>
+            >
+              {reports.map((report: TReport, index: number) => (
+                <TableRow
+                  key={'ReportsTable-Row-' + index}
+                  report={report}
+                  selected={selected === index}
+                  setSelected={(rowReport: TReport) => {
+                    const rowIndex = reports.indexOf(rowReport)
+                    if (rowIndex === selected) setSelected(-1)
+                    else setSelected(rowIndex)
+                  }}
+                />
+              ))}
+            </ASubPage>
+          )}
+
+          {isChanging && (
+            <ASubPage
+              key="ReportsTable-LoadingSpinner"
+              minHeight="95%"
+              delay={0}
+              style={{
+                width: '100%',
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <LoadingSpinner size={3} />
+            </ASubPage>
+          )}
+        </PoseGroup>
       </Box>
 
       {/* Details */}

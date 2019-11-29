@@ -84,7 +84,12 @@ const App: FC = () => {
   }
   const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
-      const index = configuration.reports.indexOf(deletedReport)
+      const index = configuration.reports.findIndex(
+        x =>
+          x.date === deletedReport.date &&
+          x.project === deletedReport.project &&
+          x.url === deletedReport.url
+      )
       if (index >= 0) {
         const newReports = Array.from(configuration.reports)
         newReports.splice(index, 1)
