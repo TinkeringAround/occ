@@ -5,19 +5,16 @@ import { Text, Box } from 'grommet'
 import { colors } from '../../../styles'
 
 // Consts
-const columns = ['Project', 'Url', 'Date', 'Suites']
+const columns = ['Project', 'Url', 'Date', 'Progress']
 const sizes = ['30%', '30%', '30%', '10%']
 
 // ==========================================================
 const ReportsTableHeader: FC = () => (
-  <Box direction="row" style={{ position: 'absolute', top: 0, width: '100%' }}>
+  <Box direction="row" width="100%" pad={{ left: '6px' }} style={{ position: 'absolute', top: 0 }}>
     {columns.map((columnName: string, index: number) => (
-      <Box
-        key={'Table-Header-' + index}
-        style={{ height: '1.5rem', width: sizes[index], textAlign: 'start' }}
-      >
+      <Box key={'Table-Header-' + index} width={sizes[index]} height="1.5rem" justify="center">
         <Text
-          size="0.8rem"
+          size="0.9rem"
           weight="bold"
           color={colors['grey']}
           style={{

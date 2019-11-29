@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useState, useContext } from 'react'
 import { Box, TextInput, Keyboard } from 'grommet'
 import styled from 'styled-components'
 
@@ -8,6 +8,7 @@ import { colors } from '../../styles'
 // Atoms
 import Icon from '../../atoms/icons'
 import SButton from '../../atoms/sbutton'
+import reportContext from '../../context/report-context'
 const SBar = styled(Box)<{ mode: 'normal' | 'newReport' }>`
   height: 50px;
   border-radius: 15px;
@@ -29,6 +30,7 @@ interface Props {
 
 // ==========================================================
 const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
+  const { reportInProgress } = useContext(reportContext)
   const [options, setOptions] = useState<string>('')
 
   return (
@@ -79,12 +81,14 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         justify="center"
         align="center"
         margin="0 1rem 0 2rem"
-        background="white"
-        onClick={toggleMode}
+        background={!reportInProgress ? 'white' : colors['lightGrey']}
+        onClick={() => {
+          if (!reportInProgress) toggleMode()
+        }}
       >
         <Icon
           type="plus"
-          color="lightblue"
+          color={!reportInProgress ? 'lightblue' : 'darkGrey'}
           size="1rem"
           style={{
             transform: `rotate(${mode === 'newReport' ? '45' : '0'}deg)`,

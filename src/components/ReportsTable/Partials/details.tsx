@@ -11,6 +11,9 @@ import { colors } from '../../../styles'
 import SButton from '../../../atoms/sbutton'
 import Icon from '../../../atoms/icons'
 
+// Utility
+import { getSuiteName } from '../../../utility/suites'
+
 // ==========================================================
 interface Props {
   report?: TReport | null
@@ -34,14 +37,14 @@ const TableDetails: FC<Props> = ({ report = null, deleteReport, openReport }) =>
 
             {report.results.length > 0 && (
               <Box margin="1rem 0">
-                <Heading level="5" margin="0" color={colors['darkGrey']} size="1.25rem">
+                <Heading level="5" margin="0" color={colors['darkGrey']} size="1rem">
                   Suites
                 </Heading>
                 {report.results.length > 0 &&
                   report.results.map((result: TResult, index) => (
                     <Fragment key={'Report-Result-' + index}>
                       <Text weight="bold" size="0.65rem" color={colors['grey']}>
-                        {result.suite.toLocaleUpperCase()}
+                        {getSuiteName(result.suite)}
                       </Text>
                     </Fragment>
                   ))}

@@ -235,8 +235,11 @@ async function createReport(report, suites) {
         // Send Update Event to Renderer for Update
         if (mainWindow) {
           console.log('Sending finished Report to Renderer')
-          mainWindow.webContents.send('reportFinished', {
-            report: report,
+          mainWindow.webContents.send('updateReport', {
+            report: {
+              ...report,
+              progress: true
+            },
             results: reportResults
           })
         }

@@ -12,6 +12,7 @@ export type TSettings = {
 
 // ==========================================================
 export type TReport = {
+  progress: number | boolean
   project: string
   url: string
   date: string

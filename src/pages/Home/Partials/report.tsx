@@ -16,7 +16,6 @@ import Icon from '../../../atoms/icons'
 import Checkbox from '../../../atoms/checkbox'
 
 // Utility
-import { createReportInMain } from '../../../utility/fs'
 import {
   ServerSuites,
   SeoSuites,
@@ -50,6 +49,7 @@ const Report: FC<Props> = ({ toggleModus }) => {
 
   const checkInputAndCreateReport = () => {
     const newReport: TReport = {
+      progress: 0,
       project: project,
       url: url,
       date: Date.now().toString(),
@@ -70,13 +70,11 @@ const Report: FC<Props> = ({ toggleModus }) => {
       if (suite) suites.push(OptimizationSuites.suites[index])
     })
 
-    createReportInMain(newReport, suites)
-
     // Reset
     setProject('')
     setUrl('')
     toggleModus('normal')
-    addReport(newReport)
+    addReport(newReport, suites)
     resetSuites()
   }
 

@@ -1,6 +1,7 @@
 import React, { FC, useContext } from 'react'
 import styled from 'styled-components'
 import { Text, Box } from 'grommet'
+import { FillSpinner } from 'react-spinners-kit'
 
 // Types
 import { TReport } from '../../../types/configuration'
@@ -28,15 +29,14 @@ const Row = styled.div<{ selected: boolean }>`
   flex-direction: row;
   align-items: center;
 
-  background: ${(props: any) => (props.selected ? colors['lightblue'] : 'white')};
   cursor: pointer;
   transition: all 0.25s ease;
 
-  transform: ${(props: any) => (props.selected ? 'translateX(-5px)' : 'none')};
+  background: ${({ selected }) => (selected ? colors['lightblue'] : 'white')};
+  transform: ${({ selected }) => (selected ? 'translateX(-5px)' : 'none')};
 
   :hover {
-    background: ${(props: any) =>
-      props.selected ? colors['lightblue'] : colors['lightblueHover']};
+    background: ${({ selected }) => (selected ? colors['lightblue'] : colors['lightblueHover'])};
 
     transform: translateX(-5px) !important;
   }
@@ -56,6 +56,14 @@ interface Props {
 const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
   const { openReport } = useContext(reportContext)
 
+  const getProgress: () => string = () => {
+    let reportProgress = '100%'
+    if (report.progress !== true && report.progress >= 0 && report.progress <= 100)
+      reportProgress = report.progress + '%'
+
+    return reportProgress
+  }
+
   return (
     <Row
       selected={selected}
@@ -64,15 +72,10 @@ const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
     >
       <Box
         width={sizes[0]}
+        pad={{ left: '1rem' }}
         style={{ borderTopLeftRadius: BORDER_RADIUS, borderBottomLeftRadius: BORDER_RADIUS }}
       >
-        <Text
-          size="0.85rem"
-          weight="bold"
-          color={selected ? 'white' : colors['darkGrey']}
-          margin={{ left: '1rem' }}
-          truncate
-        >
+        <Text size="0.85rem" weight="bold" color={selected ? 'white' : colors['darkGrey']} truncate>
           {report.project}
         </Text>
       </Box>
@@ -88,10 +91,21 @@ const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
       </Box>
       <Box
         width={sizes[3]}
+        pad={{ left: report.progress === true ? '1rem' : '0' }}
+        direction="row"
+        align="center"
         style={{ borderTopRightRadius: BORDER_RADIUS, borderBottomRightRadius: BORDER_RADIUS }}
       >
-        <Text size="0.7rem" weight="bold" color={selected ? 'white' : colors['darkGrey']}>
-          {report.results.length + ' Suites'}
+        {report.progress !== true && (
+          <FillSpinner size={1} sizeUnit="rem" color={colors['lightblue']} />
+        )}
+        <Text
+          size="0.7rem"
+          margin={report.progress === true ? '0' : '0.5rem'}
+          weight="bold"
+          color={selected ? 'white' : colors['darkGrey']}
+        >
+          {getProgress()}
         </Text>
       </Box>
     </Row>

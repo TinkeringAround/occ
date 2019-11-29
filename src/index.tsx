@@ -7,7 +7,7 @@ import { PoseGroup } from 'react-pose'
 import './index.css'
 
 // Types
-import { TConfiguration, TReport, TResult } from './types/configuration'
+import { TConfiguration, TReport, TResult, TSuites } from './types/configuration'
 
 // Context
 import PageContext from './context/page-context'
@@ -25,10 +25,10 @@ import LoadingSpinner from './components/LoadingSpinner'
 // Pages
 import Home from './pages/Home'
 import Settings from './pages/Settings'
+import Report from './pages/Report'
 
 // Utility
-import { loadConfigurationFromMain, updateConfigInMain } from './utility/fs'
-import Report from './pages/Report'
+import { loadConfigurationFromMain, updateConfigInMain, createReportInMain } from './utility/fs'
 
 // ==========================================================
 const App: FC = () => {
@@ -36,9 +36,10 @@ const App: FC = () => {
   const [page, setPage] = useState<number>(0)
   const [report, setReport] = useState<TReport | null>(null)
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
+  const [reportInProgress, setReportInProgress] = useState<boolean>(false)
 
   // ==========================================================
-  const addReport = (report: TReport) => {
+  const addReport = (report: TReport, suites: Array<TSuites>) => {
     if (configuration) {
       const newReports = Array.from(configuration.reports)
       // TODO: Sort by Date
@@ -47,6 +48,9 @@ const App: FC = () => {
         ...configuration,
         reports: newReports
       })
+
+      createReportInMain(report, suites)
+      setReportInProgress(true)
     }
   }
   const updateReport = (
@@ -65,9 +69,11 @@ const App: FC = () => {
         var newReports: Array<TReport> = Array.from(configuration.reports)
         newReports[index] = {
           ...newReports[index],
+          progress: report.progress,
           results: results
         }
 
+        if (report.progress === true) setReportInProgress(false)
         setConfiguration({
           ...configuration,
           reports: newReports
@@ -75,12 +81,21 @@ const App: FC = () => {
       }
     }
   }
-  const deleteReport = (report: TReport) => {
+  const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
-      const index = configuration.reports.indexOf(report)
+      const index = configuration.reports.indexOf(deletedReport)
       if (index >= 0) {
         const newReports = Array.from(configuration.reports)
         newReports.splice(index, 1)
+
+        if (
+          report &&
+          report.project === deletedReport.project &&
+          report.url === deletedReport.url &&
+          report.date === deletedReport.date
+        )
+          setReport(null)
+
         setConfiguration({ ...configuration, reports: newReports })
       }
     }
@@ -110,7 +125,7 @@ const App: FC = () => {
 
   useEffect(() => {
     // @ts-ignore
-    window.electron.ipcRenderer.on('reportFinished', updateReport)
+    window.electron.ipcRenderer.on('updateReport', updateReport)
     window.addEventListener('resize', updateSettings)
     return () => {
       window.removeEventListener('resize', updateSettings)
@@ -140,6 +155,7 @@ const App: FC = () => {
         value={{
           reports: configuration ? configuration.reports : [],
           report: report,
+          reportInProgress: reportInProgress,
           addReport: addReport,
           deleteReport: deleteReport,
           openReport: openReport

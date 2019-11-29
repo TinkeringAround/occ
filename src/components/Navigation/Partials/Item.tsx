@@ -21,11 +21,12 @@ const ItemWrapper = styled.div<{ enabled: boolean; selected: boolean }>`
 
   background: ${({ selected }) => (selected ? colors['whiteTransparent'] : '')};
 
-  cursor: pointer;
+  cursor: ${({ enabled }) => (enabled ? 'pointer' : 'default')};
   transition: all 0.25s ease;
 
   :hover {
-    background: ${({ enabled }) => (enabled ? colors['whiteHover'] : 'inherit')};
+    background: ${({ enabled, selected }) =>
+      enabled ? (selected ? colors['whiteTransparent'] : colors['whiteHover']) : 'inherit'};
   }
 `
 
@@ -40,8 +41,14 @@ interface Props {
 
 // ==========================================================
 const Item: FC<Props> = ({ type, selected = false, setPage, index, enabled }) => (
-  <ItemWrapper enabled={enabled} selected={selected} onClick={() => setPage(index)}>
-    <Icon type={type} margin="0 1rem" size="100%" color={enabled ? 'white' : 'grey'} />
+  <ItemWrapper
+    enabled={enabled}
+    selected={selected}
+    onClick={() => {
+      if (enabled) setPage(index)
+    }}
+  >
+    <Icon type={type} margin="0 1rem" size="100%" color={enabled ? 'white' : 'whiteTransparent'} />
   </ItemWrapper>
 )
 
