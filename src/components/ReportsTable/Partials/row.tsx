@@ -97,7 +97,7 @@ const ReportsTableRow: FC<Props> = ({ selected, setSelected, report }) => {
         style={{ borderTopRightRadius: BORDER_RADIUS, borderBottomRightRadius: BORDER_RADIUS }}
       >
         {report.progress !== true && (
-          <FillSpinner size={1} sizeUnit="rem" color={colors['lightblue']} />
+          <FillSpinner size={1} sizeUnit="rem" color={selected ? 'white' : colors['lightblue']} />
         )}
         <Text
           size="0.7rem"

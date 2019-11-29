@@ -26,11 +26,13 @@ const Home: FC = () => {
   const { reports } = useContext(reportContext)
   const [mode, setMode] = useState<'normal' | 'newReport'>('normal')
   const [filteredReports, setFilteredReports] = useState<Array<TReport> | null>(null)
+  const [searchOptions, setSearchOptions] = useState<string>('')
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
 
   const toggleMode = () => (mode === 'normal' ? setMode('newReport') : setMode('normal'))
   const filterReports = (searchOptions: string) => {
     setIsFiltering(true)
+    setSearchOptions(searchOptions)
     if (searchOptions === '') setFilteredReports(null)
     else {
       const filterResult: Array<TReport> = reports.filter(
@@ -41,6 +43,14 @@ const Home: FC = () => {
       setFilteredReports(filterResult)
     }
   }
+
+  useEffect(() => {
+    if (filteredReports != null) {
+      setIsFiltering(true)
+      filterReports(searchOptions)
+      setTimeout(() => setIsFiltering(false), 1000)
+    }
+  }, [reports])
 
   useEffect(() => {
     if (isFiltering) setTimeout(() => setIsFiltering(false), 1000)
@@ -64,7 +74,7 @@ const Home: FC = () => {
               alignSelf="start"
               margin={{ left: 'calc(2rem + 6px)' }}
             >
-              My Reports
+              {filteredReports != null ? 'Search Results' : 'My Reports'}
             </Heading>
             <ReportsTable
               isChanging={isFiltering}
