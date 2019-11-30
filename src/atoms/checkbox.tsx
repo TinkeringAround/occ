@@ -26,42 +26,40 @@ const Checkbox: FC<Props> = ({
   margin = '0 0 0.5rem 0',
   size = '1.25rem',
   fontSize = '1rem'
-}) => {
-  return (
+}) => (
+  <Box
+    margin={margin}
+    pad="0.25rem"
+    direction="row"
+    align="center"
+    onClick={() => onChange(!checked)}
+    style={{ cursor: 'pointer' }}
+  >
     <Box
-      margin={margin}
-      pad="0.25rem"
-      direction="row"
+      width={size}
+      height={size}
+      background="transparent"
+      justify="center"
       align="center"
-      onClick={() => onChange(!checked)}
-      style={{ cursor: 'pointer' }}
+      pad="1px"
+      style={{
+        transition: 'all 0.25s ease',
+        border: 'solid 2px ' + (checked ? colors['lightblue'] : colors['lightGrey']),
+        borderRadius: 5
+      }}
     >
-      <Box
-        width={size}
-        height={size}
-        background="transparent"
-        justify="center"
-        align="center"
-        pad="1px"
-        style={{
-          transition: 'all 0.25s ease',
-          border: 'solid 2px ' + (checked ? colors['lightblue'] : colors['lightGrey']),
-          borderRadius: 5
-        }}
-      >
-        <Icon type={checked ? 'check' : null} color="lightblue" size="80%" />
-      </Box>
-
-      <Text
-        margin="0 0 0 .5rem"
-        size={fontSize}
-        color={checked ? colors['lightblue'] : colors['lightGrey']}
-        weight="bold"
-      >
-        {label}
-      </Text>
+      <Icon type={checked ? 'check' : null} color="lightblue" size="80%" />
     </Box>
-  )
-}
+
+    <Text
+      margin="0 0 0 .5rem"
+      size={fontSize}
+      color={checked ? colors['lightblue'] : colors['lightGrey']}
+      weight="bold"
+    >
+      {label}
+    </Text>
+  </Box>
+)
 
 export default Checkbox

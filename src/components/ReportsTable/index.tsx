@@ -17,7 +17,8 @@ import LoadingSpinner from '../LoadingSpinner'
 // Partials
 import TableHeader from './Partials/header'
 import TableRow from './Partials/row'
-import TableDetails from './Partials/details'
+
+// Styles
 import { colors } from '../../styles'
 
 // ==========================================================
@@ -46,8 +47,8 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
   }, [isChanging])
 
   return (
-    <Box height="100%" width="100%" direction="row" justify="between" pad="0 2rem">
-      <Box height="100%" width="70%" style={{ position: 'relative', overflowX: 'visible' }}>
+    <Box height="100%" width="100%" direction="row" justify="between" pad="0 3rem 0 2rem">
+      <Box height="100%" width="100%" style={{ position: 'relative', overflowX: 'visible' }}>
         {/* Header */}
         <TableHeader />
 
@@ -77,6 +78,8 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
                 <TableRow
                   key={'ReportsTable-Row-' + index}
                   report={report}
+                  openReport={openReportAndReset}
+                  deleteReport={deleteReportAndReset}
                   selected={selected === index}
                   setSelected={(rowReport: TReport) => {
                     const rowIndex = reports.indexOf(rowReport)
@@ -105,27 +108,6 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
             </ASubPage>
           )}
         </PoseGroup>
-      </Box>
-
-      {/* Details */}
-      <Box
-        height="100%"
-        width="25%"
-        pad="1rem"
-        background="white"
-        justify="between"
-        margin={{ left: '2rem' }}
-        style={{
-          minHeight: '100%',
-          minWidth: '200px',
-          borderRadius: 15
-        }}
-      >
-        <TableDetails
-          report={selected >= 0 ? reports[selected] : null}
-          deleteReport={deleteReportAndReset}
-          openReport={openReportAndReset}
-        />
       </Box>
     </Box>
   )

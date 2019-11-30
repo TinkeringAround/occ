@@ -5,8 +5,8 @@ import { Text, Box } from 'grommet'
 import { colors } from '../../../styles'
 
 // Consts
-const columns = ['Project', 'Url', 'Date', 'Progress']
-const sizes = ['30%', '30%', '30%', '10%']
+const columns = ['Project', 'Url', 'Date', 'Status', 'Actions']
+const sizes = ['30%', '30%', '15%', '10%', '15%']
 
 // ==========================================================
 const ReportsTableHeader: FC = () => (
@@ -17,6 +17,7 @@ const ReportsTableHeader: FC = () => (
           size="0.9rem"
           weight="bold"
           color={colors['grey']}
+          textAlign={index === 4 ? 'center' : 'start'}
           style={{
             paddingLeft: index === 0 ? 'calc(.5rem + 6px)' : 0
           }}

@@ -5,10 +5,12 @@ import styled from 'styled-components'
 // Styles
 import { colors } from '../../styles'
 
+// Context
+import reportContext from '../../context/report-context'
+
 // Atoms
 import Icon from '../../atoms/icons'
 import SButton from '../../atoms/sbutton'
-import reportContext from '../../context/report-context'
 const SBar = styled(Box)<{ mode: 'normal' | 'newReport' }>`
   height: 50px;
   border-radius: 15px;
@@ -37,6 +39,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
     <Box
       width="100%"
       height="50px"
+      pad="0 2rem"
       margin={{ top: '1rem' }}
       direction="row"
       style={{ minHeight: '50px' }}
@@ -48,7 +51,6 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         flex="grow"
         direction="row"
         align="center"
-        margin={{ left: '1rem' }}
       >
         <Icon
           type="search"
@@ -80,7 +82,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         width="50px"
         justify="center"
         align="center"
-        margin="0 1rem 0 2rem"
+        margin="0 0 0 2rem"
         background={!reportInProgress ? 'white' : colors['lightGrey']}
         onClick={() => {
           if (!reportInProgress) toggleMode()
