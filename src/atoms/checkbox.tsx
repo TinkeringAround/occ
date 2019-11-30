@@ -48,7 +48,7 @@ const Checkbox: FC<Props> = ({
         borderRadius: 5
       }}
     >
-      <Icon type={checked ? 'check' : null} color="lightblue" size="80%" />
+      <Icon type={checked ? 'check' : null} color="lightblue" size="70%" />
     </Box>
 
     <Text

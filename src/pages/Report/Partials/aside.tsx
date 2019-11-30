@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { FC, useContext } from 'react'
 import { Box, Text } from 'grommet'
 
 // Styles
 import { colors } from '../../../styles'
+
+// Context
+import reportContext from '../../../context/report-context'
 
 // Atoms
 import { SButton } from '../../../atoms/styled'
@@ -12,24 +15,26 @@ import Icon from '../../../atoms/icons'
 interface Props {}
 
 // ==========================================================
-const ReportAside: React.FC<Props> = () => {
+const ReportAside: FC<Props> = () => {
+  const { report, deleteReport } = useContext(reportContext)
+
   return (
-    <Box
-      width="25%"
-      height={`calc(${window.innerHeight}px -  16rem)`}
-      justify="end"
-      style={{
-        minHeight: `calc(${window.innerHeight}px -  16rem)`
-      }}
-    >
+    <Box width="25%" justify="end">
       <Box>
         <SButton background={colors['lightblue']} pad="1rem">
-          <Icon type="open" size="1rem" color="white" margin="0 0.5rem 0 0" />
+          <Icon type="download" size="1rem" color="white" margin="0 0.5rem 0 0" />
           <Text size="0.8rem" weight="bold" color="white">
-            Export Report
+            Export to Disk
           </Text>
         </SButton>
-        <SButton background={colors['lightblue']} pad="1rem" margin={{ top: '0.5rem' }}>
+        <SButton
+          background={colors['lightblue']}
+          pad="1rem"
+          margin={{ top: '0.5rem' }}
+          onClick={() => {
+            if (report) deleteReport(report)
+          }}
+        >
           <Icon type="trash" size="1rem" color="white" margin="0 0.5rem 0 0" />
           <Text size="0.8rem" weight="bold" color="white">
             Delete Report

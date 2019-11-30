@@ -120,7 +120,26 @@ const App: FC = () => {
       }
     })
   }
+  const updateReportProject = (changedReport: TReport, project: string) => {
+    if (configuration) {
+      const index = configuration.reports.findIndex(
+        x =>
+          x.date === changedReport.date &&
+          x.project === changedReport.project &&
+          x.url === changedReport.url
+      )
+      if (index >= 0) {
+        const newReports: Array<TReport> = Array.from(configuration.reports)
+        newReports[index] = {
+          ...newReports[index],
+          project: project
+        }
 
+        setReport(newReports[index])
+        setConfiguration({ ...configuration, reports: newReports })
+      }
+    }
+  }
   // ==========================================================
   useEffect(() => {
     if (!configuration) {
@@ -153,6 +172,9 @@ const App: FC = () => {
     setTimeout(() => setLoading(false), 1000)
   }, [page])
 
+  useEffect(() => {
+    if (report == null && page === 1) setPage(0)
+  }, [report])
   // ==========================================================
   return (
     <PageContext.Provider
@@ -168,7 +190,8 @@ const App: FC = () => {
           reportInProgress: reportInProgress,
           addReport: addReport,
           deleteReport: deleteReport,
-          openReport: openReport
+          openReport: openReport,
+          updateReportProject: updateReportProject
         }}
       >
         {configuration && (
