@@ -19,6 +19,18 @@ export type TReport = {
   results: Array<TResult>
 }
 
+export type TSuiteCategories = {
+  server: Array<TSuites>
+  seo: Array<TSuites>
+  performance: Array<TSuites>
+  optimization: Array<TSuites>
+}
+
+export type TSuiteCategory = {
+  name: string
+  suites: Array<TSuites>
+}
+
 export type TSuites = 'securityheaders' | 'ssllabs' | 'seobility' | 'favicon-checker'
 
 export type TImage = {

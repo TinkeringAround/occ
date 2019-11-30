@@ -1,35 +1,23 @@
 // Types
-import { TSuites } from '../types/configuration'
+import { TSuites, TSuiteCategory, TResult } from '../types/configuration'
 
 // ==========================================================
-export const ServerSuites: {
-  name: string
-  suites: Array<TSuites>
-} = {
+export const ServerSuites: TSuiteCategory = {
   name: 'Server',
   suites: ['ssllabs', 'securityheaders']
 }
 
-export const SeoSuites: {
-  name: string
-  suites: Array<TSuites>
-} = {
+export const SeoSuites: TSuiteCategory = {
   name: 'SEO & Accessibility',
   suites: ['seobility']
 }
 
-export const PerformanceSuites: {
-  name: string
-  suites: Array<TSuites>
-} = {
+export const PerformanceSuites: TSuiteCategory = {
   name: 'Performance',
   suites: ['seobility']
 }
 
-export const OptimizationSuites: {
-  name: string
-  suites: Array<TSuites>
-} = {
+export const OptimizationSuites: TSuiteCategory = {
   name: 'Optimization',
   suites: ['favicon-checker']
 }
@@ -48,7 +36,16 @@ export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
 }
 
 // ==========================================================
-export const getServerSuites: (suites: Array<TSuites>) => Array<TSuites> | null = (
+export const joinSuitesFromResults: (results: Array<TResult>) => Array<TSuites> = (
+  results: Array<TResult>
+) => {
+  const suites: Array<TSuites> = []
+  results.forEach((results: TResult) => suites.push(results.suite))
+  return suites
+}
+
+// ==========================================================
+export const getServerSuites: (suites: Array<TSuites>) => Array<TSuites> = (
   suites: Array<TSuites>
 ) => {
   var serverSuites: Array<TSuites> = []
@@ -56,11 +53,10 @@ export const getServerSuites: (suites: Array<TSuites>) => Array<TSuites> | null 
     if (suite === 'ssllabs' || suite === 'securityheaders') serverSuites.push(suite)
   })
 
-  if (serverSuites.length > 0) return serverSuites
-  else return null
+  return serverSuites
 }
 
-export const getSeoSuites: (suites: Array<TSuites>) => Array<TSuites> | null = (
+export const getSeoSuites: (suites: Array<TSuites>) => Array<TSuites> = (
   suites: Array<TSuites>
 ) => {
   var seoSuites: Array<TSuites> = []
@@ -68,11 +64,10 @@ export const getSeoSuites: (suites: Array<TSuites>) => Array<TSuites> | null = (
     if (suite === 'seobility') seoSuites.push(suite)
   })
 
-  if (seoSuites.length > 0) return seoSuites
-  else return null
+  return seoSuites
 }
 
-export const getPerformanceSuites: (suites: Array<TSuites>) => Array<TSuites> | null = (
+export const getPerformanceSuites: (suites: Array<TSuites>) => Array<TSuites> = (
   suites: Array<TSuites>
 ) => {
   var performanceSuites: Array<TSuites> = []
@@ -80,11 +75,10 @@ export const getPerformanceSuites: (suites: Array<TSuites>) => Array<TSuites> | 
     if (suite === 'seobility') performanceSuites.push(suite)
   })
 
-  if (performanceSuites.length > 0) return performanceSuites
-  else return null
+  return performanceSuites
 }
 
-export const getOptimizationSuites: (suites: Array<TSuites>) => Array<TSuites> | null = (
+export const getOptimizationSuites: (suites: Array<TSuites>) => Array<TSuites> = (
   suites: Array<TSuites>
 ) => {
   var optimizationSuites: Array<TSuites> = []
@@ -92,6 +86,5 @@ export const getOptimizationSuites: (suites: Array<TSuites>) => Array<TSuites> |
     if (suite === 'favicon-checker') optimizationSuites.push(suite)
   })
 
-  if (optimizationSuites.length > 0) return optimizationSuites
-  else return null
+  return optimizationSuites
 }

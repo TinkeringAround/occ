@@ -1,5 +1,8 @@
 import React, { FC, useContext, Fragment, useState, useEffect } from 'react'
-import { Box, Text, TextInput, Heading } from 'grommet'
+import { Box, Text, TextInput } from 'grommet'
+
+// Types
+import { TSuiteCategory } from '../../types/configuration'
 
 // Styles
 import { colors } from '../../styles'
@@ -9,15 +12,15 @@ import reportContext from '../../context/report-context'
 
 // Partials
 import ReportAside from './Partials/aside'
-import Icon from '../../atoms/icons'
 
 // Utility
-import { ServerSuites } from '../../utility/suites'
+import ReportSuites from './Partials/suites'
 
 // ==========================================================
 const Report: FC = () => {
   const { report, updateReportProject } = useContext(reportContext)
   const [project, setProject] = useState<string>('')
+  const [suites, setSuites] = useState<Array<TSuiteCategory> | null>(null)
 
   useEffect(() => {
     if (report != null && project === '') setProject(report.project)
@@ -71,34 +74,15 @@ const Report: FC = () => {
           </Box>
 
           {/* Suites & Aside */}
-          <Box width="100%" margin="3rem 0 .75rem" justify="between" direction="row">
+          <Box
+            height={`calc(${window.innerHeight}px -  17rem)`}
+            width="100%"
+            margin="3rem 0 .75rem"
+            justify="between"
+            direction="row"
+          >
             {/* Suites */}
-            <Box
-              width="70%"
-              height={`calc(${window.innerHeight}px -  17rem)`}
-              direction="row"
-              justify="between"
-              align="end"
-              wrap
-            >
-              <Box
-                width="51%"
-                height="48%"
-                background="white"
-                pad="1rem"
-                style={{ borderRadius: 15 }}
-              >
-                <Box width="100%" direction="row" align="center">
-                  <Icon type="server" color="darkGrey" size="2rem" />
-                  <Heading level="4" size="1.5rem" margin="0 0 0 1rem" color={colors['darkGrey']}>
-                    {ServerSuites.name}
-                  </Heading>
-                </Box>
-              </Box>
-              <Box width="47%" height="48%" background="red" style={{ borderRadius: 15 }} />
-              <Box width="40%" height="48%" background="red" style={{ borderRadius: 15 }} />
-              <Box width="58%" height="48%" background="red" style={{ borderRadius: 15 }} />
-            </Box>
+            <ReportSuites />
 
             {/* Aside */}
             <ReportAside />
