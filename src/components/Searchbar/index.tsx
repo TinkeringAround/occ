@@ -10,7 +10,7 @@ import reportContext from '../../context/report-context'
 
 // Atoms
 import Icon from '../../atoms/icons'
-import SButton from '../../atoms/sbutton'
+import { SButton } from '../../atoms/styled'
 const SBar = styled(Box)<{ mode: 'normal' | 'newReport' }>`
   height: 50px;
   border-radius: 15px;
@@ -80,8 +80,6 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
       <SButton
         height="50px"
         width="50px"
-        justify="center"
-        align="center"
         margin="0 0 0 2rem"
         background={!reportInProgress ? 'white' : colors['lightGrey']}
         onClick={() => {

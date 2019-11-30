@@ -11,7 +11,7 @@ import { colors } from '../../../styles'
 import reportContext from '../../../context/report-context'
 
 // Atoms
-import SButton from '../../../atoms/sbutton'
+import { SButton } from '../../../atoms/styled'
 import Icon from '../../../atoms/icons'
 import Checkbox from '../../../atoms/checkbox'
 
@@ -120,10 +120,6 @@ const Report: FC<Props> = ({ toggleModus }) => {
             <SButton
               background={colors['lightblue']}
               pad="1rem"
-              direction="row"
-              justify="center"
-              align="center"
-              margin={{ top: '1rem' }}
               style={{ maxWidth: 250 }}
               onClick={checkInputAndCreateReport}
             >

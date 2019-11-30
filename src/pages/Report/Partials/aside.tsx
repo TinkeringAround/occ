@@ -5,7 +5,7 @@ import { Box, Text } from 'grommet'
 import { colors } from '../../../styles'
 
 // Atoms
-import SButton from '../../../atoms/sbutton'
+import { SButton } from '../../../atoms/styled'
 import Icon from '../../../atoms/icons'
 
 // ==========================================================
@@ -23,28 +23,13 @@ const ReportAside: React.FC<Props> = () => {
       }}
     >
       <Box>
-        <SButton
-          background={colors['lightblue']}
-          pad="1rem"
-          direction="row"
-          justify="center"
-          align="center"
-          style={{ maxWidth: '100%' }}
-        >
+        <SButton background={colors['lightblue']} pad="1rem">
           <Icon type="open" size="1rem" color="white" margin="0 0.5rem 0 0" />
           <Text size="0.8rem" weight="bold" color="white">
             Export Report
           </Text>
         </SButton>
-        <SButton
-          background={colors['lightblue']}
-          pad="1rem"
-          direction="row"
-          justify="center"
-          align="center"
-          margin={{ top: '0.5rem' }}
-          style={{ maxWidth: '100%' }}
-        >
+        <SButton background={colors['lightblue']} pad="1rem" margin={{ top: '0.5rem' }}>
           <Icon type="trash" size="1rem" color="white" margin="0 0.5rem 0 0" />
           <Text size="0.8rem" weight="bold" color="white">
             Delete Report
