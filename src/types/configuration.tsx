@@ -31,7 +31,14 @@ export type TSuiteCategory = {
   suites: Array<TSuites>
 }
 
-export type TSuites = 'securityheaders' | 'ssllabs' | 'seobility' | 'favicon-checker'
+export type TSuites =
+  | 'securityheaders'
+  | 'ssllabs'
+  | 'seobility'
+  | 'favicon-checker'
+  | 'gtmetrix'
+  | 'hardenize'
+  | 'w-three'
 
 export type TImage = {
   url: string

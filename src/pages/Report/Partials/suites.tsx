@@ -20,13 +20,15 @@ import {
 import ReportSuite from './suite'
 
 // ==========================================================
-interface Props {}
+interface Props {
+  selectedSuites: number
+  setSelectedSuites: (suites: number) => void
+}
 
 // ==========================================================
-const ReportSuites: React.FC<Props> = () => {
+const ReportSuites: React.FC<Props> = ({ selectedSuites, setSelectedSuites }) => {
   const { report } = useContext(reportContext)
   const [suites, setSuites] = useState<TSuiteCategories | null>(null)
-  const [selectedSuites, setSelectedSuites] = useState<number>(0)
 
   useEffect(() => {
     if (report) {

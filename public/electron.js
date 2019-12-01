@@ -7,7 +7,7 @@ const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
 
 // Utlity
-const { checkURL, contains } = require('./utility')
+const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // Consts
 const ROOT_PATH = process.cwd()
@@ -150,6 +150,13 @@ async function createReport(report, suites) {
       console.log('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
 
       if (urlIsValid) {
+        // #region Crawl Subsites
+        const urls = contains(suites, ['w-three', 'achecker', 'w-three-css'])
+          ? await getSiteUrls(url)
+          : []
+        // #endregion
+
+        // #region Default Reports
         // SSL Labs
         if (contains(suites, ['ssllabs'])) {
           const imagePath = await createDefaultReport(
@@ -232,6 +239,81 @@ async function createReport(report, suites) {
           reportResults.push(faviconResult)
         }
 
+        // W-Three HTML Validator
+        if (contains(suites, ['w-three'])) {
+          if (urls != null && urls.length > 0) {
+            const images = []
+            for (const sub of urls) {
+              const subImagePath = await createDefaultReport(
+                'w-three',
+                'https://validator.w3.org/nu/?doc=https%3A%2F%2F' + sub,
+                '#results',
+                true
+              )
+              images.push({
+                url: sub,
+                path: subImagePath
+              })
+            }
+
+            wThreeResult = {
+              url: url,
+              suite: 'w-three',
+              images: images
+            }
+            reportResults.push(wThreeResult)
+          }
+        }
+        // #endregion
+
+        // #region Input Reports
+        // GTMetrix
+        if (contains(suites, ['gtmetrix'])) {
+          const imagePath = await createInputReport(
+            'gtmetrix',
+            url,
+            'https://gtmetrix.com',
+            'input[name=url]',
+            'button[type=submit]',
+            '.page-report'
+          )
+          const getMetrixResults = {
+            url: url,
+            suite: 'gtmetrix',
+            images: [
+              {
+                url: url,
+                path: imagePath
+              }
+            ]
+          }
+          reportResults.push(getMetrixResults)
+        }
+
+        // Hardenize
+        if (contains(suites, ['hardenize'])) {
+          const imagePath = await createInputReport(
+            'hardenize',
+            url,
+            'https://www.hardenize.com',
+            'input[name=host]',
+            '#run',
+            '.report'
+          )
+          const harenizeResults = {
+            url: url,
+            suite: 'hardenize',
+            images: [
+              {
+                url: url,
+                path: imagePath
+              }
+            ]
+          }
+          reportResults.push(harenizeResults)
+        }
+        // #endregion
+
         // Send Update Event to Renderer for Update
         if (mainWindow) {
           console.log('Sending finished Report to Renderer')
@@ -257,7 +339,7 @@ function exportReport(report) {}
 
 // ==========================================================
 // #region SUITES
-async function createDefaultReport(suite, url, selector) {
+async function createDefaultReport(suite, url, selector, chain = false) {
   return new Promise(async resolve => {
     console.log('Creating ' + suite + ' report.')
     try {
@@ -279,6 +361,48 @@ async function createDefaultReport(suite, url, selector) {
         quality: 70,
         fullPage: true
       })
+
+      // Wait if chain
+      if (chain) await page.waitFor(2500)
+
+      console.log(`Saved to file ${path}`)
+      resolve(path)
+    } catch (error) {
+      console.log('An Error occured creating ' + suite + ' report. ' + error)
+      resolve(null)
+    }
+  })
+}
+
+async function createInputReport(suite, url, testURL, input, click, selector, chain = false) {
+  return new Promise(async resolve => {
+    console.log('Creating ' + suite + ' input report.')
+    try {
+      // Load URL
+      await puppeteerWindow.loadURL(testURL, { waitUntil: 'networkidel0', timeout: TIMEOUT })
+
+      // Get Page Object
+      const page = await pie.getPage(browser, puppeteerWindow)
+
+      // Enter URL and Press Button
+      await page.type(input, url, { delay: 100 })
+      await page.click(click)
+
+      // Wait for Selector
+      await page.waitForSelector(selector, { timeout: TIMEOUT }) // timeout: 5 Minutes
+      await page.waitFor(1000)
+
+      // Take screenshot
+      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+      await page.screenshot({
+        path: path,
+        type: 'jpeg',
+        quality: 70,
+        fullPage: true
+      })
+
+      // Wait if chain
+      if (chain) await page.waitFor(2500)
 
       console.log(`Saved to file ${path}`)
       resolve(path)

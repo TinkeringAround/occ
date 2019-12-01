@@ -12,35 +12,41 @@ import { SButton } from '../../../atoms/styled'
 import Icon from '../../../atoms/icons'
 
 // ==========================================================
-interface Props {}
+interface Props {
+  selectedSuites: number
+}
 
 // ==========================================================
-const ReportAside: FC<Props> = () => {
+const ReportAside: FC<Props> = ({ selectedSuites }) => {
   const { report, deleteReport } = useContext(reportContext)
+
+  const exportReport = () => {
+    console.log('Selected Suites:', selectedSuites)
+  }
 
   return (
     <Box height="inherit" width="25%" justify="end">
-      <Box>
-        <SButton background={colors['lightblue']} pad="1rem">
-          <Icon type="download" size="1rem" color="white" margin="0 0.5rem 0 0" />
-          <Text size="0.8rem" weight="bold" color="white">
-            Export to Disk
-          </Text>
-        </SButton>
-        <SButton
-          background={colors['lightblue']}
-          pad="1rem"
-          margin={{ top: '0.5rem' }}
-          onClick={() => {
-            if (report) deleteReport(report)
-          }}
-        >
-          <Icon type="trash" size="1rem" color="white" margin="0 0.5rem 0 0" />
-          <Text size="0.8rem" weight="bold" color="white">
-            Delete Report
-          </Text>
-        </SButton>
-      </Box>
+      {report != null && (
+        <Box>
+          <SButton background={colors['lightblue']} pad="1rem" onClick={exportReport}>
+            <Icon type="download" size="1rem" color="white" margin="0 0.5rem 0 0" />
+            <Text size="0.8rem" weight="bold" color="white">
+              Export to Disk
+            </Text>
+          </SButton>
+          <SButton
+            background={colors['lightblue']}
+            pad="1rem"
+            margin={{ top: '0.5rem' }}
+            onClick={() => deleteReport(report)}
+          >
+            <Icon type="trash" size="1rem" color="white" margin="0 0.5rem 0 0" />
+            <Text size="0.8rem" weight="bold" color="white">
+              Delete Report
+            </Text>
+          </SButton>
+        </Box>
+      )}
     </Box>
   )
 }

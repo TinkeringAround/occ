@@ -14,12 +14,12 @@ export const SeoSuites: TSuiteCategory = {
 
 export const PerformanceSuites: TSuiteCategory = {
   name: 'Performance',
-  suites: ['seobility']
+  suites: ['gtmetrix', 'hardenize']
 }
 
 export const OptimizationSuites: TSuiteCategory = {
   name: 'Optimization',
-  suites: ['favicon-checker']
+  suites: ['favicon-checker', 'w-three']
 }
 // ==========================================================
 export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
@@ -30,8 +30,14 @@ export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
       return 'Security Headers'
     case 'seobility':
       return 'Seobility'
+    case 'gtmetrix':
+      return 'GTMetrix'
+    case 'hardenize':
+      return 'Hardenize'
     case 'favicon-checker':
       return 'Favicon-Checker'
+    case 'w-three':
+      return 'W3 HTML Validation'
   }
 }
 
@@ -72,7 +78,7 @@ export const getPerformanceSuites: (suites: Array<TSuites>) => Array<TSuites> = 
 ) => {
   var performanceSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'seobility') performanceSuites.push(suite)
+    if (suite === 'gtmetrix' || suite === 'hardenize') performanceSuites.push(suite)
   })
 
   return performanceSuites
@@ -83,7 +89,7 @@ export const getOptimizationSuites: (suites: Array<TSuites>) => Array<TSuites> =
 ) => {
   var optimizationSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'favicon-checker') optimizationSuites.push(suite)
+    if (suite === 'favicon-checker' || suite === 'w-three') optimizationSuites.push(suite)
   })
 
   return optimizationSuites

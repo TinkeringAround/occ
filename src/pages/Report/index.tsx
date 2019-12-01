@@ -1,8 +1,7 @@
 import React, { FC, useContext, Fragment, useState, useEffect } from 'react'
 import { Box, Text, TextInput } from 'grommet'
-
-// Types
-import { TSuiteCategory } from '../../types/configuration'
+import { FillSpinner } from 'react-spinners-kit'
+import { PoseGroup } from 'react-pose'
 
 // Styles
 import { colors } from '../../styles'
@@ -13,6 +12,9 @@ import reportContext from '../../context/report-context'
 // Partials
 import ReportAside from './Partials/aside'
 
+// Atoms
+import { AProgressIndicator } from '../../atoms/animations'
+
 // Utility
 import ReportSuites from './Partials/suites'
 
@@ -20,7 +22,7 @@ import ReportSuites from './Partials/suites'
 const Report: FC = () => {
   const { report, updateReportProject } = useContext(reportContext)
   const [project, setProject] = useState<string>('')
-  const [suites, setSuites] = useState<Array<TSuiteCategory> | null>(null)
+  const [selectedSuites, setSelectedSuites] = useState<number>(0)
 
   useEffect(() => {
     if (report != null && project === '') setProject(report.project)
@@ -30,6 +32,18 @@ const Report: FC = () => {
     <Box pad="2rem" style={{ position: 'relative' }}>
       {report != null && (
         <Fragment>
+          {/* Running Icon */}
+          <PoseGroup flipMove={false} preEnterPose="exit">
+            {report.progress !== true && (
+              <AProgressIndicator key="Report-ProgressIndicator">
+                <FillSpinner size={1.25} sizeUnit="rem" color="white" />
+                <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
+                  In Progress...
+                </Text>
+              </AProgressIndicator>
+            )}
+          </PoseGroup>
+
           {/* Heading */}
           <Box width="70%">
             <Box width="100%" style={{ position: 'relative' }}>
@@ -44,28 +58,8 @@ const Report: FC = () => {
                   padding: 0,
                   transition: 'all 0.25s ease'
                 }}
+                onBlur={() => updateReportProject(report, project)}
               />
-              <Box
-                height="2rem"
-                background={colors['lightblue']}
-                justify="center"
-                align="center"
-                pad="1rem"
-                style={{
-                  position: 'absolute',
-                  cursor: 'pointer',
-                  top: '-2rem',
-                  right: '-4rem',
-                  borderRadius: 15,
-                  transition: 'all 0.25s ease',
-                  opacity: report.project !== project ? 1 : 0
-                }}
-                onClick={() => updateReportProject(report, project)}
-              >
-                <Text size=".8rem" weight="bold" color="white">
-                  Save Changes
-                </Text>
-              </Box>
             </Box>
 
             <Text margin={{ left: '0.25rem' }} color={colors['grey']} size="1.5rem" truncate>
@@ -82,10 +76,10 @@ const Report: FC = () => {
             direction="row"
           >
             {/* Suites */}
-            <ReportSuites />
+            <ReportSuites selectedSuites={selectedSuites} setSelectedSuites={setSelectedSuites} />
 
             {/* Aside */}
-            <ReportAside />
+            <ReportAside selectedSuites={selectedSuites} />
           </Box>
         </Fragment>
       )}

@@ -62,19 +62,31 @@ const App: FC = () => {
     }
   ) => {
     if (configuration) {
-      const { report, results } = arg
+      const { report: updatedReport, results } = arg
       const index = configuration.reports.findIndex(
-        x => x.date === report.date && x.project === report.project && x.url === report.url
+        x =>
+          x.date === updatedReport.date &&
+          x.project === updatedReport.project &&
+          x.url === updatedReport.url
       )
       if (index >= 0) {
         var newReports: Array<TReport> = Array.from(configuration.reports)
         newReports[index] = {
           ...newReports[index],
-          progress: report.progress,
+          progress: updatedReport.progress,
           results: results
         }
 
-        if (report.progress === true) setReportInProgress(false)
+        if (
+          report != null &&
+          report.url === updatedReport.url &&
+          report.date === updatedReport.date &&
+          report.project === updatedReport.project
+        ) {
+          setReport(newReports[index])
+        }
+
+        if (updatedReport.progress === true) setReportInProgress(false)
         setConfiguration({
           ...configuration,
           reports: newReports

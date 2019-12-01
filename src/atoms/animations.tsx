@@ -2,6 +2,9 @@ import posed from 'react-pose'
 import { Box } from 'grommet'
 import styled from 'styled-components'
 
+// Styles
+import { colors } from '../styles'
+
 // ===================================================================
 const SBox = styled(Box)`
   position: relative;
@@ -66,4 +69,26 @@ export const ASubPage = posed(SSubPage)({
     opacity: 1,
     delay: (props: any) => (props.delay ? props.delay : 500)
   }
+})
+
+// ===================================================================
+const SProgressIndicator = styled(Box)`
+  position: absolute;
+  top: 0;
+  right: 0;
+
+  width: 200px;
+  height: 40px;
+
+  background: ${colors['lightblue']};
+  border-radius: 15px;
+
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+`
+
+export const AProgressIndicator = posed(SProgressIndicator)({
+  exit: { opactiy: 0, x: 200, transition: { duration: 500 } },
+  enter: { opactiy: 1, x: 0, transition: { duration: 500 } }
 })
