@@ -19,7 +19,7 @@ const ReportAside: FC<Props> = () => {
   const { report, deleteReport } = useContext(reportContext)
 
   return (
-    <Box width="25%" justify="end">
+    <Box height="inherit" width="25%" justify="end">
       <Box>
         <SButton background={colors['lightblue']} pad="1rem">
           <Icon type="download" size="1rem" color="white" margin="0 0.5rem 0 0" />

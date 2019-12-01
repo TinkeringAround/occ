@@ -46,6 +46,7 @@ const Navigation: FC = () => {
         direction="row"
         align="center"
         justify="center"
+        style={{ minWidth: '75px' }}
       >
         <Text size="1rem" weight="bold">
           Logo

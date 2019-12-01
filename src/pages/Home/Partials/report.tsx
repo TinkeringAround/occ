@@ -85,6 +85,40 @@ const Report: FC<Props> = ({ toggleModus }) => {
     setOptimizationSuites([false])
   }
 
+  // ==========================================================
+  const toggleServer = () => {
+    const allAreTrue = allTrue(serverSuites)
+    let newServerSuites = Array.from(serverSuites)
+    for (let index = 0; index < newServerSuites.length; index++) {
+      newServerSuites[index] = !allAreTrue
+    }
+    setServerSuites(newServerSuites)
+  }
+  const toggleSeo = () => {
+    const allAreTrue = allTrue(seoSuites)
+    let newSeoSuites = Array.from(seoSuites)
+    for (let index = 0; index < newSeoSuites.length; index++) {
+      newSeoSuites[index] = !allAreTrue
+    }
+    setSeoSuites(newSeoSuites)
+  }
+  const togglePerformance = () => {
+    const allAreTrue = allTrue(performanceSuites)
+    let newPerformanceSuites = Array.from(performanceSuites)
+    for (let index = 0; index < newPerformanceSuites.length; index++) {
+      newPerformanceSuites[index] = !allAreTrue
+    }
+    setPerformanceSuites(newPerformanceSuites)
+  }
+  const toggleOptimization = () => {
+    const allAreTrue = allTrue(optimizationSuites)
+    let newOptimizationSuites = Array.from(optimizationSuites)
+    for (let index = 0; index < newOptimizationSuites.length; index++) {
+      newOptimizationSuites[index] = !allAreTrue
+    }
+    setOptimizationSuites(newOptimizationSuites)
+  }
+
   return (
     <Box width="100%" pad="0 2rem" direction="row" justify="between">
       {/* Formular */}
@@ -143,25 +177,26 @@ const Report: FC<Props> = ({ toggleModus }) => {
       >
         <Box justify="between" pad="1rem">
           {/* Server Suites */}
-          <Box margin="0 0 1.5rem">
-            <Heading
-              level="6"
-              size="1.5rem"
-              margin="0 0 0.5rem"
-              truncate
-              color={allTrue(serverSuites) ? colors['lightblue'] : colors['darkGrey']}
-              onClick={() => {
-                const allAreTrue = allTrue(serverSuites)
-                let newServerSuites = Array.from(serverSuites)
-                for (let index = 0; index < newServerSuites.length; index++) {
-                  newServerSuites[index] = !allAreTrue
-                }
-                setServerSuites(newServerSuites)
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              {ServerSuites.name}
-            </Heading>
+          <Box margin="0 0 2.5rem">
+            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
+              <Icon
+                type="server"
+                color={allTrue(serverSuites) ? 'lightblue' : 'darkGrey'}
+                size="2rem"
+                onClick={toggleServer}
+              />
+              <Heading
+                level="6"
+                size="1.5rem"
+                margin="0 0 0 0.5rem"
+                truncate
+                color={allTrue(serverSuites) ? colors['lightblue'] : colors['darkGrey']}
+                onClick={toggleServer}
+                style={{ cursor: 'pointer' }}
+              >
+                {ServerSuites.name}
+              </Heading>
+            </Box>
             {ServerSuites.suites.map((suite: TSuites, index: number) => (
               <Checkbox
                 key={'NewReport-ServerSuites-' + index}
@@ -178,24 +213,25 @@ const Report: FC<Props> = ({ toggleModus }) => {
 
           {/* Seo Suites */}
           <Box>
-            <Heading
-              level="6"
-              size="1.5rem"
-              margin="0 0 0.5rem"
-              truncate
-              color={allTrue(seoSuites) ? colors['lightblue'] : colors['darkGrey']}
-              onClick={() => {
-                const allAreTrue = allTrue(seoSuites)
-                let newSeoSuites = Array.from(seoSuites)
-                for (let index = 0; index < newSeoSuites.length; index++) {
-                  newSeoSuites[index] = !allAreTrue
-                }
-                setSeoSuites(newSeoSuites)
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              {SeoSuites.name}
-            </Heading>
+            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
+              <Icon
+                type="accessibility"
+                color={allTrue(seoSuites) ? 'lightblue' : 'darkGrey'}
+                size="2rem"
+                onClick={toggleSeo}
+              />
+              <Heading
+                level="6"
+                size="1.5rem"
+                margin="0 0 0 0.5rem"
+                truncate
+                color={allTrue(seoSuites) ? colors['lightblue'] : colors['darkGrey']}
+                onClick={toggleSeo}
+                style={{ cursor: 'pointer' }}
+              >
+                {SeoSuites.name}
+              </Heading>
+            </Box>
             {SeoSuites.suites.map((suite: TSuites, index: number) => (
               <Checkbox
                 key={'NewReport-SeoSuites-' + index}
@@ -214,24 +250,25 @@ const Report: FC<Props> = ({ toggleModus }) => {
         <Box justify="between" pad="1rem">
           {/* Performance Suites */}
           <Box margin="0 0 1.5rem">
-            <Heading
-              level="6"
-              size="1.5rem"
-              margin="0 0 0.5rem"
-              truncate
-              color={allTrue(performanceSuites) ? colors['lightblue'] : colors['darkGrey']}
-              onClick={() => {
-                const allAreTrue = allTrue(performanceSuites)
-                let newPerformanceSuites = Array.from(performanceSuites)
-                for (let index = 0; index < newPerformanceSuites.length; index++) {
-                  newPerformanceSuites[index] = !allAreTrue
-                }
-                setPerformanceSuites(newPerformanceSuites)
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              {PerformanceSuites.name}
-            </Heading>
+            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
+              <Icon
+                type="tacho"
+                color={allTrue(performanceSuites) ? 'lightblue' : 'darkGrey'}
+                size="2rem"
+                onClick={togglePerformance}
+              />
+              <Heading
+                level="6"
+                size="1.5rem"
+                margin="0 0 0 0.5rem"
+                truncate
+                color={allTrue(performanceSuites) ? colors['lightblue'] : colors['darkGrey']}
+                onClick={togglePerformance}
+                style={{ cursor: 'pointer' }}
+              >
+                {PerformanceSuites.name}
+              </Heading>
+            </Box>
             {PerformanceSuites.suites.map((suite: TSuites, index: number) => (
               <Checkbox
                 key={'NewReport-PerfomraneSuites-' + index}
@@ -248,24 +285,25 @@ const Report: FC<Props> = ({ toggleModus }) => {
 
           {/* Optimization Suites */}
           <Box>
-            <Heading
-              level="6"
-              size="1.5rem"
-              margin="0 0 0.5rem"
-              truncate
-              color={allTrue(optimizationSuites) ? colors['lightblue'] : colors['darkGrey']}
-              onClick={() => {
-                const allAreTrue = allTrue(optimizationSuites)
-                let newOptimizationSuites = Array.from(optimizationSuites)
-                for (let index = 0; index < newOptimizationSuites.length; index++) {
-                  newOptimizationSuites[index] = !allAreTrue
-                }
-                setOptimizationSuites(newOptimizationSuites)
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              {OptimizationSuites.name}
-            </Heading>
+            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
+              <Icon
+                type="zip"
+                color={allTrue(optimizationSuites) ? 'lightblue' : 'darkGrey'}
+                size="2rem"
+                onClick={toggleOptimization}
+              />
+              <Heading
+                level="6"
+                size="1.5rem"
+                margin="0 0 0 0.5rem"
+                truncate
+                color={allTrue(optimizationSuites) ? colors['lightblue'] : colors['darkGrey']}
+                onClick={toggleOptimization}
+                style={{ cursor: 'pointer' }}
+              >
+                {OptimizationSuites.name}
+              </Heading>
+            </Box>
             {OptimizationSuites.suites.map((suite: TSuites, index: number) => (
               <Checkbox
                 key={'NewReport-OptimizationSuites-' + index}

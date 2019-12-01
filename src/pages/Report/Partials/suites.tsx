@@ -45,7 +45,7 @@ const ReportSuites: React.FC<Props> = () => {
   }, [report])
 
   return (
-    <Box width="70%" height="100%" direction="row" justify="between" align="end" wrap>
+    <Box width="70%" height="inherit" justify="between" wrap>
       {/* Server Suites */}
       {suites && (
         <ReportSuite

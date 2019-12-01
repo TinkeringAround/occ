@@ -38,17 +38,12 @@ const Checkbox: FC<Props> = ({
     <Box
       width={size}
       height={size}
-      background="transparent"
+      background={checked ? colors['lightblue'] : colors['darkGrey']}
       justify="center"
       align="center"
-      pad="1px"
-      style={{
-        transition: 'all 0.25s ease',
-        border: 'solid 2px ' + (checked ? colors['lightblue'] : colors['lightGrey']),
-        borderRadius: 5
-      }}
+      style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
     >
-      <Icon type={checked ? 'check' : null} color="lightblue" size="70%" />
+      <Icon size="0.5rem" type={checked ? 'check' : null} color={checked ? 'white' : 'darkGrey'} />
     </Box>
 
     <Text

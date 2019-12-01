@@ -1,4 +1,4 @@
-import React, { FC } from 'react'
+import React, { FC, Fragment } from 'react'
 import { Box, Heading, Text } from 'grommet'
 import styled from 'styled-components'
 
@@ -44,30 +44,54 @@ interface Props {
 
 // ==========================================================
 const ReportSuite: FC<Props> = ({ selected, toggle, iconType, suites, type }) => (
-  <Suite width="46%" height="48%" selected={selected} onClick={() => toggle(!selected)}>
-    <Box width="100%" direction="row" align="center" margin={{ bottom: '1rem' }}>
-      <Icon type={iconType} color={selected ? 'white' : 'darkGrey'} size="2rem" />
-      <Heading
-        level="4"
-        size="1.5rem"
-        margin="0 0 0 1rem"
-        color={selected ? 'white' : colors['darkGrey']}
-      >
-        {type === 'server' && ServerSuites.name}
-        {type === 'seo' && SeoSuites.name}
-        {type === 'performance' && PerformanceSuites.name}
-        {type === 'optimization' && OptimizationSuites.name}
-      </Heading>
-    </Box>
-    {suites.map((suite: TSuites, index: number) => (
-      <Text
-        key={'Report-Server-' + index}
-        size="0.8rem"
-        color={selected ? 'white' : colors['grey']}
-      >
-        {getSuiteName(suite)}
-      </Text>
-    ))}
-  </Suite>
+  <Fragment>
+    {suites.length > 0 ? (
+      <Suite width="45%" height="48%" selected={selected} onClick={() => toggle(!selected)}>
+        <Box width="100%" direction="row" align="center" margin={{ bottom: '1rem' }}>
+          <Icon type={iconType} color={selected ? 'white' : 'darkGrey'} size="2rem" />
+          <Heading
+            level="4"
+            size="1.5rem"
+            margin="0 0 0 1rem"
+            color={selected ? 'white' : colors['darkGrey']}
+          >
+            {type === 'server' && ServerSuites.name}
+            {type === 'seo' && SeoSuites.name}
+            {type === 'performance' && PerformanceSuites.name}
+            {type === 'optimization' && OptimizationSuites.name}
+          </Heading>
+        </Box>
+        {suites.map((suite: TSuites, index: number) => (
+          <Box
+            key={'Report-Server-' + index}
+            direction="row"
+            align="center"
+            margin={{ bottom: '.5rem' }}
+          >
+            <Box
+              width="1rem"
+              height="1rem"
+              background={selected ? 'white' : colors['darkGrey']}
+              justify="center"
+              align="center"
+              style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
+            >
+              <Icon size="0.5rem" type="check" color={selected ? 'lightblue' : 'white'} />
+            </Box>
+            <Text
+              size="0.9rem"
+              weight="bold"
+              margin={{ left: '.5rem' }}
+              color={selected ? 'white' : colors['grey']}
+            >
+              {getSuiteName(suite)}
+            </Text>
+          </Box>
+        ))}
+      </Suite>
+    ) : (
+      <></>
+    )}
+  </Fragment>
 )
 export default ReportSuite
