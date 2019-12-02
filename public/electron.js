@@ -24,6 +24,11 @@ var config = {
   },
   reports: []
 }
+var processedReport = null
+var processedSuites = []
+var processedURLS = []
+var processedResults = []
+var processedProgress = 0
 
 function saveConfigurationToDisk() {
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
@@ -143,224 +148,129 @@ ipcMain.on('createReport', (event, report, suites) => createReport(report, suite
 async function createReport(report, suites) {
   if (report && suites && browser && puppeteerWindow) {
     try {
-      const { url } = report
-      const reportResults = []
+      processedReport = report
+      const { url } = processedReport
+      processedSuites = suites
 
       const urlIsValid = await checkURL(url)
       console.log('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
 
       if (urlIsValid) {
-        // #region Crawl Subsites
-        const urls = contains(suites, ['w-three', 'achecker', 'w-three-css'])
+        // #region Crawl Subsites & Setup Progressing Variables
+        processedURLS = contains(suites, ['w-three', 'achecker', 'w-three-css'])
           ? await getSiteUrls(url)
           : []
+        processedResults = []
+        processedProgress = 0
         // #endregion
 
         // #region Default Reports
         // SSL Labs
         if (contains(suites, ['ssllabs'])) {
-          const imagePath = await createDefaultReport(
-            'ssllabs',
-            'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
-            '#rating'
-          )
-          const ssllabsResult = {
-            url: url,
+          __result = await createSimpleSuiteResult('normal', {
             suite: 'ssllabs',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(ssllabsResult)
+            testURL: 'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
+            selector: '#rating'
+          })
         }
 
         // Security Headers
         if (contains(suites, ['securityheaders'])) {
-          const imagePath = await createDefaultReport(
-            'securityheaders',
-            'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
-            '.reportBody'
-          )
-          const securityHeadersResult = {
-            url: url,
+          __result = await createSimpleSuiteResult('normal', {
             suite: 'securityheaders',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(securityHeadersResult)
+            testURL: 'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
+            selector: '.reportBody'
+          })
         }
 
         // Seobility
         if (contains(suites, ['seobility'])) {
-          const imagePath = await createDefaultReport(
-            'seobility',
-            'https://freetools.seobility.net/de/seocheck/' + url,
-            '#quickform'
-          )
-          const seobilityResult = {
-            url: url,
+          __result = await createSimpleSuiteResult('normal', {
             suite: 'seobility',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(seobilityResult)
+            testURL: 'https://freetools.seobility.net/de/seocheck/' + url,
+            selector: '#quickform'
+          })
         }
 
         // Favicon-Checker
         if (contains(suites, ['favicon-checker'])) {
-          const imagePath = await createDefaultReport(
-            'favicon-checker',
-            'https://realfavicongenerator.net/favicon_checker?protocol=https&site=' +
+          __result = await createSimpleSuiteResult('normal', {
+            suite: 'favicon-checker',
+            testURL:
+              'https://realfavicongenerator.net/favicon_checker?protocol=https&site=' +
               url +
               '#.XWju45MzZhE',
-            '.alert'
-          )
-          const faviconResult = {
-            url: url,
-            suite: 'favicon-checker',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(faviconResult)
+            selector: '.alert'
+          })
         }
 
         // W-Three HTML Validator
         if (contains(suites, ['w-three'])) {
-          if (urls != null && urls.length > 0) {
-            const images = []
-            for (const sub of urls) {
-              const subImagePath = await createDefaultReport(
-                'w-three',
-                'https://validator.w3.org/nu/?doc=https%3A%2F%2F' + sub,
-                '#results',
-                true
-              )
-              images.push({
-                url: sub,
-                path: subImagePath
-              })
-            }
-
-            wThreeResult = {
-              url: url,
-              suite: 'w-three',
-              images: images
-            }
-            reportResults.push(wThreeResult)
-          }
+          __result = await createChainedSuiteResult('normal', {
+            suite: 'w-three',
+            testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
+            selector: '#results'
+          })
         }
         // #endregion
 
         // #region Input Reports
         // GTMetrix
         if (contains(suites, ['gtmetrix'])) {
-          const imagePath = await createInputReport(
-            'gtmetrix',
-            url,
-            'https://gtmetrix.com',
-            'input[name=url]',
-            'button[type=submit]',
-            '.page-report'
-          )
-          const getMetrixResults = {
-            url: url,
+          __result = await createSimpleSuiteResult('input', {
             suite: 'gtmetrix',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(getMetrixResults)
+            testURL: 'https://gtmetrix.com',
+            input: 'input[name=url]',
+            click: 'button[type=submit]',
+            selector: '.page-report'
+          })
         }
 
         // Hardenize
         if (contains(suites, ['hardenize'])) {
-          const imagePath = await createInputReport(
-            'hardenize',
-            url,
-            'https://www.hardenize.com',
-            'input[name=host]',
-            '#run',
-            '.report'
-          )
-          const harenizeResults = {
-            url: url,
+          __result = await createSimpleSuiteResult('input', {
             suite: 'hardenize',
-            images: [
-              {
-                url: url,
-                path: imagePath
-              }
-            ]
-          }
-          reportResults.push(harenizeResults)
+            testURL: 'https://www.hardenize.com',
+            input: 'input[name=host]',
+            click: '#run',
+            selector: '.report'
+          })
         }
 
         // AChecker
         if (contains(suites, ['achecker'])) {
-          if (urls != null && urls.length > 0) {
-            const images = []
-            for (const sub of urls) {
-              const subImagePath = await createInputReport(
-                'achecker',
-                'https://' + sub,
-                'https://achecker.ca/checker/index.php',
-                'input[name=uri]',
-                '.validation_button',
-                '#AC_errors',
-                true
-              )
-              images.push({
-                url: sub,
-                path: subImagePath
-              })
-            }
-
-            acheckerResult = {
-              url: url,
-              suite: 'achecker',
-              images: images
-            }
-            reportResults.push(acheckerResult)
-          }
+          __result = await createChainedSuiteResult('input', {
+            suite: 'achecker',
+            testURL: 'https://achecker.ca/checker/index.php',
+            input: 'input[name=uri]',
+            click: '.validation_button',
+            selector: '#AC_errors'
+          })
         }
         // #endregion
 
-        // Send Update Event to Renderer for Update
-        if (mainWindow) {
-          console.log('Sending finished Report to Renderer')
-          mainWindow.webContents.send('updateReport', {
-            report: {
-              ...report,
-              progress: true
-            },
-            results: reportResults
-          })
-        }
+        // Send Final Update Event to Renderer
+        updateReportProgress(processedReport, true, processedResults)
       }
-      return null
     } catch (error) {
       // Evtl. close page
-      return false
+      console.log('An error occured during creating the Report:', error)
+      updateReportProgress(processedReport, false, processedResults)
     }
-  } else return null
+  }
+}
+
+function updateReportProgress(report, progress, results) {
+  if (mainWindow) {
+    console.log('Sending Report Update to Renderer')
+    mainWindow.webContents.send('updateReport', {
+      report: {
+        ...report,
+        progress: progress
+      },
+      results: results
+    })
+  }
 }
 
 function exportReport(report) {}
@@ -368,6 +278,90 @@ function exportReport(report) {}
 
 // ==========================================================
 // #region SUITES
+async function createSimpleSuiteResult(type = 'normal', data) {
+  const { suite, testURL, selector, input, click } = data
+  const { url } = processedReport
+  let imagePath = null
+
+  // Create Report
+  if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
+  else if ('input') imagePath = await createInputReport(suite, url, testURL, input, click, selector)
+
+  // Push Report to Results
+  processedResults.push({
+    url: url,
+    suite: suite,
+    images: [{ url: url, path: imagePath }]
+  })
+
+  // Update
+  processedProgress += 1
+  updateReportProgress(
+    processedReport,
+    ~~((processedProgress / processedSuites.length) * 100),
+    processedResults
+  )
+
+  // Return
+  return true
+}
+
+async function createChainedSuiteResult(type = 'normal', data) {
+  const { suite, testURL, selector, input, click } = data
+  const { url } = processedReport
+  let images = []
+
+  // Create Report
+  if (type == 'normal') {
+    for (const sub of processedURLS) {
+      const subImagePath = await createDefaultReport(
+        suite,
+        testURL.replace('SUBURL', sub),
+        selector,
+        true
+      )
+      images.push({
+        url: sub,
+        path: subImagePath
+      })
+    }
+  } else if (type == 'input') {
+    for (const sub of processedURLS) {
+      const subImagePath = await createInputReport(
+        suite,
+        sub,
+        testURL,
+        input,
+        click,
+        selector,
+        true
+      )
+      images.push({
+        url: sub,
+        path: subImagePath
+      })
+    }
+  }
+
+  // Push Report to Results
+  processedResults.push({
+    url: url,
+    suite: suite,
+    images: images
+  })
+
+  // Update
+  processedProgress += 1
+  updateReportProgress(
+    processedReport,
+    ~~((processedProgress / processedSuites.length) * 100),
+    processedResults
+  )
+
+  // Return
+  return true
+}
+
 async function createDefaultReport(suite, url, selector, chain = false) {
   return new Promise(async resolve => {
     console.log('Creating ' + suite + ' report.')
@@ -379,6 +373,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       const page = await pie.getPage(browser, puppeteerWindow)
 
       // Wait for Selector
+      await page.waitFor(1000)
       await page.waitForSelector(selector, { timeout: TIMEOUT }) // timeout: 5 Minutes
       await page.waitFor(1000)
 
@@ -391,7 +386,8 @@ async function createDefaultReport(suite, url, selector, chain = false) {
         fullPage: true
       })
 
-      // Wait if chain
+      // Wait
+      await page.waitFor(1000)
       if (chain) await page.waitFor(2500)
 
       console.log(`Saved to file ${path}`)
@@ -414,10 +410,12 @@ async function createInputReport(suite, url, testURL, input, click, selector, ch
       const page = await pie.getPage(browser, puppeteerWindow)
 
       // Enter URL and Press Button
+      await page.waitFor(1000)
       await page.type(input, url, { delay: 100 })
       await page.click(click)
 
       // Wait for Selector
+      await page.waitFor(1000)
       await page.waitForSelector(selector, { timeout: TIMEOUT }) // timeout: 5 Minutes
       await page.waitFor(1000)
 
@@ -430,7 +428,8 @@ async function createInputReport(suite, url, testURL, input, click, selector, ch
         fullPage: true
       })
 
-      // Wait if chain
+      // Wait
+      await page.waitFor(1000)
       if (chain) await page.waitFor(2500)
 
       console.log(`Saved to file ${path}`)
