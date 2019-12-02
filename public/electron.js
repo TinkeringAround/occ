@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const isDev = require('electron-is-dev')
@@ -152,6 +152,7 @@ ipcMain.on('updateConfig', (event, newConfig) => {
 })
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
+ipcMain.on('exportReport', (event, report, suites, type) => exportReport(report, suites, type))
 ipcMain.on('closeWindow', () => {
   if (mainWindow) mainWindow.destroy()
 })
@@ -290,7 +291,23 @@ function updateReportProgress(report, progress, results) {
   }
 }
 
-function exportReport(report) {}
+function exportReport(report, suites, pdf = false) {
+  const path = dialog.showSaveDialogSync(mainWindow)
+  if (path) {
+    console.log('Dialog-Result:', path)
+
+    fs.writeFileSync(path + '.txt', 'Hello World')
+
+    // TODO: make zip folder
+    // TODO: Add Images
+
+    if (pdf) {
+      // TODO: Create PDF and add to folder
+    }
+
+    // TODO: Save to path
+  }
+}
 
 function cancelReport(report) {
   if (

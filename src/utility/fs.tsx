@@ -31,3 +31,11 @@ export const cancelProcessedReportInMain: (report: TReport) => void = async (rep
   // @ts-ignore
   window.electron.ipcRenderer.send('cancelReport', report)
 }
+
+export const exportReportInMain: (report: TReport, suites: Array<TSuites>) => void = (
+  report: TReport,
+  suites: Array<TSuites>
+) => {
+  // @ts-ignore
+  window.electron.ipcRenderer.send('exportReport', report, suites, 'zip')
+}

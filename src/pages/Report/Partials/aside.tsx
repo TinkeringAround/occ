@@ -1,6 +1,9 @@
 import React, { FC, useContext } from 'react'
 import { Box, Text } from 'grommet'
 
+// Types
+import { TSuites } from '../../../types'
+
 // Styles
 import { colors } from '../../../styles'
 
@@ -10,6 +13,15 @@ import reportContext from '../../../context/report-context'
 // Atoms
 import { SButton } from '../../../atoms/styled'
 import Icon from '../../../atoms/icons'
+
+// Utility
+import {
+  getServerSuites,
+  joinSuitesFromResults,
+  getSeoSuites,
+  getPerformanceSuites,
+  getOptimizationSuites
+} from '../../../utility/suites'
 
 // ==========================================================
 interface Props {
@@ -21,17 +33,39 @@ interface Props {
 
 // ==========================================================
 const ReportAside: FC<Props> = ({ selectedSuites, cancelled, reportIsRunning, cancelReport }) => {
-  const { report, deleteReport } = useContext(reportContext)
+  const { report, deleteReport, exportReport } = useContext(reportContext)
 
-  const exportReport = () => {
-    console.log('Selected Suites:', selectedSuites)
+  const exportSelectedSuitesOfReport = () => {
+    if (report) {
+      const reportSuites = joinSuitesFromResults(report.results)
+      var exportSuites: Array<TSuites> = []
+
+      if ((selectedSuites & 0x0001) === 0x0001)
+        exportSuites = [...exportSuites, ...getServerSuites(reportSuites)]
+
+      if ((selectedSuites & 0x0010) === 0x0010)
+        exportSuites = [...exportSuites, ...getSeoSuites(reportSuites)]
+
+      if ((selectedSuites & 0x0100) === 0x0100)
+        exportSuites = [...exportSuites, ...getPerformanceSuites(reportSuites)]
+
+      if ((selectedSuites & 0x1000) === 0x1000)
+        exportSuites = [...exportSuites, ...getOptimizationSuites(reportSuites)]
+
+      console.log('ExportSuites:', exportSuites)
+      exportReport(report, exportSuites)
+    }
   }
 
   return (
     <Box height="inherit" width="25%" justify="end">
       {report != null && (
         <Box>
-          <SButton background={colors['lightblue']} pad="1rem" onClick={exportReport}>
+          <SButton
+            background={colors['lightblue']}
+            pad="1rem"
+            onClick={exportSelectedSuitesOfReport}
+          >
             <Icon type="download" size="1rem" color="white" margin="0 0.5rem 0 0" />
             <Text size="0.8rem" weight="bold" color="white">
               Export to Disk

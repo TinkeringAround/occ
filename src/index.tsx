@@ -35,7 +35,8 @@ import {
   updateConfigInMain,
   createReportInMain,
   cancelProcessedReportInMain,
-  closeWindowInMain
+  closeWindowInMain,
+  exportReportInMain
 } from './utility/fs'
 import { sortReportsByTimestring } from './utility/time'
 
@@ -150,6 +151,8 @@ const App: FC = () => {
       event.returnValue = 'prevent'
     }
   }
+  const exportReport = (report: TReport, suites: Array<TSuites>) =>
+    exportReportInMain(report, suites)
   // #endregion
 
   // ==========================================================
@@ -240,7 +243,8 @@ const App: FC = () => {
           deleteReport: deleteReport,
           cancelProcessedReport: cancelProcessedReport,
           openReport: openReport,
-          updateReportProject: updateReportProject
+          updateReportProject: updateReportProject,
+          exportReport: exportReport
         }}
       >
         <SettingsContext.Provider

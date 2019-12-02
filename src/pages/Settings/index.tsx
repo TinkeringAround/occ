@@ -29,7 +29,7 @@ const Settings: FC = () => {
       </Heading>
 
       {settings && (
-        <Box width="100%" margin={{ top: '2.5rem' }}>
+        <Box width="100%" margin={{ top: '3rem' }}>
           <Checkbox
             label="Show Worker on Start"
             checked={settings.showWorker}
