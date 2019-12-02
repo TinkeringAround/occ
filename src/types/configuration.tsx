@@ -39,6 +39,7 @@ export type TSuites =
   | 'gtmetrix'
   | 'hardenize'
   | 'w-three'
+  | 'achecker'
 
 export type TImage = {
   url: string

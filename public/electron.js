@@ -88,7 +88,7 @@ app.on('ready', async () => {
   puppeteerWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
-    show: false
+    show: true
   })
 
   // Create BrowserWindow
@@ -311,6 +311,35 @@ async function createReport(report, suites) {
             ]
           }
           reportResults.push(harenizeResults)
+        }
+
+        // AChecker
+        if (contains(suites, ['achecker'])) {
+          if (urls != null && urls.length > 0) {
+            const images = []
+            for (const sub of urls) {
+              const subImagePath = await createInputReport(
+                'achecker',
+                'https://' + sub,
+                'https://achecker.ca/checker/index.php',
+                'input[name=uri]',
+                '.validation_button',
+                '#AC_errors',
+                true
+              )
+              images.push({
+                url: sub,
+                path: subImagePath
+              })
+            }
+
+            acheckerResult = {
+              url: url,
+              suite: 'achecker',
+              images: images
+            }
+            reportResults.push(acheckerResult)
+          }
         }
         // #endregion
 

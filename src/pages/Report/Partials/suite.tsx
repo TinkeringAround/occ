@@ -66,7 +66,7 @@ const ReportSuite: FC<Props> = ({ selected, toggle, iconType, suites, type }) =>
             key={'Report-Server-' + index}
             direction="row"
             align="center"
-            margin={{ bottom: '.5rem' }}
+            margin={{ bottom: '.5rem', left: '.5rem' }}
           >
             <Box
               width="1rem"

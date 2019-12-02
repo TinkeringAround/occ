@@ -9,7 +9,7 @@ export const ServerSuites: TSuiteCategory = {
 
 export const SeoSuites: TSuiteCategory = {
   name: 'SEO & Accessibility',
-  suites: ['seobility']
+  suites: ['seobility', 'achecker']
 }
 
 export const PerformanceSuites: TSuiteCategory = {
@@ -38,6 +38,8 @@ export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
       return 'Favicon-Checker'
     case 'w-three':
       return 'W3 HTML Validation'
+    case 'achecker':
+      return 'AChecker'
   }
 }
 
@@ -67,7 +69,7 @@ export const getSeoSuites: (suites: Array<TSuites>) => Array<TSuites> = (
 ) => {
   var seoSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'seobility') seoSuites.push(suite)
+    if (suite === 'seobility' || suite === 'achecker') seoSuites.push(suite)
   })
 
   return seoSuites
