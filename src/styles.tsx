@@ -7,6 +7,7 @@ export type TColors =
   | 'darkGrey'
   | 'lightblue'
   | 'lightblueHover'
+  | 'red'
 
 export const colors = {
   white: 'rgb(243,246,249)',
@@ -18,7 +19,9 @@ export const colors = {
   darkGrey: 'rgb(106,111,113)',
 
   lightblue: 'rgb(19,95,246)',
-  lightblueHover: 'rgba(19,95,246,0.35)'
+  lightblueHover: 'rgba(19,95,246,0.35)',
+
+  red: 'rgb(230, 57, 70)'
 }
 
 // ==========================================================

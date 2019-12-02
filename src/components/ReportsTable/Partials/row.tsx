@@ -73,6 +73,7 @@ const ReportsTableRow: FC<Props> = ({
   }, [report])
 
   const reportIsRunning = reportInProgress && typeof report.progress === 'number' && !cancelled
+  const reportFailed = report.progress === false
 
   return (
     <Row
@@ -130,7 +131,7 @@ const ReportsTableRow: FC<Props> = ({
           <Box
             width="1.5rem"
             height="1.5rem"
-            background={selected ? 'white' : colors['lightblue']}
+            background={selected ? 'white' : reportFailed ? colors['red'] : colors['lightblue']}
             justify="center"
             align="center"
             style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
@@ -138,7 +139,7 @@ const ReportsTableRow: FC<Props> = ({
             <Icon
               size="0.7rem"
               type={report.progress === true ? 'check' : 'error'}
-              color={selected ? 'lightblue' : 'white'}
+              color={selected ? (reportFailed ? 'red' : 'lightblue') : 'white'}
             />
           </Box>
         )}

@@ -75,7 +75,7 @@ export const ASubPage = posed(SSubPage)({
 const SProgressIndicator = styled(Box)`
   position: absolute;
   top: 0;
-  right: 0;
+  right: 2rem;
 
   width: 200px;
   height: 40px;
@@ -89,6 +89,6 @@ const SProgressIndicator = styled(Box)`
 `
 
 export const AProgressIndicator = posed(SProgressIndicator)({
-  exit: { opactiy: 0, x: 200, transition: { duration: 500 } },
-  enter: { opactiy: 1, x: 0, transition: { duration: 500 } }
+  exit: { opactiy: 0, x: 300, transition: { duration: 750 } },
+  enter: { opactiy: 1, x: 0, transition: { duration: 750 } }
 })

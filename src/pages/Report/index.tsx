@@ -51,7 +51,7 @@ const Report: FC = () => {
               <AProgressIndicator key="Report-ProgressIndicator">
                 <FillSpinner size={1.25} sizeUnit="rem" color="white" />
                 <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
-                  {cancelled ? 'Cancelling...' : 'In Progress...'}
+                  {cancelled ? 'Cancelling...' : 'Processing ' + report.progress + '%'}
                 </Text>
               </AProgressIndicator>
             )}

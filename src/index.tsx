@@ -69,10 +69,7 @@ const App: FC = () => {
     if (configuration) {
       const { report: updatedReport, results } = arg
       const index = configuration.reports.findIndex(
-        x =>
-          x.date === updatedReport.date &&
-          x.project === updatedReport.project &&
-          x.url === updatedReport.url
+        x => x.date === updatedReport.date && x.url === updatedReport.url
       )
       if (index >= 0) {
         var newReports: Array<TReport> = Array.from(configuration.reports)
@@ -85,8 +82,7 @@ const App: FC = () => {
         if (
           report != null &&
           report.url === updatedReport.url &&
-          report.date === updatedReport.date &&
-          report.project === updatedReport.project
+          report.date === updatedReport.date
         ) {
           setReport(newReports[index])
         }
@@ -103,21 +99,13 @@ const App: FC = () => {
   const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
       const index = configuration.reports.findIndex(
-        x =>
-          x.date === deletedReport.date &&
-          x.project === deletedReport.project &&
-          x.url === deletedReport.url
+        x => x.date === deletedReport.date && x.url === deletedReport.url
       )
       if (index >= 0) {
         const newReports = Array.from(configuration.reports)
         newReports.splice(index, 1)
 
-        if (
-          report &&
-          report.project === deletedReport.project &&
-          report.url === deletedReport.url &&
-          report.date === deletedReport.date
-        )
+        if (report && report.url === deletedReport.url && report.date === deletedReport.date)
           setReport(null)
 
         const sortedReports = sortReportsByTimestring(newReports)
@@ -142,10 +130,7 @@ const App: FC = () => {
   const updateReportProject = (changedReport: TReport, project: string) => {
     if (configuration) {
       const index = configuration.reports.findIndex(
-        x =>
-          x.date === changedReport.date &&
-          x.project === changedReport.project &&
-          x.url === changedReport.url
+        x => x.date === changedReport.date && x.url === changedReport.url
       )
       if (index >= 0) {
         const newReports: Array<TReport> = Array.from(configuration.reports)

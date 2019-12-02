@@ -54,6 +54,7 @@ const ReportSuite: FC<Props> = ({ selected, toggle, iconType, suites, type }) =>
             size="1.5rem"
             margin="0 0 0 1rem"
             color={selected ? 'white' : colors['darkGrey']}
+            truncate
           >
             {type === 'server' && ServerSuites.name}
             {type === 'seo' && SeoSuites.name}
@@ -83,6 +84,7 @@ const ReportSuite: FC<Props> = ({ selected, toggle, iconType, suites, type }) =>
               weight="bold"
               margin={{ left: '.5rem' }}
               color={selected ? 'white' : colors['grey']}
+              truncate
             >
               {getSuiteName(suite)}
             </Text>
