@@ -92,3 +92,46 @@ export const AProgressIndicator = posed(SProgressIndicator)({
   exit: { opactiy: 0, x: 300, transition: { duration: 750 } },
   enter: { opactiy: 1, x: 0, transition: { duration: 750 } }
 })
+
+// ===================================================================
+const CONFIRMATION_DURATION = 350
+const SConfirmation = styled(Box)`
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+
+  width: 400px;
+  height: 200px;
+
+  padding: 1rem;
+
+  background: ${colors['white']};
+  box-shadow: 0px 0px 20px 1px rgba(200, 214, 216, 0.25);
+  border-radius: 15px;
+
+  justify-content: space-between;
+`
+
+const SBackground = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 90;
+
+  width: 100vw;
+  height: 100vh;
+
+  background: rgba(0, 0, 0, 0.25);
+`
+
+export const AConfirmation = posed(SConfirmation)({
+  exit: { opacity: 0, top: '45%', transition: { duration: CONFIRMATION_DURATION } },
+  enter: { opacity: 1, top: '50%', transition: { duration: CONFIRMATION_DURATION } }
+})
+
+export const ABackground = posed(SBackground)({
+  exit: { opacity: 0, transition: { duration: CONFIRMATION_DURATION } },
+  enter: { opacity: 1, transition: { duration: CONFIRMATION_DURATION } }
+})

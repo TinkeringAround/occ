@@ -65,7 +65,10 @@ function createWindow() {
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
   )
-  mainWindow.on('closed', () => (mainWindow = null))
+  mainWindow.on('closed', () => {
+    mainWindow = null
+    if (processedReport != null) processedCanceled = true
+  })
   mainWindow.on('ready-to-show', () => mainWindow.show())
 
   // Show Dev Tools
@@ -143,6 +146,9 @@ ipcMain.on('updateConfig', (event, newConfig) => {
 })
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
+ipcMain.on('closeWindow', () => {
+  if (mainWindow) mainWindow.destroy()
+})
 // #endregion
 
 // ==========================================================
@@ -385,6 +391,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
+      await page.setViewport({ width: 1080, height: 1920 })
 
       // Wait for Selector
       await page.waitFor(1000)
@@ -422,6 +429,7 @@ async function createInputReport(suite, url, testURL, input, click, selector, ch
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
+      await page.setViewport({ width: 1080, height: 1920 })
 
       // Enter URL and Press Button
       await page.waitFor(1000)

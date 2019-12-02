@@ -73,7 +73,8 @@ const ReportsTableRow: FC<Props> = ({
   }, [report])
 
   const reportIsRunning = reportInProgress && typeof report.progress === 'number' && !cancelled
-  const reportFailed = report.progress === false
+  const reportFailed =
+    report.progress === false || (!reportInProgress && typeof report.progress === 'number')
 
   return (
     <Row

@@ -21,6 +21,7 @@ import { APage, ALoadingSpinner } from './atoms/animations'
 
 // Components
 import LoadingSpinner from './components/LoadingSpinner'
+import Confirmation from './components/Confirmation'
 
 // Pages
 import Home from './pages/Home'
@@ -32,7 +33,8 @@ import {
   loadConfigurationFromMain,
   updateConfigInMain,
   createReportInMain,
-  cancelProcessedReportInMain
+  cancelProcessedReportInMain,
+  closeWindowInMain
 } from './utility/fs'
 import { sortReportsByTimestring } from './utility/time'
 
@@ -43,8 +45,11 @@ const App: FC = () => {
   const [report, setReport] = useState<TReport | null>(null)
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
   const [reportInProgress, setReportInProgress] = useState<boolean>(false)
+  const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
+  const [closeWindow, setCloseWindow] = useState<boolean>(false)
 
   // ==========================================================
+  // #region Handler
   const addReport = (report: TReport, suites: Array<TSuites>) => {
     if (configuration) {
       const newReports = Array.from(configuration.reports)
@@ -144,7 +149,15 @@ const App: FC = () => {
       }
     }
   }
+  const showConfirmationDialog = (event: any) => {
+    if (reportInProgress) {
+      setShowConfirmation(true)
+      event.returnValue = 'prevent'
+    }
+  }
+  // #endregion
   // ==========================================================
+  // #region State Handler
   useEffect(() => {
     if (!configuration) {
       const initialConfig: TConfiguration = loadConfigurationFromMain()
@@ -157,10 +170,12 @@ const App: FC = () => {
   }, [])
 
   useEffect(() => {
+    window.addEventListener('beforeunload', showConfirmationDialog)
     // @ts-ignore
     window.electron.ipcRenderer.on('updateReport', updateReport)
     window.addEventListener('resize', updateSettings)
     return () => {
+      window.removeEventListener('beforeunload', showConfirmationDialog)
       window.removeEventListener('resize', updateSettings)
       // @ts-ignore
       window.electron.ipcRenderer.removeAllListeners()
@@ -179,7 +194,13 @@ const App: FC = () => {
   useEffect(() => {
     if (report == null && page === 1) setPage(0)
   }, [report])
+
+  useEffect(() => {
+    if (closeWindow) closeWindowInMain()
+  }, [closeWindow])
+  // #endregion
   // ==========================================================
+
   return (
     <PageContext.Provider
       value={{
@@ -218,6 +239,12 @@ const App: FC = () => {
             </PoseGroup>
           </Layout>
         )}
+
+        <Confirmation
+          show={showConfirmation}
+          accept={() => setCloseWindow(true)}
+          cancel={() => setShowConfirmation(false)}
+        />
       </ReportContext.Provider>
     </PageContext.Provider>
   )

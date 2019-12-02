@@ -9,3 +9,7 @@ const Settings: FC<Props> = () => {
 }
 
 export default Settings
+
+// Settings
+// Width, Height
+// - show Window on Background = false

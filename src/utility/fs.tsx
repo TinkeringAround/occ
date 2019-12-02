@@ -1,6 +1,12 @@
 import { TConfiguration, TReport, TSuites } from '../types/configuration'
 
 // ==========================================================
+export const closeWindowInMain: () => void = () => {
+  // @ts-ignore
+  window.electron.ipcRenderer.send('closeWindow')
+}
+
+// ==========================================================
 export const loadConfigurationFromMain: () => TConfiguration = () => {
   // @ts-ignore
   const config: TConfiguration = window.electron.remote.getGlobal('config')
