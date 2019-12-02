@@ -7,11 +7,12 @@ import { PoseGroup } from 'react-pose'
 import './index.css'
 
 // Types
-import { TConfiguration, TReport, TResult, TSuites } from './types'
+import { TConfiguration, TReport, TResult, TSuites, TSettings } from './types'
 
 // Context
 import PageContext from './context/page-context'
 import ReportContext from './context/report-context'
+import SettingsContext from './context/settings-context'
 
 // Layout
 import Layout from './components/Layout'
@@ -42,14 +43,17 @@ import { sortReportsByTimestring } from './utility/time'
 const App: FC = () => {
   const [loading, setLoading] = useState<boolean>(true)
   const [page, setPage] = useState<number>(0)
-  const [report, setReport] = useState<TReport | null>(null)
-  const [configuration, setConfiguration] = useState<TConfiguration | null>(null)
-  const [reportInProgress, setReportInProgress] = useState<boolean>(false)
+  const [configuration, setConfiguration] = useState<TConfiguration | null>(null) // Configuration
+
+  const [report, setReport] = useState<TReport | null>(null) // Open Report
+  const [reportInProgress, setReportInProgress] = useState<boolean>(false) // If Report ist currently processed
+
+  // Confirmation Dialog
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
   const [closeWindow, setCloseWindow] = useState<boolean>(false)
 
   // ==========================================================
-  // #region Handler
+  // #region Report Context
   const addReport = (report: TReport, suites: Array<TSuites>) => {
     if (configuration) {
       const newReports = Array.from(configuration.reports)
@@ -123,18 +127,6 @@ const App: FC = () => {
     setPage(1)
   }
   const cancelProcessedReport = (report: TReport) => cancelProcessedReportInMain(report)
-  const updateSettings = () => {
-    if (configuration) {
-      setConfiguration({
-        reports: configuration.reports,
-        settings: {
-          ...configuration.settings,
-          width: window.innerWidth,
-          height: window.innerHeight
-        }
-      })
-    }
-  }
   const updateReportProject = (changedReport: TReport, project: string) => {
     if (configuration) {
       const index = configuration.reports.findIndex(
@@ -159,6 +151,32 @@ const App: FC = () => {
     }
   }
   // #endregion
+
+  // ==========================================================
+  // #region Settings Context
+  const updateWindowSize = () => {
+    if (configuration) {
+      setConfiguration({
+        reports: configuration.reports,
+        settings: {
+          ...configuration.settings,
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
+      })
+    }
+  }
+
+  const updateSettings = (settings: TSettings) => {
+    if (configuration) {
+      setConfiguration({
+        reports: configuration.reports,
+        settings: settings
+      })
+    }
+  }
+  // #endregion
+
   // ==========================================================
   // #region State Handler
   useEffect(() => {
@@ -176,17 +194,19 @@ const App: FC = () => {
     window.addEventListener('beforeunload', showConfirmationDialog)
     // @ts-ignore
     window.electron.ipcRenderer.on('updateReport', updateReport)
-    window.addEventListener('resize', updateSettings)
+    window.addEventListener('resize', updateWindowSize)
     return () => {
       window.removeEventListener('beforeunload', showConfirmationDialog)
-      window.removeEventListener('resize', updateSettings)
+      window.removeEventListener('resize', updateWindowSize)
       // @ts-ignore
       window.electron.ipcRenderer.removeAllListeners()
     }
   })
 
   useEffect(() => {
-    if (configuration) updateConfigInMain(configuration)
+    if (configuration) {
+      updateConfigInMain(configuration)
+    }
   }, [configuration])
 
   useEffect(() => {
@@ -223,31 +243,38 @@ const App: FC = () => {
           updateReportProject: updateReportProject
         }}
       >
-        {configuration && (
-          <Layout>
-            <PoseGroup flipMove={false}>
-              {loading && (
-                <ALoadingSpinner key="LS">
-                  <LoadingSpinner />
-                </ALoadingSpinner>
-              )}
+        <SettingsContext.Provider
+          value={{
+            settings: configuration ? configuration.settings : null,
+            updateSettings: updateSettings
+          }}
+        >
+          {configuration && (
+            <Layout>
+              <PoseGroup flipMove={false}>
+                {loading && (
+                  <ALoadingSpinner key="LS">
+                    <LoadingSpinner />
+                  </ALoadingSpinner>
+                )}
 
-              {!loading && (
-                <APage key={'Page-' + page}>
-                  {page === 0 && <Home />}
-                  {page === 1 && <Report />}
-                  {page === 2 && <Settings />}
-                </APage>
-              )}
-            </PoseGroup>
-          </Layout>
-        )}
+                {!loading && (
+                  <APage key={'Page-' + page}>
+                    {page === 0 && <Home />}
+                    {page === 1 && <Report />}
+                    {page === 2 && <Settings />}
+                  </APage>
+                )}
+              </PoseGroup>
+            </Layout>
+          )}
 
-        <Confirmation
-          show={showConfirmation}
-          accept={() => setCloseWindow(true)}
-          cancel={() => setShowConfirmation(false)}
-        />
+          <Confirmation
+            show={showConfirmation}
+            accept={() => setCloseWindow(true)}
+            cancel={() => setShowConfirmation(false)}
+          />
+        </SettingsContext.Provider>
       </ReportContext.Provider>
     </PageContext.Provider>
   )

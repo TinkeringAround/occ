@@ -139,8 +139,13 @@ ipcMain.on('updateConfig', (event, newConfig) => {
     }
   }
 
+  // Update Config
   config = newConfig
   saveConfigurationToDisk()
+
+  // Apply new Settings
+  config.settings.showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+  mainWindow.focus()
 
   // Update Global Properties
   global.config = config
