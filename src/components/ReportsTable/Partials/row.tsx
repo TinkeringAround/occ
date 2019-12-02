@@ -4,7 +4,7 @@ import { Text, Box } from 'grommet'
 import { FillSpinner } from 'react-spinners-kit'
 
 // Types
-import { TReport } from '../../../types/configuration'
+import { TReport } from '../../../types'
 
 // Styles
 import { colors } from '../../../styles'

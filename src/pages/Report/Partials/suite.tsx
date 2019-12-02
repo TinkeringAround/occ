@@ -4,7 +4,7 @@ import styled from 'styled-components'
 
 // Types
 import Icon, { IconType } from '../../../atoms/icons'
-import { TSuites } from '../../../types/configuration'
+import { TSuites } from '../../../types'
 
 // Styles
 import { colors } from '../../../styles'

@@ -2,7 +2,7 @@ import React, { FC, useState, useContext } from 'react'
 import { Box, TextInput, Keyboard, Form, Text, Heading } from 'grommet'
 
 // Types
-import { TReport, TSuites } from '../../../types/configuration'
+import { TReport, TSuites } from '../../../types'
 
 // Styles
 import { colors } from '../../../styles'

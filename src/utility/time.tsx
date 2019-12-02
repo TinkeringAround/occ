@@ -1,4 +1,4 @@
-import { TReport } from '../types/configuration'
+import { TReport } from '../types'
 
 // ==========================================================
 export const unixTimeToSting = (unix: number) => {

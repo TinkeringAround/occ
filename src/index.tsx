@@ -7,7 +7,7 @@ import { PoseGroup } from 'react-pose'
 import './index.css'
 
 // Types
-import { TConfiguration, TReport, TResult, TSuites } from './types/configuration'
+import { TConfiguration, TReport, TResult, TSuites } from './types'
 
 // Context
 import PageContext from './context/page-context'
@@ -124,13 +124,16 @@ const App: FC = () => {
   }
   const cancelProcessedReport = (report: TReport) => cancelProcessedReportInMain(report)
   const updateSettings = () => {
-    setConfiguration({
-      reports: configuration ? configuration.reports : [],
-      settings: {
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
-    })
+    if (configuration) {
+      setConfiguration({
+        reports: configuration.reports,
+        settings: {
+          ...configuration.settings,
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
+      })
+    }
   }
   const updateReportProject = (changedReport: TReport, project: string) => {
     if (configuration) {

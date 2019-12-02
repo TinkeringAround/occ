@@ -1,4 +1,4 @@
-import { TConfiguration, TReport, TSuites } from '../types/configuration'
+import { TConfiguration, TReport, TSuites } from '../types'
 
 // ==========================================================
 export const closeWindowInMain: () => void = () => {

@@ -3,7 +3,7 @@ import { Box, Heading } from 'grommet'
 import { PoseGroup } from 'react-pose'
 
 // Types
-import { TReport } from '../../types/configuration'
+import { TReport } from '../../types'
 
 // Context
 import reportContext from '../../context/report-context'

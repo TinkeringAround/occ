@@ -1,5 +1,5 @@
 // Types
-import { TSuites, TSuiteCategory, TResult } from '../types/configuration'
+import { TSuites, TSuiteCategory, TResult } from '../types'
 
 // ==========================================================
 export const ServerSuites: TSuiteCategory = {

@@ -20,7 +20,8 @@ let mainWindow, browser, puppeteerWindow
 var config = {
   settings: {
     width: 1080,
-    height: 780
+    height: 780,
+    showWorker: false
   },
   reports: []
 }
@@ -97,7 +98,7 @@ app.on('ready', async () => {
   puppeteerWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
-    show: true
+    show: config.settings.showWorker
   })
 
   // Create BrowserWindow

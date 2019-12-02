@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from 'react'
 import { Box } from 'grommet'
 
 // Types
-import { TSuiteCategories } from '../../../types/configuration'
+import { TSuiteCategories } from '../../../types'
 
 // Context
 import reportContext from '../../../context/report-context'

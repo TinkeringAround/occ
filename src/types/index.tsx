@@ -8,6 +8,7 @@ export type TConfiguration = {
 export type TSettings = {
   width: number
   height: number
+  showWorker: boolean
 }
 
 // ==========================================================
