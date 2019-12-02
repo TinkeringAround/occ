@@ -29,6 +29,7 @@ var processedSuites = []
 var processedURLS = []
 var processedResults = []
 var processedProgress = 0
+var processedCanceled = false
 
 function saveConfigurationToDisk() {
   fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
@@ -141,6 +142,7 @@ ipcMain.on('updateConfig', (event, newConfig) => {
   global.config = config
 })
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
+ipcMain.on('cancelReport', (event, report) => cancelReport(report))
 // #endregion
 
 // ==========================================================
@@ -166,7 +168,7 @@ async function createReport(report, suites) {
 
         // #region Default Reports
         // SSL Labs
-        if (contains(suites, ['ssllabs'])) {
+        if (!processedCanceled && contains(suites, ['ssllabs'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'ssllabs',
             testURL: 'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
@@ -175,7 +177,7 @@ async function createReport(report, suites) {
         }
 
         // Security Headers
-        if (contains(suites, ['securityheaders'])) {
+        if (!processedCanceled && contains(suites, ['securityheaders'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'securityheaders',
             testURL: 'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
@@ -184,7 +186,7 @@ async function createReport(report, suites) {
         }
 
         // Seobility
-        if (contains(suites, ['seobility'])) {
+        if (!processedCanceled && contains(suites, ['seobility'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'seobility',
             testURL: 'https://freetools.seobility.net/de/seocheck/' + url,
@@ -193,7 +195,7 @@ async function createReport(report, suites) {
         }
 
         // Favicon-Checker
-        if (contains(suites, ['favicon-checker'])) {
+        if (!processedCanceled && contains(suites, ['favicon-checker'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'favicon-checker',
             testURL:
@@ -205,7 +207,7 @@ async function createReport(report, suites) {
         }
 
         // W-Three HTML Validator
-        if (contains(suites, ['w-three'])) {
+        if (!processedCanceled && contains(suites, ['w-three'])) {
           __result = await createChainedSuiteResult('normal', {
             suite: 'w-three',
             testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
@@ -216,7 +218,7 @@ async function createReport(report, suites) {
 
         // #region Input Reports
         // GTMetrix
-        if (contains(suites, ['gtmetrix'])) {
+        if (!processedCanceled && contains(suites, ['gtmetrix'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'gtmetrix',
             testURL: 'https://gtmetrix.com',
@@ -227,7 +229,7 @@ async function createReport(report, suites) {
         }
 
         // Hardenize
-        if (contains(suites, ['hardenize'])) {
+        if (!processedCanceled && contains(suites, ['hardenize'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'hardenize',
             testURL: 'https://www.hardenize.com',
@@ -238,7 +240,7 @@ async function createReport(report, suites) {
         }
 
         // AChecker
-        if (contains(suites, ['achecker'])) {
+        if (!processedCanceled && contains(suites, ['achecker'])) {
           __result = await createChainedSuiteResult('input', {
             suite: 'achecker',
             testURL: 'https://achecker.ca/checker/index.php',
@@ -250,7 +252,10 @@ async function createReport(report, suites) {
         // #endregion
 
         // Send Final Update Event to Renderer
-        updateReportProgress(processedReport, true, processedResults)
+        console.log('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
+        updateReportProgress(processedReport, !processedCanceled, processedResults)
+        processedReport = null
+        processedCanceled = false
       }
     } catch (error) {
       // Evtl. close page
@@ -274,6 +279,15 @@ function updateReportProgress(report, progress, results) {
 }
 
 function exportReport(report) {}
+
+function cancelReport(report) {
+  if (
+    processedReport != null &&
+    processedReport.url == report.url &&
+    processedReport.date == report.date
+  )
+    processedCanceled = true
+}
 // #endregion
 
 // ==========================================================

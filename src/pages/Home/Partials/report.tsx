@@ -34,10 +34,11 @@ const Report: FC<Props> = ({ toggleModus }) => {
   const { addReport } = useContext(reportContext)
   const [project, setProject] = useState<string>('')
   const [url, setUrl] = useState<string>('')
+
   const [serverSuites, setServerSuites] = useState<Array<boolean>>([false, false])
-  const [seoSuites, setSeoSuites] = useState<Array<boolean>>([false])
-  const [performanceSuites, setPerformanceSuites] = useState<Array<boolean>>([false])
-  const [optimizationSuites, setOptimizationSuites] = useState<Array<boolean>>([false])
+  const [seoSuites, setSeoSuites] = useState<Array<boolean>>([false, false])
+  const [performanceSuites, setPerformanceSuites] = useState<Array<boolean>>([false, false])
+  const [optimizationSuites, setOptimizationSuites] = useState<Array<boolean>>([false, false])
 
   const allTrue: (array: Array<boolean>) => boolean = (array: Array<boolean>) => {
     var allTrue = true
@@ -80,9 +81,9 @@ const Report: FC<Props> = ({ toggleModus }) => {
 
   const resetSuites: () => void = () => {
     setServerSuites([false, false])
-    setSeoSuites([false])
-    setPerformanceSuites([false])
-    setOptimizationSuites([false])
+    setSeoSuites([false, false])
+    setPerformanceSuites([false, false])
+    setOptimizationSuites([false, false])
   }
 
   // ==========================================================

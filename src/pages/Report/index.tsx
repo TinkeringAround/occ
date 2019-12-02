@@ -20,13 +20,26 @@ import ReportSuites from './Partials/suites'
 
 // ==========================================================
 const Report: FC = () => {
-  const { report, updateReportProject } = useContext(reportContext)
+  const { report, updateReportProject, reportInProgress, cancelProcessedReport } = useContext(
+    reportContext
+  )
   const [project, setProject] = useState<string>('')
   const [selectedSuites, setSelectedSuites] = useState<number>(0)
+  const [cancelled, setCancelled] = useState<boolean>(false)
+
+  const cancelReport = () => {
+    if (report) {
+      cancelProcessedReport(report)
+      setCancelled(true)
+    }
+  }
 
   useEffect(() => {
     if (report != null && project === '') setProject(report.project)
+    if (cancelled) setCancelled(false)
   }, [report])
+
+  const reportIsRunning = report != null && reportInProgress && typeof report.progress === 'number'
 
   return (
     <Box pad="2rem" style={{ position: 'relative' }}>
@@ -34,11 +47,11 @@ const Report: FC = () => {
         <Fragment>
           {/* Running Icon */}
           <PoseGroup flipMove={false} preEnterPose="exit">
-            {report.progress !== true && (
+            {reportIsRunning === true && (
               <AProgressIndicator key="Report-ProgressIndicator">
                 <FillSpinner size={1.25} sizeUnit="rem" color="white" />
                 <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
-                  In Progress...
+                  {cancelled ? 'Cancelling...' : 'In Progress...'}
                 </Text>
               </AProgressIndicator>
             )}
@@ -79,7 +92,12 @@ const Report: FC = () => {
             <ReportSuites selectedSuites={selectedSuites} setSelectedSuites={setSelectedSuites} />
 
             {/* Aside */}
-            <ReportAside selectedSuites={selectedSuites} />
+            <ReportAside
+              selectedSuites={selectedSuites}
+              cancelReport={cancelReport}
+              cancelled={cancelled}
+              reportIsRunning={reportIsRunning}
+            />
           </Box>
         </Fragment>
       )}

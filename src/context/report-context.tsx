@@ -12,6 +12,7 @@ type ReportContextProps = {
   addReport: (report: TReport, suites: Array<TSuites>) => void
   openReport: (report: TReport) => void
   deleteReport: (report: TReport) => void
+  cancelProcessedReport: (report: TReport) => void
   updateReportProject: (report: TReport, project: string) => void
 }
 
@@ -23,6 +24,7 @@ const reportContext = React.createContext<ReportContextProps>({
   addReport: (report: TReport, suites: Array<TSuites>) => {},
   openReport: (report: TReport) => {},
   deleteReport: (report: TReport) => {},
+  cancelProcessedReport: (report: TReport) => {},
   updateReportProject: (report: TReport, project: string) => {}
 })
 

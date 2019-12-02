@@ -14,10 +14,13 @@ import Icon from '../../../atoms/icons'
 // ==========================================================
 interface Props {
   selectedSuites: number
+  cancelled: boolean
+  reportIsRunning: boolean
+  cancelReport: () => void
 }
 
 // ==========================================================
-const ReportAside: FC<Props> = ({ selectedSuites }) => {
+const ReportAside: FC<Props> = ({ selectedSuites, cancelled, reportIsRunning, cancelReport }) => {
   const { report, deleteReport } = useContext(reportContext)
 
   const exportReport = () => {
@@ -38,11 +41,19 @@ const ReportAside: FC<Props> = ({ selectedSuites }) => {
             background={colors['lightblue']}
             pad="1rem"
             margin={{ top: '0.5rem' }}
-            onClick={() => deleteReport(report)}
+            onClick={() => {
+              if (!cancelled && reportIsRunning) cancelReport()
+              else if (cancelled || !reportIsRunning) deleteReport(report)
+            }}
           >
-            <Icon type="trash" size="1rem" color="white" margin="0 0.5rem 0 0" />
+            <Icon
+              type={reportIsRunning && !cancelled ? 'cancel' : 'trash'}
+              size="1rem"
+              color="white"
+              margin="0 0.5rem 0 0"
+            />
             <Text size="0.8rem" weight="bold" color="white">
-              Delete Report
+              {reportIsRunning && !cancelled ? 'Cancel Report' : 'Delete Report'}
             </Text>
           </SButton>
         </Box>

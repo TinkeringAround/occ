@@ -20,3 +20,8 @@ export const createReportInMain: (report: TReport, suites: Array<TSuites>) => vo
   // @ts-ignore
   window.electron.ipcRenderer.send('createReport', report, suites)
 }
+
+export const cancelProcessedReportInMain: (report: TReport) => void = async (report: TReport) => {
+  // @ts-ignore
+  window.electron.ipcRenderer.send('cancelReport', report)
+}

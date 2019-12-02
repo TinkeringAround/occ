@@ -28,7 +28,12 @@ import Settings from './pages/Settings'
 import Report from './pages/Report'
 
 // Utility
-import { loadConfigurationFromMain, updateConfigInMain, createReportInMain } from './utility/fs'
+import {
+  loadConfigurationFromMain,
+  updateConfigInMain,
+  createReportInMain,
+  cancelProcessedReportInMain
+} from './utility/fs'
 import { sortReportsByTimestring } from './utility/time'
 
 // ==========================================================
@@ -86,7 +91,8 @@ const App: FC = () => {
           setReport(newReports[index])
         }
 
-        if (updatedReport.progress === true) setReportInProgress(false)
+        if (updatedReport.progress === true || updatedReport.progress === false)
+          setReportInProgress(false)
         setConfiguration({
           ...configuration,
           reports: newReports
@@ -123,6 +129,7 @@ const App: FC = () => {
     setReport(report)
     setPage(1)
   }
+  const cancelProcessedReport = (report: TReport) => cancelProcessedReportInMain(report)
   const updateSettings = () => {
     setConfiguration({
       reports: configuration ? configuration.reports : [],
@@ -202,6 +209,7 @@ const App: FC = () => {
           reportInProgress: reportInProgress,
           addReport: addReport,
           deleteReport: deleteReport,
+          cancelProcessedReport: cancelProcessedReport,
           openReport: openReport,
           updateReportProject: updateReportProject
         }}

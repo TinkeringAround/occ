@@ -29,7 +29,7 @@ export interface Props {
 
 // ==========================================================
 const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
-  const { deleteReport, openReport } = useContext(reportContext)
+  const { deleteReport, openReport, cancelProcessedReport } = useContext(reportContext)
   const [selected, setSelected] = useState<number>(-1)
 
   const deleteReportAndReset = (report: TReport) => {
@@ -40,6 +40,11 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
   const openReportAndReset = (report: TReport) => {
     setSelected(-1)
     openReport(report)
+  }
+
+  const cancelReport = (report: TReport) => {
+    setSelected(-1)
+    cancelProcessedReport(report)
   }
 
   useEffect(() => {
@@ -80,6 +85,7 @@ const ReportsTable: FC<Props> = ({ reports, isChanging }) => {
                   report={report}
                   openReport={openReportAndReset}
                   deleteReport={deleteReportAndReset}
+                  cancelReport={cancelReport}
                   selected={selected === index}
                   setSelected={(rowReport: TReport) => {
                     const rowIndex = reports.indexOf(rowReport)
