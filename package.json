@@ -1,7 +1,7 @@
 {
-  "name": "electron-app",
+  "name": "occ",
   "version": "0.1.0",
-  "description": "Electron App",
+  "description": "One Click Checker",
   "author": "Thomas Maier",
   "build": {
     "appId": "<com.electronapp>"
@@ -22,6 +22,7 @@
     "electron-builder": "^21.2.0",
     "electron-is-dev": "^1.1.0",
     "grommet": "^2.8.0",
+    "jszip": "^3.2.2",
     "puppeteer-core": "^2.0.0",
     "puppeteer-in-electron": "^1.0.7",
     "react": "^16.12.0",

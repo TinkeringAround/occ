@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { Box, Text } from 'grommet'
 
 // Styles
-import { colors } from '../styles'
+import { colors, TColors } from '../styles'
 
 // Atoms
 import Icon from './icons'
@@ -16,6 +16,9 @@ interface Props {
   margin?: string
   size?: string
   fontSize?: string
+
+  color?: TColors
+  iconColor?: TColors
 }
 
 // ==========================================================
@@ -25,7 +28,9 @@ const Checkbox: FC<Props> = ({
   onChange,
   margin = '0 0 0.5rem 0',
   size = '1.25rem',
-  fontSize = '1rem'
+  fontSize = '1rem',
+  color = 'lightblue',
+  iconColor = 'white'
 }) => (
   <Box
     margin={margin}
@@ -38,18 +43,18 @@ const Checkbox: FC<Props> = ({
     <Box
       width={size}
       height={size}
-      background={checked ? colors['lightblue'] : colors['darkGrey']}
+      background={checked ? colors[color] : colors['darkGrey']}
       justify="center"
       align="center"
       style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
     >
-      <Icon size="40%" type={checked ? 'check' : 'plus'} color="white" />
+      <Icon size="40%" type={checked ? 'check' : 'plus'} color={iconColor} />
     </Box>
 
     <Text
       margin="0 0 0 .5rem"
       size={fontSize}
-      color={checked ? colors['lightblue'] : colors['lightGrey']}
+      color={checked ? colors[color] : colors['lightGrey']}
       weight="bold"
     >
       {label}

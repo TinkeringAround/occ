@@ -49,7 +49,7 @@ const Report: FC = () => {
           <PoseGroup flipMove={false} preEnterPose="exit">
             {reportIsRunning === true && (
               <AProgressIndicator key="Report-ProgressIndicator">
-                <FillSpinner size={1.25} sizeUnit="rem" color="white" />
+                <FillSpinner size={1} sizeUnit="rem" color="white" />
                 <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
                   {cancelled ? 'Cancelling...' : 'Processing ' + report.progress + '%'}
                 </Text>

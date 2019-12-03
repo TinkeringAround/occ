@@ -37,5 +37,5 @@ export const exportReportInMain: (report: TReport, suites: Array<TSuites>) => vo
   suites: Array<TSuites>
 ) => {
   // @ts-ignore
-  window.electron.ipcRenderer.send('exportReport', report, suites, 'zip')
+  window.electron.ipcRenderer.send('exportReport', report, suites, { pdf: false, images: true })
 }

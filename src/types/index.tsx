@@ -9,7 +9,10 @@ export type TSettings = {
   width: number
   height: number
   showWorker: boolean
+  export: TExportOptions
 }
+
+export type TExportOptions = 'images' | 'pdf' | 'images and pdf'
 
 // ==========================================================
 export type TReport = {
@@ -39,8 +42,12 @@ export type TSuites =
   | 'favicon-checker'
   | 'gtmetrix'
   | 'hardenize'
-  | 'w-three'
+  | 'w3'
   | 'achecker'
+  | 'varvy'
+  | 'keycdn'
+  | 'lighthouse'
+  | 'w3-css'
 
 export type TImage = {
   url: string

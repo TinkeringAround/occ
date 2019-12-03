@@ -1,10 +1,11 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const isDev = require('electron-is-dev')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
+const JSZip = require('jszip')
 
 // Utlity
 const { checkURL, contains, getSiteUrls } = require('./utility')
@@ -21,7 +22,8 @@ var config = {
   settings: {
     width: 1080,
     height: 780,
-    showWorker: false
+    showWorker: false,
+    export: 'images'
   },
   reports: []
 }
@@ -152,7 +154,7 @@ ipcMain.on('updateConfig', (event, newConfig) => {
 })
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
-ipcMain.on('exportReport', (event, report, suites, type) => exportReport(report, suites, type))
+ipcMain.on('exportReport', (event, report, suites) => exportReport(report, suites))
 ipcMain.on('closeWindow', () => {
   if (mainWindow) mainWindow.destroy()
 })
@@ -172,9 +174,7 @@ async function createReport(report, suites) {
 
       if (urlIsValid) {
         // #region Crawl Subsites & Setup Progressing Variables
-        processedURLS = contains(suites, ['w-three', 'achecker', 'w-three-css'])
-          ? await getSiteUrls(url)
-          : []
+        processedURLS = contains(suites, ['w3', 'achecker', 'w3-css']) ? await getSiteUrls(url) : []
         processedResults = []
         processedProgress = 0
         // #endregion
@@ -215,12 +215,15 @@ async function createReport(report, suites) {
               'https://realfavicongenerator.net/favicon_checker?protocol=https&site=' +
               url +
               '#.XWju45MzZhE',
-            selector: '.alert'
+            selector: () => {
+              const progress = document.getElementById('analysis_progress')
+              return progress ? progress.style.display == 'none' : true
+            }
           })
         }
 
         // W-Three HTML Validator
-        if (!processedCanceled && contains(suites, ['w-three'])) {
+        if (!processedCanceled && contains(suites, ['w3'])) {
           __result = await createChainedSuiteResult('normal', {
             suite: 'w-three',
             testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
@@ -252,6 +255,29 @@ async function createReport(report, suites) {
           })
         }
 
+        // Varvy
+        if (!processedCanceled && contains(suites, ['varvy'])) {
+          __result = await createSimpleSuiteResult('input', {
+            suite: 'varvy',
+            testURL: 'https://varvy.com',
+            input: 'input[name=url]',
+            click: 'input[type=submit]',
+            selector: () => !document.querySelector('.timer-loader')
+          })
+        }
+
+        // KeyDCN
+        if (!processedCanceled && contains(suites, ['keycdn'])) {
+          __result = await createSimpleSuiteResult('input', {
+            suite: 'keycdn',
+            testURL: 'https://tools.keycdn.com/speed',
+            urlPrefix: 'https://',
+            input: '#url',
+            click: '#speedBtn',
+            selector: () => document.getElementById('speedResult').childNodes.length > 0
+          })
+        }
+
         // AChecker
         if (!processedCanceled && contains(suites, ['achecker'])) {
           __result = await createChainedSuiteResult('input', {
@@ -262,13 +288,43 @@ async function createReport(report, suites) {
             selector: '#AC_errors'
           })
         }
+
+        // W3 CSS
+        if (!processedCanceled && contains(suites, ['w3-css'])) {
+          __result = await createChainedSuiteResult('input', {
+            suite: 'w3-css',
+            testURL: 'https://jigsaw.w3.org/css-validator/',
+            input: 'input[name=uri]',
+            click: '.submit',
+            selector: '#results_container'
+          })
+        }
         // #endregion
 
-        // Send Final Update Event to Renderer
+        // #region Special Reports
+        // Lighthouse
+        if (!processedCanceled && contains(suites, ['lighthouse'])) {
+          __result = await createLighthouseReport()
+        }
+        // #endregion
+
+        // #region Finish Report & Send Notification
+        // Send Notification
+        if (Notification.isSupported() && !processedCanceled) {
+          const not = new Notification({
+            title: 'One Click Checker',
+            subtitle: `Report for ${processedReport.url} has finished.`,
+            silent: false
+          })
+
+          not.show()
+        }
+
         console.log('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
         updateReportProgress(processedReport, !processedCanceled, processedResults)
         processedReport = null
         processedCanceled = false
+        // #endregion
       }
     } catch (error) {
       // Evtl. close page
@@ -291,21 +347,38 @@ function updateReportProgress(report, progress, results) {
   }
 }
 
-function exportReport(report, suites, pdf = false) {
+async function exportReport(report, suites) {
   const path = dialog.showSaveDialogSync(mainWindow)
   if (path) {
     console.log('Dialog-Result:', path)
 
-    fs.writeFileSync(path + '.txt', 'Hello World')
+    // Make Zip
+    zip = new JSZip()
 
-    // TODO: make zip folder
-    // TODO: Add Images
+    // Add Images and Content for PDF
+    for (const suite of suites) {
+      report.results.forEach(result => {
+        if (result.suite == suite) {
+          result.images.forEach((image, index) => {
+            if (config.settings.export.includes('images')) {
+              try {
+                const binary = fs.readFileSync(image.path)
+                const fileName = report.project + '-' + result.suite + '-' + index + '.jpeg'
+                zip.folder(suite).file(fileName, binary)
+              } catch (error) {}
+            }
 
-    if (pdf) {
-      // TODO: Create PDF and add to folder
+            if (config.settings.export.includes('pdf')) {
+              // TODO
+            }
+          })
+        }
+      })
     }
 
-    // TODO: Save to path
+    // Save Zip to path
+    const finishedZip = await zip.generateAsync({ type: 'uint8array' })
+    fs.writeFileSync(path + '.zip', finishedZip)
   }
 }
 
@@ -322,13 +395,14 @@ function cancelReport(report) {
 // ==========================================================
 // #region SUITES
 async function createSimpleSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click } = data
+  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
   const { url } = processedReport
   let imagePath = null
 
   // Create Report
   if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
-  else if ('input') imagePath = await createInputReport(suite, url, testURL, input, click, selector)
+  else if ('input')
+    imagePath = await createInputReport(suite, url, testURL, input, click, selector, urlPrefix)
 
   // Push Report to Results
   processedResults.push({
@@ -350,7 +424,7 @@ async function createSimpleSuiteResult(type = 'normal', data) {
 }
 
 async function createChainedSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click } = data
+  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
   const { url } = processedReport
   let images = []
 
@@ -377,6 +451,7 @@ async function createChainedSuiteResult(type = 'normal', data) {
         input,
         click,
         selector,
+        urlPrefix,
         true
       )
       images.push({
@@ -405,6 +480,7 @@ async function createChainedSuiteResult(type = 'normal', data) {
   return true
 }
 
+// Default, Input, Lighthouse
 async function createDefaultReport(suite, url, selector, chain = false) {
   return new Promise(async resolve => {
     console.log('Creating ' + suite + ' report.')
@@ -414,11 +490,13 @@ async function createDefaultReport(suite, url, selector, chain = false) {
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport({ width: 1080, height: 1920 })
+      await page.setViewport({ width: 1920, height: 1080 })
 
       // Wait for Selector
       await page.waitFor(1000)
-      await page.waitForSelector(selector, { timeout: TIMEOUT }) // timeout: 5 Minutes
+      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
+      else if (typeof selector == 'function')
+        await page.waitForFunction(selector, { timeout: TIMEOUT })
       await page.waitFor(1000)
 
       // Take screenshot
@@ -443,7 +521,16 @@ async function createDefaultReport(suite, url, selector, chain = false) {
   })
 }
 
-async function createInputReport(suite, url, testURL, input, click, selector, chain = false) {
+async function createInputReport(
+  suite,
+  url,
+  testURL,
+  input,
+  click,
+  selector,
+  urlPrefix,
+  chain = false
+) {
   return new Promise(async resolve => {
     console.log('Creating ' + suite + ' input report.')
     try {
@@ -452,16 +539,18 @@ async function createInputReport(suite, url, testURL, input, click, selector, ch
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport({ width: 1080, height: 1920 })
+      await page.setViewport({ width: 1920, height: 1080 })
 
       // Enter URL and Press Button
       await page.waitFor(1000)
-      await page.type(input, url, { delay: 100 })
+      await page.type(input, urlPrefix + url, { delay: 100 })
       await page.click(click)
 
       // Wait for Selector
       await page.waitFor(1000)
-      await page.waitForSelector(selector, { timeout: TIMEOUT }) // timeout: 5 Minutes
+      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
+      else if (typeof selector == 'function')
+        await page.waitForFunction(selector, { timeout: TIMEOUT })
       await page.waitFor(1000)
 
       // Take screenshot
@@ -484,5 +573,79 @@ async function createInputReport(suite, url, testURL, input, click, selector, ch
       resolve(null)
     }
   })
+}
+
+async function createLighthouseReport() {
+  const { url } = processedReport
+  let imagePath = null
+
+  // Create Report
+  console.log('Creating lighthouse report.')
+  try {
+    // Load URL
+    await puppeteerWindow.loadURL('https://web.dev/measure/', {
+      waitUntil: 'networkidel0',
+      timeout: TIMEOUT
+    })
+
+    // Get Page Object
+    const page = await pie.getPage(browser, puppeteerWindow)
+    await page.setViewport({ width: 1920, height: 1080 })
+
+    // Enter URL and Press Button
+    await page.waitFor(1000)
+    await page.type('input[type=url]', 'https://' + url, { delay: 100 })
+    await page.click('#run-lh-button')
+
+    // Wait for Selector
+    await page.waitFor(1000)
+    await page.waitForFunction(
+      () => document.getElementsByClassName('lh-metrics-table')[0].childElementCount > 0,
+      { timeout: TIMEOUT }
+    )
+    await page.waitFor(1000)
+
+    // Get Report
+    await puppeteerWindow.loadURL(
+      'https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https://' + url,
+      {
+        waitUntil: 'networkidel0',
+        timeout: TIMEOUT
+      }
+    )
+    await page.waitFor(2000)
+
+    // Take screenshot
+    imagePath = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+    await page.screenshot({
+      path: imagePath,
+      type: 'jpeg',
+      quality: 70,
+      fullPage: true
+    })
+
+    // Wait
+    await page.waitFor(1000)
+
+    console.log(`Saved to file ${imagePath}`)
+  } catch (error) {}
+
+  // Push Report to Results
+  processedResults.push({
+    url: url,
+    suite: 'lighthouse',
+    images: [{ url: url, path: imagePath }]
+  })
+
+  // Update
+  processedProgress += 1
+  updateReportProgress(
+    processedReport,
+    ~~((processedProgress / processedSuites.length) * 100),
+    processedResults
+  )
+
+  // Return
+  return true
 }
 // #endregion

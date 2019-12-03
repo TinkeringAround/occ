@@ -1,5 +1,5 @@
 import React, { FC, useState, useContext } from 'react'
-import { Box, TextInput, Keyboard, Form, Text, Heading } from 'grommet'
+import { Box, TextInput, Keyboard, Form, Text } from 'grommet'
 
 // Types
 import { TReport, TSuites } from '../../../types'
@@ -13,16 +13,15 @@ import reportContext from '../../../context/report-context'
 // Atoms
 import { SButton } from '../../../atoms/styled'
 import Icon from '../../../atoms/icons'
-import Checkbox from '../../../atoms/checkbox'
 
 // Utility
 import {
   ServerSuites,
   SeoSuites,
   PerformanceSuites,
-  OptimizationSuites,
-  getSuiteName
+  OptimizationSuites
 } from '../../../utility/suites'
+import ReportSuite from './suite'
 
 // ==========================================================
 interface Props {
@@ -35,11 +34,16 @@ const Report: FC<Props> = ({ toggleModus }) => {
   const [project, setProject] = useState<string>('')
   const [url, setUrl] = useState<string>('')
 
-  const [serverSuites, setServerSuites] = useState<Array<boolean>>([false, false])
-  const [seoSuites, setSeoSuites] = useState<Array<boolean>>([false, false])
-  const [performanceSuites, setPerformanceSuites] = useState<Array<boolean>>([false, false])
-  const [optimizationSuites, setOptimizationSuites] = useState<Array<boolean>>([false, false])
+  const [serverSuites, setServerSuites] = useState<Array<boolean>>([false, false, false])
+  const [seoSuites, setSeoSuites] = useState<Array<boolean>>([false, false, false])
+  const [performanceSuites, setPerformanceSuites] = useState<Array<boolean>>([false, false, false])
+  const [optimizationSuites, setOptimizationSuites] = useState<Array<boolean>>([
+    false,
+    false,
+    false
+  ])
 
+  // ==========================================================
   const allTrue: (array: Array<boolean>) => boolean = (array: Array<boolean>) => {
     var allTrue = true
     array.forEach(element => {
@@ -168,157 +172,58 @@ const Report: FC<Props> = ({ toggleModus }) => {
       </Box>
 
       {/* Suites Checkboxes */}
-      <Box
-        width="60%"
-        direction="row"
-        justify="between"
-        background="white"
-        pad="1rem"
-        style={{ borderRadius: 15 }}
-      >
-        <Box justify="between" pad="1rem">
-          {/* Server Suites */}
-          <Box margin="0 0 2.5rem">
-            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
-              <Icon
-                type="server"
-                color={allTrue(serverSuites) ? 'lightblue' : 'darkGrey'}
-                size="2rem"
-                onClick={toggleServer}
-              />
-              <Heading
-                level="6"
-                size="1.5rem"
-                margin="0 0 0 0.5rem"
-                truncate
-                color={allTrue(serverSuites) ? colors['lightblue'] : colors['darkGrey']}
-                onClick={toggleServer}
-                style={{ cursor: 'pointer' }}
-              >
-                {ServerSuites.name}
-              </Heading>
-            </Box>
-            {ServerSuites.suites.map((suite: TSuites, index: number) => (
-              <Checkbox
-                key={'NewReport-ServerSuites-' + index}
-                label={getSuiteName(suite)}
-                checked={serverSuites[index]}
-                onChange={() => {
-                  let newServerSuites = Array.from(serverSuites)
-                  newServerSuites[index] = !newServerSuites[index]
-                  setServerSuites(newServerSuites)
-                }}
-              />
-            ))}
-          </Box>
+      <Box width="60%" direction="row" justify="between" wrap>
+        {/* Server Suites */}
+        <ReportSuite
+          type="server"
+          allSelected={allTrue(serverSuites)}
+          toggle={toggleServer}
+          selections={serverSuites}
+          select={(index: number) => {
+            let newServerSuites = Array.from(serverSuites)
+            newServerSuites[index] = !newServerSuites[index]
+            setServerSuites(newServerSuites)
+          }}
+        />
 
-          {/* Seo Suites */}
-          <Box>
-            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
-              <Icon
-                type="accessibility"
-                color={allTrue(seoSuites) ? 'lightblue' : 'darkGrey'}
-                size="2rem"
-                onClick={toggleSeo}
-              />
-              <Heading
-                level="6"
-                size="1.5rem"
-                margin="0 0 0 0.5rem"
-                truncate
-                color={allTrue(seoSuites) ? colors['lightblue'] : colors['darkGrey']}
-                onClick={toggleSeo}
-                style={{ cursor: 'pointer' }}
-              >
-                {SeoSuites.name}
-              </Heading>
-            </Box>
-            {SeoSuites.suites.map((suite: TSuites, index: number) => (
-              <Checkbox
-                key={'NewReport-SeoSuites-' + index}
-                label={getSuiteName(suite)}
-                checked={seoSuites[index]}
-                onChange={() => {
-                  let newSeoSuites = Array.from(seoSuites)
-                  newSeoSuites[index] = !newSeoSuites[index]
-                  setSeoSuites(newSeoSuites)
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
+        {/* Performance Suites */}
+        <ReportSuite
+          type="tacho"
+          allSelected={allTrue(performanceSuites)}
+          toggle={togglePerformance}
+          selections={performanceSuites}
+          select={(index: number) => {
+            let newPerformanceSuites = Array.from(performanceSuites)
+            newPerformanceSuites[index] = !newPerformanceSuites[index]
+            setPerformanceSuites(newPerformanceSuites)
+          }}
+        />
 
-        <Box justify="between" pad="1rem">
-          {/* Performance Suites */}
-          <Box margin="0 0 1.5rem">
-            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
-              <Icon
-                type="tacho"
-                color={allTrue(performanceSuites) ? 'lightblue' : 'darkGrey'}
-                size="2rem"
-                onClick={togglePerformance}
-              />
-              <Heading
-                level="6"
-                size="1.5rem"
-                margin="0 0 0 0.5rem"
-                truncate
-                color={allTrue(performanceSuites) ? colors['lightblue'] : colors['darkGrey']}
-                onClick={togglePerformance}
-                style={{ cursor: 'pointer' }}
-              >
-                {PerformanceSuites.name}
-              </Heading>
-            </Box>
-            {PerformanceSuites.suites.map((suite: TSuites, index: number) => (
-              <Checkbox
-                key={'NewReport-PerfomraneSuites-' + index}
-                label={getSuiteName(suite)}
-                checked={performanceSuites[index]}
-                onChange={() => {
-                  let newPerformanceSuites = Array.from(performanceSuites)
-                  newPerformanceSuites[index] = !newPerformanceSuites[index]
-                  setPerformanceSuites(newPerformanceSuites)
-                }}
-              />
-            ))}
-          </Box>
+        {/* Seo Suites */}
+        <ReportSuite
+          type="accessibility"
+          allSelected={allTrue(seoSuites)}
+          toggle={toggleSeo}
+          selections={seoSuites}
+          select={(index: number) => {
+            let newSeoSuites = Array.from(seoSuites)
+            newSeoSuites[index] = !newSeoSuites[index]
+            setSeoSuites(newSeoSuites)
+          }}
+        />
 
-          {/* Optimization Suites */}
-          <Box>
-            <Box direction="row" align="center" margin={{ bottom: '1rem' }}>
-              <Icon
-                type="zip"
-                color={allTrue(optimizationSuites) ? 'lightblue' : 'darkGrey'}
-                size="2rem"
-                onClick={toggleOptimization}
-              />
-              <Heading
-                level="6"
-                size="1.5rem"
-                margin="0 0 0 0.5rem"
-                truncate
-                color={allTrue(optimizationSuites) ? colors['lightblue'] : colors['darkGrey']}
-                onClick={toggleOptimization}
-                style={{ cursor: 'pointer' }}
-              >
-                {OptimizationSuites.name}
-              </Heading>
-            </Box>
-            {OptimizationSuites.suites.map((suite: TSuites, index: number) => (
-              <Checkbox
-                key={'NewReport-OptimizationSuites-' + index}
-                label={getSuiteName(suite)}
-                checked={optimizationSuites[index]}
-                onChange={() => {
-                  let newOptimizationSuites = Array.from(optimizationSuites)
-                  newOptimizationSuites[index] = !newOptimizationSuites[index]
-                  setOptimizationSuites(newOptimizationSuites)
-                }}
-              />
-            ))}
-          </Box>
-        </Box>
+        {/* Optimization Suites */}
+        <ReportSuite
+          type="zip"
+          allSelected={allTrue(optimizationSuites)}
+          toggle={toggleOptimization}
+          selections={optimizationSuites}
+          select={(index: number) => {
+            let newOptimizationSuites = Array.from(optimizationSuites)
+            newOptimizationSuites[index] = !newOptimizationSuites[index]
+            setOptimizationSuites(newOptimizationSuites)
+          }}
+        />
       </Box>
     </Box>
   )

@@ -4,23 +4,24 @@ import { TSuites, TSuiteCategory, TResult } from '../types'
 // ==========================================================
 export const ServerSuites: TSuiteCategory = {
   name: 'Server',
-  suites: ['ssllabs', 'securityheaders']
+  suites: ['ssllabs', 'securityheaders', 'hardenize']
 }
 
 export const SeoSuites: TSuiteCategory = {
   name: 'SEO & Accessibility',
-  suites: ['seobility', 'achecker']
+  suites: ['seobility', 'varvy', 'achecker']
 }
 
 export const PerformanceSuites: TSuiteCategory = {
   name: 'Performance',
-  suites: ['gtmetrix', 'hardenize']
+  suites: ['lighthouse', 'gtmetrix', 'keycdn']
 }
 
 export const OptimizationSuites: TSuiteCategory = {
   name: 'Optimization',
-  suites: ['favicon-checker', 'w-three']
+  suites: ['favicon-checker', 'w3', 'w3-css']
 }
+
 // ==========================================================
 export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
   switch (suite) {
@@ -36,10 +37,18 @@ export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
       return 'Hardenize'
     case 'favicon-checker':
       return 'Favicon-Checker'
-    case 'w-three':
+    case 'w3':
       return 'W3 HTML Validation'
     case 'achecker':
       return 'AChecker'
+    case 'varvy':
+      return 'Varvy'
+    case 'keycdn':
+      return 'KeyCDN'
+    case 'lighthouse':
+      return 'Lighthouse'
+    case 'w3-css':
+      return 'W3 CSS Validation'
   }
 }
 
@@ -58,7 +67,8 @@ export const getServerSuites: (suites: Array<TSuites>) => Array<TSuites> = (
 ) => {
   var serverSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'ssllabs' || suite === 'securityheaders') serverSuites.push(suite)
+    if (suite === 'ssllabs' || suite === 'securityheaders' || suite === 'hardenize')
+      serverSuites.push(suite)
   })
 
   return serverSuites
@@ -69,7 +79,7 @@ export const getSeoSuites: (suites: Array<TSuites>) => Array<TSuites> = (
 ) => {
   var seoSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'seobility' || suite === 'achecker') seoSuites.push(suite)
+    if (suite === 'seobility' || suite === 'varvy' || suite === 'achecker') seoSuites.push(suite)
   })
 
   return seoSuites
@@ -80,7 +90,8 @@ export const getPerformanceSuites: (suites: Array<TSuites>) => Array<TSuites> = 
 ) => {
   var performanceSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'gtmetrix' || suite === 'hardenize') performanceSuites.push(suite)
+    if (suite === 'lighthouse' || suite === 'gtmetrix' || suite === 'keycdn')
+      performanceSuites.push(suite)
   })
 
   return performanceSuites
@@ -91,7 +102,8 @@ export const getOptimizationSuites: (suites: Array<TSuites>) => Array<TSuites> =
 ) => {
   var optimizationSuites: Array<TSuites> = []
   suites.forEach((suite: TSuites) => {
-    if (suite === 'favicon-checker' || suite === 'w-three') optimizationSuites.push(suite)
+    if (suite === 'favicon-checker' || suite === 'w3' || suite === 'w3-css')
+      optimizationSuites.push(suite)
   })
 
   return optimizationSuites
