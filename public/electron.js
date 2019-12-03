@@ -7,21 +7,23 @@ const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
 const JSZip = require('jszip')
 
-// Utlity
+// Utlity & PDF
 const { checkURL, contains, getSiteUrls } = require('./utility')
+const { createPDF } = require('./pdf')
 
 // Consts
 const ROOT_PATH = process.cwd()
 const CONFIG_PATH = ROOT_PATH + '/config.json'
 const TIMEOUT = 300000 // 5 Minutes
+const RESOLUTION = { width: 1280, height: 960 }
 
 // ==========================================================
 // #region Variables & Configuration
 let mainWindow, browser, puppeteerWindow
 var config = {
   settings: {
-    width: 1080,
-    height: 780,
+    width: 1280,
+    height: 960,
     showWorker: false,
     export: 'images'
   },
@@ -120,7 +122,7 @@ app.on('activate', () => {
 // #endregion
 
 // ==========================================================
-// #region Event Handler
+// #region RENDERER HANDLER
 ipcMain.on('updateConfig', (event, newConfig) => {
   // Check Differences => a report has been deleted, then delete not longer user Images
   if (config.reports.length > newConfig.reports.length) {
@@ -354,24 +356,32 @@ async function exportReport(report, suites) {
     zip = new JSZip()
 
     // Add Images and Content for PDF
+    const pdfResults = []
     for (const suite of suites) {
       report.results.forEach(result => {
         if (result.suite == suite) {
-          result.images.forEach((image, index) => {
-            if (config.settings.export.includes('images')) {
+          if (config.settings.export.includes('images')) {
+            result.images.forEach((image, index) => {
               try {
                 const binary = fs.readFileSync(image.path)
                 const fileName = report.project + '-' + result.suite + '-' + index + '.jpeg'
                 zip.folder(suite).file(fileName, binary)
               } catch (error) {}
-            }
+            })
+          }
 
-            if (config.settings.export.includes('pdf')) {
-              // TODO
-            }
-          })
+          if (config.settings.export.includes('pdf')) pdfResults.push(result)
         }
       })
+    }
+
+    if (config.settings.export.includes('pdf')) {
+      // Create PDF and Add to ZIP
+      const pdfPath = await createPDF(pdfResults)
+      const pdfBinary = fs.readFileSync(pdfPath)
+      console.log('PDF Binary', pdfBinary)
+      zip.file('results.pdf', pdfBinary)
+      // fs.unlinkSync(pdfPath)
     }
 
     // Save Zip to path
@@ -389,8 +399,6 @@ function cancelReport(report) {
     processedCanceled = true
 }
 // #endregion
-
-// ==========================================================
 // #region SUITES
 async function createSimpleSuiteResult(type = 'normal', data) {
   const { suite, testURL, selector, input, click, urlPrefix = '' } = data
@@ -488,7 +496,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport({ width: 1920, height: 1080 })
+      await page.setViewport(RESOLUTION)
 
       // Wait for Selector
       await page.waitFor(1000)
@@ -537,7 +545,7 @@ async function createInputReport(
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport({ width: 1920, height: 1080 })
+      await page.setViewport(RESOLUTION)
 
       // Enter URL and Press Button
       await page.waitFor(1000)
@@ -588,7 +596,7 @@ async function createLighthouseReport() {
 
     // Get Page Object
     const page = await pie.getPage(browser, puppeteerWindow)
-    await page.setViewport({ width: 1920, height: 1080 })
+    await page.setViewport(RESOLUTION)
 
     // Enter URL and Press Button
     await page.waitFor(1000)
