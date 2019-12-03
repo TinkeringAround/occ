@@ -36,7 +36,7 @@ const ReportAside: FC<Props> = ({ selectedSuites, cancelled, reportIsRunning, ca
   const { report, deleteReport, exportReport } = useContext(reportContext)
 
   const exportSelectedSuitesOfReport = () => {
-    if (report) {
+    if (report && !disableExport) {
       const reportSuites = joinSuitesFromResults(report.results)
       var exportSuites: Array<TSuites> = []
 
@@ -52,17 +52,18 @@ const ReportAside: FC<Props> = ({ selectedSuites, cancelled, reportIsRunning, ca
       if ((selectedSuites & 0x1000) === 0x1000)
         exportSuites = [...exportSuites, ...getOptimizationSuites(reportSuites)]
 
-      console.log('ExportSuites:', exportSuites)
       exportReport(report, exportSuites)
     }
   }
+
+  const disableExport = selectedSuites === 0
 
   return (
     <Box height="inherit" width="25%" justify="end">
       {report != null && (
         <Box>
           <SButton
-            background={colors['lightblue']}
+            background={disableExport ? colors['grey'] : colors['lightblue']}
             pad="1rem"
             onClick={exportSelectedSuitesOfReport}
           >

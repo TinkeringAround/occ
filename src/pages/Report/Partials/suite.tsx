@@ -70,17 +70,17 @@ const ReportSuite: FC<Props> = ({ selected, toggle, iconType, suites, type }) =>
             margin={{ bottom: '.5rem', left: '.5rem' }}
           >
             <Box
-              width="1rem"
-              height="1rem"
+              width="0.9rem"
+              height="0.9rem"
               background={selected ? 'white' : colors['darkGrey']}
               justify="center"
               align="center"
               style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
             >
-              <Icon size="0.5rem" type="check" color={selected ? 'lightblue' : 'white'} />
+              <Icon size="50%" type="check" color={selected ? 'lightblue' : 'white'} />
             </Box>
             <Text
-              size="0.9rem"
+              size="0.75rem"
               weight="bold"
               margin={{ left: '.5rem' }}
               color={selected ? 'white' : colors['grey']}

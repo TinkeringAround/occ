@@ -350,9 +350,7 @@ function updateReportProgress(report, progress, results) {
 async function exportReport(report, suites) {
   const path = dialog.showSaveDialogSync(mainWindow)
   if (path) {
-    console.log('Dialog-Result:', path)
-
-    // Make Zip
+    // Create Zip Object
     zip = new JSZip()
 
     // Add Images and Content for PDF
