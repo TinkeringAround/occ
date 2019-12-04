@@ -5,7 +5,7 @@
   "description": "One Click Checker",
   "author": "Thomas Maier",
   "build": {
-    "productName": "One Click Checker",
+    "productName": "OCC",
     "appId": "<com.electronapp>"
   },
   "main": "public/electron.js",
@@ -20,8 +20,6 @@
     "concurrently": "^5.0.0",
     "cross-env": "^6.0.3",
     "curl": "^0.1.4",
-    "electron": "^7.1.2",
-    "electron-builder": "^21.2.0",
     "electron-is-dev": "^1.1.0",
     "grommet": "^2.8.0",
     "image-size": "^0.8.3",
@@ -66,6 +64,8 @@
     ]
   },
   "devDependencies": {
-    "@types/react": "^16.9.11"
+    "electron": "^7.1.2",
+    "@types/react": "^16.9.11",
+    "electron-builder": "^21.2.0"
   }
 }
