@@ -23,6 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 
 # Backup
-/images
-config.json
-config.backup.json
+/Designs

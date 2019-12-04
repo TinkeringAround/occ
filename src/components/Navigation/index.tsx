@@ -1,9 +1,9 @@
 import React, { FC, useContext } from 'react'
 import styled from 'styled-components'
-import { Box, Text } from 'grommet'
+import { Box } from 'grommet'
 
-// Types
-import { IconType } from '../../atoms/icons'
+// Types & Atoms
+import Icon, { IconType } from '../../atoms/icons'
 
 // Styles
 import { sizes, colors } from '../../styles'
@@ -15,6 +15,7 @@ import reportContext from '../../context/report-context'
 // Components
 import Item from './Partials/Item'
 
+// Atoms
 const Aside = styled.aside`
   width: ${sizes['navigation']}px;
 
@@ -40,17 +41,14 @@ const Navigation: FC = () => {
   return (
     <Aside>
       <Box
-        width="100%"
+        width="75x"
         height="75px"
         margin="1rem 0 0"
-        direction="row"
         align="center"
         justify="center"
         style={{ minWidth: '75px' }}
       >
-        <Text size="1rem" weight="bold">
-          Logo
-        </Text>
+        <Icon type="logo" size="45px" color="white" />
       </Box>
 
       {/* Items */}

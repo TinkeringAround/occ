@@ -1,4 +1,5 @@
 const { app, Menu, shell } = require('electron')
+const isDev = require('electron-is-dev')
 
 // ==========================================================
 const isMac = process.platform === 'darwin'
@@ -22,7 +23,10 @@ const template = [
   // View Menu
   {
     label: 'View',
-    submenu: [{ role: 'togglefullscreen' }]
+    submenu: [
+      ...(isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
+      { role: 'togglefullscreen' }
+    ]
   },
   // Window Menu
   {

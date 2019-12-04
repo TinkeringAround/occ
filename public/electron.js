@@ -63,8 +63,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       preload: __dirname + '/src/preload.js'
-    }
-    // icon: __dirname + "/assets/icon.icns"
+    },
+    icon: __dirname + '/assets/AppIcon.icns'
   })
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
