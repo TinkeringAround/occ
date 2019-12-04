@@ -27,7 +27,7 @@ function getDD(content) {
     content: content,
     styles: {
       header: {
-        fontSize: 75,
+        fontSize: 80,
         bold: true,
         color: 'grey',
         margin: [MARGIN / 2, 0, 0, 10]
@@ -45,6 +45,38 @@ function getDD(content) {
 }
 
 // ==========================================================
+function getSuiteName(suite) {
+  switch (suite) {
+    case 'ssllabs':
+      return 'SSL Labs'
+    case 'securityheaders':
+      return 'Security Headers'
+    case 'seobility':
+      return 'Seobility'
+    case 'gtmetrix':
+      return 'GTMetrix'
+    case 'hardenize':
+      return 'Hardenize'
+    case 'favicon-checker':
+      return 'Favicon-Checker'
+    case 'w3':
+      return 'W3 HTML Validation'
+    case 'achecker':
+      return 'AChecker'
+    case 'varvy':
+      return 'Varvy'
+    case 'keycdn':
+      return 'KeyCDN'
+    case 'lighthouse':
+      return 'Lighthouse'
+    case 'w3-css':
+      return 'W3 CSS Validation'
+    default:
+      return 'Unknown'
+  }
+}
+
+// ==========================================================
 exports.createPDF = async results => {
   const content = []
 
@@ -53,18 +85,18 @@ exports.createPDF = async results => {
     result.images.forEach(image => {
       const imageSize = sizeOf(image.path)
 
-      content.push({ text: result.suite, style: 'header' })
+      content.push({ text: getSuiteName(result.suite), style: 'header' })
       content.push({ text: image.url, style: 'subtitle' })
       content.push({
         image: image.path,
         width: 1280 - 2 * MARGIN,
         height: imageSize.height,
-        margin: [MARGIN / 2, 0, 0, 0],
-        pageBreak: 'after'
+        margin: [MARGIN / 2, 0, 0, 6 * MARGIN]
       })
     })
   }
 
+  // Create PDF
   var pdfDoc = PRINTER.createPdfKitDocument(getDD(content), {})
   pdfDoc.pipe(fs.createWriteStream(PDF_PATH))
   pdfDoc.end()
