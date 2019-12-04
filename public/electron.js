@@ -1,25 +1,27 @@
-const { app, BrowserWindow, ipcMain, dialog, Notification } = require('electron')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
 const isDev = require('electron-is-dev')
-const pie = require('puppeteer-in-electron')
-const puppeteer = require('puppeteer-core')
-const uuid = require('uuid/v1')
 const JSZip = require('jszip')
 
 // Utlity & PDF
-const { checkURL, contains, getSiteUrls } = require('./utility')
-const { createPDF } = require('./pdf')
+const {
+  initializeReport,
+  setWindow,
+  createReport,
+  cancelReport,
+  showWorker,
+  createPuppeteerWindow
+} = require('./src/report')
+const { createPDF } = require('./src/pdf')
 
 // Consts
 const ROOT_PATH = process.cwd()
 const CONFIG_PATH = ROOT_PATH + '/config.json'
-const TIMEOUT = 300000 // 5 Minutes
-const RESOLUTION = { width: 1280, height: 960 }
 
 // ==========================================================
 // #region Variables & Configuration
-let mainWindow, browser, puppeteerWindow
+let mainWindow, puppeteerWindow
 var config = {
   settings: {
     width: 1280,
@@ -29,31 +31,19 @@ var config = {
   },
   reports: []
 }
-var processedReport = null
-var processedSuites = []
-var processedURLS = []
-var processedResults = []
-var processedProgress = 0
-var processedCanceled = false
-
-function saveConfigurationToDisk() {
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
-}
 // #endregion
 
 // ==========================================================
 // #region SETUP
-async function setupPuppeteer() {
-  try {
-    browser = await pie.connect(app, puppeteer)
-  } catch (error) {}
-}
-
 function loadConfigFromFile() {
   try {
     if (fs.existsSync(CONFIG_PATH)) config = JSON.parse(fs.readFileSync(CONFIG_PATH))
     else fs.appendFileSync(CONFIG_PATH, JSON.stringify(config))
   } catch (error) {}
+}
+
+function saveConfigurationToDisk() {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(config))
 }
 
 function createWindow() {
@@ -64,7 +54,7 @@ function createWindow() {
     center: true,
     webPreferences: {
       nodeIntegration: false,
-      preload: __dirname + '/preload.js'
+      preload: __dirname + '/src/preload.js'
     }
   })
   mainWindow.loadURL(
@@ -72,25 +62,26 @@ function createWindow() {
   )
   mainWindow.on('closed', () => {
     mainWindow = null
-    if (processedReport != null) processedCanceled = true
+    cancelReport()
+
+    // Set Report Window Variables on Report
+    setWindow(null)
   })
   mainWindow.on('ready-to-show', () => mainWindow.show())
 
-  // Show Dev Tools
-  //if (isDev) mainWindow.webContents.openDevTools()
+  // Set Report Window Variables on Report
+  setWindow(mainWindow)
 }
+
 // #endregion
 
 // ==========================================================
-// #region MAIN
+// #region MAIN & APP HANDLER
 ;(async () => {
   // Setup Puppeteer
-  await setupPuppeteer()
+  await initializeReport()
 })()
-// #endregion
 
-// ==========================================================
-// #region APP HANDLER
 app.on('ready', async () => {
   // Load Settings
   loadConfigFromFile()
@@ -98,15 +89,11 @@ app.on('ready', async () => {
   // Add Properties
   global.config = config
 
-  // Puppeteer
-  puppeteerWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
-    show: config.settings.showWorker
-  })
-
-  // Create BrowserWindow
+  // Create BrowserWindow & Set in Report.js
   createWindow()
+
+  // Apply Config Settings to PuppeteerWindow
+  createPuppeteerWindow(config.settings.showWorker)
 })
 
 app.on('window-all-closed', () => {
@@ -123,7 +110,16 @@ app.on('activate', () => {
 
 // ==========================================================
 // #region RENDERER HANDLER
-ipcMain.on('updateConfig', (event, newConfig) => {
+ipcMain.on('updateConfig', (event, newConfig) => updateConfiguration(newConfig))
+ipcMain.on('closeWindow', closeWindow)
+
+// Report
+ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
+ipcMain.on('cancelReport', (event, report) => cancelReport(report))
+ipcMain.on('exportReport', (event, report, suites) => exportReport(report, suites))
+
+// ==========================================================
+async function updateConfiguration(newConfig) {
   // Check Differences => a report has been deleted, then delete not longer user Images
   if (config.reports.length > newConfig.reports.length) {
     var deletedReport = null
@@ -148,205 +144,15 @@ ipcMain.on('updateConfig', (event, newConfig) => {
   saveConfigurationToDisk()
 
   // Apply new Settings
-  config.settings.showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+  showWorker(config.settings.showWorker)
   mainWindow.focus()
 
   // Update Global Properties
   global.config = config
-})
-ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
-ipcMain.on('cancelReport', (event, report) => cancelReport(report))
-ipcMain.on('exportReport', (event, report, suites) => exportReport(report, suites))
-ipcMain.on('closeWindow', () => {
-  if (mainWindow) mainWindow.destroy()
-})
-// #endregion
-
-// ==========================================================
-// #region REPORT HANDLER
-async function createReport(report, suites) {
-  if (report && suites && browser && puppeteerWindow) {
-    try {
-      processedReport = report
-      const { url } = processedReport
-      processedSuites = suites
-
-      const urlIsValid = await checkURL(url)
-      console.log('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
-
-      if (urlIsValid) {
-        // #region Crawl Subsites & Setup Progressing Variables
-        processedURLS = contains(suites, ['w3', 'achecker', 'w3-css']) ? await getSiteUrls(url) : []
-        processedResults = []
-        processedProgress = 0
-        // #endregion
-
-        // #region Default Reports
-        // SSL Labs
-        if (!processedCanceled && contains(suites, ['ssllabs'])) {
-          __result = await createSimpleSuiteResult('normal', {
-            suite: 'ssllabs',
-            testURL: 'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
-            selector: '#rating'
-          })
-        }
-
-        // Security Headers
-        if (!processedCanceled && contains(suites, ['securityheaders'])) {
-          __result = await createSimpleSuiteResult('normal', {
-            suite: 'securityheaders',
-            testURL: 'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
-            selector: '.reportBody'
-          })
-        }
-
-        // Seobility
-        if (!processedCanceled && contains(suites, ['seobility'])) {
-          __result = await createSimpleSuiteResult('normal', {
-            suite: 'seobility',
-            testURL: 'https://freetools.seobility.net/de/seocheck/' + url,
-            selector: '#quickform'
-          })
-        }
-
-        // Favicon-Checker
-        if (!processedCanceled && contains(suites, ['favicon-checker'])) {
-          __result = await createSimpleSuiteResult('normal', {
-            suite: 'favicon-checker',
-            testURL:
-              'https://realfavicongenerator.net/favicon_checker?protocol=https&site=' +
-              url +
-              '#.XWju45MzZhE',
-            selector: () => {
-              const progress = document.getElementById('analysis_progress')
-              return progress ? progress.style.display == 'none' : true
-            }
-          })
-        }
-
-        // W-Three HTML Validator
-        if (!processedCanceled && contains(suites, ['w3'])) {
-          __result = await createChainedSuiteResult('normal', {
-            suite: 'w-three',
-            testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
-            selector: '#results'
-          })
-        }
-        // #endregion
-
-        // #region Input Reports
-        // GTMetrix
-        if (!processedCanceled && contains(suites, ['gtmetrix'])) {
-          __result = await createSimpleSuiteResult('input', {
-            suite: 'gtmetrix',
-            testURL: 'https://gtmetrix.com',
-            input: 'input[name=url]',
-            click: 'button[type=submit]',
-            selector: '.page-report'
-          })
-        }
-
-        // Hardenize
-        if (!processedCanceled && contains(suites, ['hardenize'])) {
-          __result = await createSimpleSuiteResult('input', {
-            suite: 'hardenize',
-            testURL: 'https://www.hardenize.com',
-            input: 'input[name=host]',
-            click: '#run',
-            selector: '.report'
-          })
-        }
-
-        // Varvy
-        if (!processedCanceled && contains(suites, ['varvy'])) {
-          __result = await createSimpleSuiteResult('input', {
-            suite: 'varvy',
-            testURL: 'https://varvy.com',
-            input: 'input[name=url]',
-            click: 'input[type=submit]',
-            selector: () => !document.querySelector('.timer-loader')
-          })
-        }
-
-        // KeyDCN
-        if (!processedCanceled && contains(suites, ['keycdn'])) {
-          __result = await createSimpleSuiteResult('input', {
-            suite: 'keycdn',
-            testURL: 'https://tools.keycdn.com/speed',
-            urlPrefix: 'https://',
-            input: '#url',
-            click: '#speedBtn',
-            selector: () => document.getElementById('speedResult').childNodes.length > 0
-          })
-        }
-
-        // AChecker
-        if (!processedCanceled && contains(suites, ['achecker'])) {
-          __result = await createChainedSuiteResult('input', {
-            suite: 'achecker',
-            testURL: 'https://achecker.ca/checker/index.php',
-            input: 'input[name=uri]',
-            click: '.validation_button',
-            selector: '#AC_errors'
-          })
-        }
-
-        // W3 CSS
-        if (!processedCanceled && contains(suites, ['w3-css'])) {
-          __result = await createChainedSuiteResult('input', {
-            suite: 'w3-css',
-            testURL: 'https://jigsaw.w3.org/css-validator/',
-            input: 'input[name=uri]',
-            click: '.submit',
-            selector: '#results_container'
-          })
-        }
-        // #endregion
-
-        // #region Special Reports
-        // Lighthouse
-        if (!processedCanceled && contains(suites, ['lighthouse'])) {
-          __result = await createLighthouseReport()
-        }
-        // #endregion
-
-        // #region Finish Report & Send Notification
-        // Send Notification
-        if (Notification.isSupported() && !processedCanceled) {
-          const not = new Notification({
-            title: 'One Click Checker',
-            subtitle: `Report for ${processedReport.url} has finished.`,
-            silent: false
-          })
-
-          not.show()
-        }
-
-        console.log('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
-        updateReportProgress(processedReport, !processedCanceled, processedResults)
-        processedReport = null
-        processedCanceled = false
-        // #endregion
-      }
-    } catch (error) {
-      // Evtl. close page
-      console.log('An error occured during creating the Report:', error)
-      updateReportProgress(processedReport, false, processedResults)
-    }
-  }
 }
 
-function updateReportProgress(report, progress, results) {
-  if (mainWindow) {
-    console.log('Sending Report Update to Renderer')
-    mainWindow.webContents.send('updateReport', {
-      report: {
-        ...report,
-        progress: progress
-      },
-      results: results
-    })
-  }
+function closeWindow() {
+  if (mainWindow) mainWindow.destroy()
 }
 
 async function exportReport(report, suites) {
@@ -378,280 +184,13 @@ async function exportReport(report, suites) {
     if (config.settings.export.includes('pdf')) {
       // Create PDF and Add to ZIP
       const pdfPath = await createPDF(pdfResults)
-      const pdfBinary = fs.readFileSync(pdfPath)
-      console.log('PDF Binary', pdfBinary)
-      zip.file('results.pdf', pdfBinary)
-      // fs.unlinkSync(pdfPath)
+      zip.file('results.pdf', fs.createReadStream(pdfPath))
+      fs.unlinkSync(pdfPath)
     }
 
     // Save Zip to path
     const finishedZip = await zip.generateAsync({ type: 'uint8array' })
     fs.writeFileSync(path + '.zip', finishedZip)
   }
-}
-
-function cancelReport(report) {
-  if (
-    processedReport != null &&
-    processedReport.url == report.url &&
-    processedReport.date == report.date
-  )
-    processedCanceled = true
-}
-// #endregion
-// #region SUITES
-async function createSimpleSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
-  const { url } = processedReport
-  let imagePath = null
-
-  // Create Report
-  if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
-  else if ('input')
-    imagePath = await createInputReport(suite, url, testURL, input, click, selector, urlPrefix)
-
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: suite,
-    images: [{ url: url, path: imagePath }]
-  })
-
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
-
-  // Return
-  return true
-}
-
-async function createChainedSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
-  const { url } = processedReport
-  let images = []
-
-  // Create Report
-  if (type == 'normal') {
-    for (const sub of processedURLS) {
-      const subImagePath = await createDefaultReport(
-        suite,
-        testURL.replace('SUBURL', sub),
-        selector,
-        true
-      )
-      images.push({
-        url: sub,
-        path: subImagePath
-      })
-    }
-  } else if (type == 'input') {
-    for (const sub of processedURLS) {
-      const subImagePath = await createInputReport(
-        suite,
-        sub,
-        testURL,
-        input,
-        click,
-        selector,
-        urlPrefix,
-        true
-      )
-      images.push({
-        url: sub,
-        path: subImagePath
-      })
-    }
-  }
-
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: suite,
-    images: images
-  })
-
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
-
-  // Return
-  return true
-}
-
-// Default, Input, Lighthouse
-async function createDefaultReport(suite, url, selector, chain = false) {
-  return new Promise(async resolve => {
-    console.log('Creating ' + suite + ' report.')
-    try {
-      // Load URL
-      await puppeteerWindow.loadURL(url, { waitUntil: 'networkidel0', timeout: TIMEOUT })
-
-      // Get Page Object
-      const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport(RESOLUTION)
-
-      // Wait for Selector
-      await page.waitFor(1000)
-      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
-      else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: TIMEOUT })
-      await page.waitFor(1000)
-
-      // Take screenshot
-      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
-      await page.screenshot({
-        path: path,
-        type: 'jpeg',
-        quality: 70,
-        fullPage: true
-      })
-
-      // Wait
-      await page.waitFor(1000)
-      if (chain) await page.waitFor(2500)
-
-      console.log(`Saved to file ${path}`)
-      resolve(path)
-    } catch (error) {
-      console.log('An Error occured creating ' + suite + ' report. ' + error)
-      resolve(null)
-    }
-  })
-}
-
-async function createInputReport(
-  suite,
-  url,
-  testURL,
-  input,
-  click,
-  selector,
-  urlPrefix,
-  chain = false
-) {
-  return new Promise(async resolve => {
-    console.log('Creating ' + suite + ' input report.')
-    try {
-      // Load URL
-      await puppeteerWindow.loadURL(testURL, { waitUntil: 'networkidel0', timeout: TIMEOUT })
-
-      // Get Page Object
-      const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport(RESOLUTION)
-
-      // Enter URL and Press Button
-      await page.waitFor(1000)
-      await page.type(input, urlPrefix + url, { delay: 100 })
-      await page.click(click)
-
-      // Wait for Selector
-      await page.waitFor(1000)
-      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
-      else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: TIMEOUT })
-      await page.waitFor(1000)
-
-      // Take screenshot
-      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
-      await page.screenshot({
-        path: path,
-        type: 'jpeg',
-        quality: 70,
-        fullPage: true
-      })
-
-      // Wait
-      await page.waitFor(1000)
-      if (chain) await page.waitFor(2500)
-
-      console.log(`Saved to file ${path}`)
-      resolve(path)
-    } catch (error) {
-      console.log('An Error occured creating ' + suite + ' report. ' + error)
-      resolve(null)
-    }
-  })
-}
-
-async function createLighthouseReport() {
-  const { url } = processedReport
-  let imagePath = null
-
-  // Create Report
-  console.log('Creating lighthouse report.')
-  try {
-    // Load URL
-    await puppeteerWindow.loadURL('https://web.dev/measure/', {
-      waitUntil: 'networkidel0',
-      timeout: TIMEOUT
-    })
-
-    // Get Page Object
-    const page = await pie.getPage(browser, puppeteerWindow)
-    await page.setViewport(RESOLUTION)
-
-    // Enter URL and Press Button
-    await page.waitFor(1000)
-    await page.type('input[type=url]', 'https://' + url, { delay: 100 })
-    await page.click('#run-lh-button')
-
-    // Wait for Selector
-    await page.waitFor(1000)
-    await page.waitForFunction(
-      () => document.getElementsByClassName('lh-metrics-table')[0].childElementCount > 0,
-      { timeout: TIMEOUT }
-    )
-    await page.waitFor(1000)
-
-    // Get Report
-    await puppeteerWindow.loadURL(
-      'https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https://' + url,
-      {
-        waitUntil: 'networkidel0',
-        timeout: TIMEOUT
-      }
-    )
-    await page.waitFor(2000)
-
-    // Take screenshot
-    imagePath = ROOT_PATH + '/images/' + uuid() + '.jpeg'
-    await page.screenshot({
-      path: imagePath,
-      type: 'jpeg',
-      quality: 70,
-      fullPage: true
-    })
-
-    // Wait
-    await page.waitFor(1000)
-
-    console.log(`Saved to file ${imagePath}`)
-  } catch (error) {}
-
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: 'lighthouse',
-    images: [{ url: url, path: imagePath }]
-  })
-
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
-
-  // Return
-  return true
 }
 // #endregion

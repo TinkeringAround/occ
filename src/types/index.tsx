@@ -51,7 +51,7 @@ export type TSuites =
 
 export type TImage = {
   url: string
-  path: any
+  path: string
 }
 
 export type TResult = {
