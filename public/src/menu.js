@@ -1,6 +1,9 @@
 const { app, Menu, shell } = require('electron')
 const isDev = require('electron-is-dev')
 
+// Utility
+const { logError } = require('./logger')
+
 // ==========================================================
 const isMac = process.platform === 'darwin'
 
@@ -24,7 +27,7 @@ const template = [
   {
     label: 'View',
     submenu: [
-      ...(isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
+      ...(!isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
       { role: 'togglefullscreen' }
     ]
   },
@@ -54,6 +57,10 @@ const template = [
 
 // ==========================================================
 exports.initializeMenu = () => {
-  const menu = Menu.buildFromTemplate(template)
-  Menu.setApplicationMenu(menu)
+  try {
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
+  } catch (error) {
+    logError(error)
+  }
 }

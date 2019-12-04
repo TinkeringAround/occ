@@ -195,9 +195,9 @@ const App: FC = () => {
 
   useEffect(() => {
     window.addEventListener('beforeunload', showConfirmationDialog)
+    window.addEventListener('resize', updateWindowSize)
     // @ts-ignore
     window.electron.ipcRenderer.on('updateReport', updateReport)
-    window.addEventListener('resize', updateWindowSize)
     return () => {
       window.removeEventListener('beforeunload', showConfirmationDialog)
       window.removeEventListener('resize', updateWindowSize)

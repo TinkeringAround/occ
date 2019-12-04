@@ -1,10 +1,10 @@
 const { app, BrowserWindow, Notification } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
-const fs = require('fs')
 const uuid = require('uuid/v1')
 
 // Utility & Packages
+const { logError } = require('./logger')
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // Consts
@@ -26,34 +26,33 @@ var processedCanceled = false
 
 // ==========================================================
 // #region Setup
-exports.initializeReport = async () => {
+const initializeReport = async () => {
   try {
     // Create Browser
     browser = await pie.connect(app, puppeteer)
-
-    // Create Worker Window
-    createPuppeteerWindow()
-  } catch (error) {}
+  } catch (error) {
+    logError(error)
+  }
 }
 
-exports.createPuppeteerWindow = showWorker => {
+const createPuppeteerWindow = showWorker => {
   puppeteerWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
     show: showWorker,
     closable: false,
-    minimizable: false
+    resizable: false
   })
 }
 
-exports.setWindow = window => (mainWindow = window)
-exports.showWorker = showWorker =>
+const setWindow = window => (mainWindow = window)
+const showWorker = showWorker =>
   showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
 // #endregion
 
 // ==========================================================
 // #region REPORT HANDLER
-exports.createReport = async (report, suites) => {
+const createReport = async (report, suites) => {
   if (report && suites && browser && puppeteerWindow) {
     try {
       processedReport = report
@@ -216,29 +215,40 @@ exports.createReport = async (report, suites) => {
         processedReport = null
         processedCanceled = false
         // #endregion
+      } else {
+        console.log('An error occured during creating the Report. No valid URL provided.')
+        updateReportProgress(processedReport, false, processedResults)
+        logError('URL ' + processedReport.url + ' is invalid.')
+
+        processedReport = null
+        processedCanceled = false
       }
     } catch (error) {
-      // Evtl. close page
       console.log('An error occured during creating the Report:', error)
       updateReportProgress(processedReport, false, processedResults)
+      logError(error)
     }
   }
 }
 
 async function updateReportProgress(report, progress, results) {
-  if (mainWindow) {
-    console.log('Sending Report Update to Renderer')
-    mainWindow.webContents.send('updateReport', {
-      report: {
-        ...report,
-        progress: progress
-      },
-      results: results
-    })
+  try {
+    if (mainWindow) {
+      console.log('Sending Report Update to Renderer')
+      mainWindow.webContents.send('updateReport', {
+        report: {
+          ...report,
+          progress: progress
+        },
+        results: results
+      })
+    }
+  } catch (error) {
+    logError(error)
   }
 }
 
-exports.cancelReport = report => {
+const cancelReport = report => {
   if (
     processedReport != null &&
     processedReport.url == report.url &&
@@ -251,89 +261,99 @@ exports.cancelReport = report => {
 // ==========================================================
 // #region SUITES
 async function createSimpleSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
-  const { url } = processedReport
-  let imagePath = null
+  try {
+    const { suite, testURL, selector, input, click, urlPrefix = '' } = data
+    const { url } = processedReport
+    let imagePath = null
 
-  // Create Report
-  if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
-  else if ('input')
-    imagePath = await createInputReport(suite, url, testURL, input, click, selector, urlPrefix)
+    // Create Report
+    if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
+    else if ('input')
+      imagePath = await createInputReport(suite, url, testURL, input, click, selector, urlPrefix)
 
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: suite,
-    images: [{ url: url, path: imagePath }]
-  })
+    // Push Report to Results
+    processedResults.push({
+      url: url,
+      suite: suite,
+      images: [{ url: url, path: imagePath }]
+    })
 
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
+    // Update
+    processedProgress += 1
+    updateReportProgress(
+      processedReport,
+      ~~((processedProgress / processedSuites.length) * 100),
+      processedResults
+    )
 
-  // Return
-  return true
+    // Return
+    return true
+  } catch (error) {
+    logError(error)
+    return false
+  }
 }
 
 async function createChainedSuiteResult(type = 'normal', data) {
-  const { suite, testURL, selector, input, click, urlPrefix = '' } = data
-  const { url } = processedReport
-  let images = []
+  try {
+    const { suite, testURL, selector, input, click, urlPrefix = '' } = data
+    const { url } = processedReport
+    let images = []
 
-  // Create Report
-  if (type == 'normal') {
-    for (const sub of processedURLS) {
-      const subImagePath = await createDefaultReport(
-        suite,
-        testURL.replace('SUBURL', sub),
-        selector,
-        true
-      )
-      images.push({
-        url: sub,
-        path: subImagePath
-      })
+    // Create Report
+    if (type == 'normal') {
+      for (const sub of processedURLS) {
+        const subImagePath = await createDefaultReport(
+          suite,
+          testURL.replace('SUBURL', sub),
+          selector,
+          true
+        )
+        images.push({
+          url: sub,
+          path: subImagePath
+        })
+      }
+    } else if (type == 'input') {
+      for (const sub of processedURLS) {
+        const subImagePath = await createInputReport(
+          suite,
+          sub,
+          testURL,
+          input,
+          click,
+          selector,
+          urlPrefix,
+          true
+        )
+        images.push({
+          url: sub,
+          path: subImagePath
+        })
+      }
     }
-  } else if (type == 'input') {
-    for (const sub of processedURLS) {
-      const subImagePath = await createInputReport(
-        suite,
-        sub,
-        testURL,
-        input,
-        click,
-        selector,
-        urlPrefix,
-        true
-      )
-      images.push({
-        url: sub,
-        path: subImagePath
-      })
-    }
+
+    // Push Report to Results
+    processedResults.push({
+      url: url,
+      suite: suite,
+      images: images
+    })
+
+    // Update
+    processedProgress += 1
+    updateReportProgress(
+      processedReport,
+      ~~((processedProgress / processedSuites.length) * 100),
+      processedResults
+    )
+
+    // Return
+    return true
+  } catch (error) {
+    logError(error)
+    return false
   }
-
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: suite,
-    images: images
-  })
-
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
-
-  // Return
-  return true
 }
 
 // Default, Input, Lighthouse
@@ -372,6 +392,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       resolve(path)
     } catch (error) {
       console.log('An Error occured creating ' + suite + ' report. ' + error)
+      logError(error)
       resolve(null)
     }
   })
@@ -426,18 +447,20 @@ async function createInputReport(
       resolve(path)
     } catch (error) {
       console.log('An Error occured creating ' + suite + ' report. ' + error)
+      logError(error)
       resolve(null)
     }
   })
 }
 
 async function createLighthouseReport() {
-  const { url } = processedReport
-  let imagePath = null
-
-  // Create Report
-  console.log('Creating lighthouse report.')
   try {
+    const { url } = processedReport
+    let imagePath = null
+
+    // Create Report
+    console.log('Creating lighthouse report.')
+
     // Load URL
     await puppeteerWindow.loadURL('https://web.dev/measure/', {
       waitUntil: 'networkidel0',
@@ -484,24 +507,37 @@ async function createLighthouseReport() {
     await page.waitFor(1000)
 
     console.log(`Saved to file ${imagePath}`)
-  } catch (error) {}
 
-  // Push Report to Results
-  processedResults.push({
-    url: url,
-    suite: 'lighthouse',
-    images: [{ url: url, path: imagePath }]
-  })
+    // Push Report to Results
+    processedResults.push({
+      url: url,
+      suite: 'lighthouse',
+      images: [{ url: url, path: imagePath }]
+    })
 
-  // Update
-  processedProgress += 1
-  updateReportProgress(
-    processedReport,
-    ~~((processedProgress / processedSuites.length) * 100),
-    processedResults
-  )
+    // Update
+    processedProgress += 1
+    updateReportProgress(
+      processedReport,
+      ~~((processedProgress / processedSuites.length) * 100),
+      processedResults
+    )
 
-  // Return
-  return true
+    // Return
+    return true
+  } catch (error) {
+    logError(error)(error)
+    return false
+  }
 }
 // #endregion
+
+// ==========================================================
+module.exports = {
+  initializeReport,
+  createPuppeteerWindow,
+  setWindow,
+  showWorker,
+  createReport,
+  cancelReport
+}
