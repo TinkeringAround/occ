@@ -7,14 +7,28 @@ const ROOT_PATH = app.getPath('documents') + '/OCC'
 const LOG_PATH = ROOT_PATH + '/log.txt'
 
 // ==========================================================
-exports.logError = error => {
-  try {
-    const errorMessage = 'Error:\n' + error
+const logError = error => {
+  const errorMessage = 'Error:\n' + error + '\n' + os.EOL
+  writeToLogFile(errorMessage)
+}
 
+const logInfo = info => {
+  const infoMessage = 'Info:\n' + info + '\n' + os.EOL
+  writeToLogFile(infoMessage)
+}
+
+const writeToLogFile = message => {
+  try {
     if (fs.existsSync(LOG_PATH)) {
       let fd = fs.openSync(LOG_PATH, 'a')
-      fs.writeSync(fd, errorMessage + os.EOL + os.EOL, null, 'utf8')
+      fs.writeSync(fd, message, null, 'utf8')
       fs.closeSync(fd)
-    } else fs.appendFileSync(LOG_PATH, errorMessage)
+    } else fs.appendFileSync(LOG_PATH, message)
   } catch (error) {}
+}
+
+// ==========================================================
+module.exports = {
+  logError,
+  logInfo
 }

@@ -1,10 +1,11 @@
+require('hazardous')
 const { app, BrowserWindow, Notification } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
 
 // Utility & Packages
-const { logError } = require('./logger')
+const { logError, logInfo } = require('./logger')
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // Consts
@@ -28,10 +29,11 @@ var processedCanceled = false
 // #region Setup
 const initializeReport = async () => {
   try {
-    // Create Browser
+    logInfo('Initializing Report')
     browser = await pie.connect(app, puppeteer)
+    logInfo('Browser-Object: ' + browser)
   } catch (error) {
-    logError(error)
+    logError('Initializing Report:' + error)
   }
 }
 
@@ -46,8 +48,10 @@ const createPuppeteerWindow = showWorker => {
 }
 
 const setWindow = window => (mainWindow = window)
-const showWorker = showWorker =>
-  showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+const showWorker = showWorker => {
+  if (showWorker == null) puppeteerWindow.destroy()
+  else showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+}
 // #endregion
 
 // ==========================================================
@@ -60,7 +64,7 @@ const createReport = async (report, suites) => {
       processedSuites = suites
 
       const urlIsValid = await checkURL(url)
-      console.log('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
+      logInfo('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
 
       if (urlIsValid) {
         // #region Crawl Subsites & Setup Progressing Variables
@@ -210,13 +214,12 @@ const createReport = async (report, suites) => {
           not.show()
         }
 
-        console.log('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
+        logInfo('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
         updateReportProgress(processedReport, !processedCanceled, processedResults)
         processedReport = null
         processedCanceled = false
         // #endregion
       } else {
-        console.log('An error occured during creating the Report. No valid URL provided.')
         updateReportProgress(processedReport, false, processedResults)
         logError('URL ' + processedReport.url + ' is invalid.')
 
@@ -224,7 +227,7 @@ const createReport = async (report, suites) => {
         processedCanceled = false
       }
     } catch (error) {
-      console.log('An error occured during creating the Report:', error)
+      logError('An error occured during creating the Report, ' + error)
       updateReportProgress(processedReport, false, processedResults)
       logError(error)
     }
@@ -234,7 +237,7 @@ const createReport = async (report, suites) => {
 async function updateReportProgress(report, progress, results) {
   try {
     if (mainWindow) {
-      console.log('Sending Report Update to Renderer')
+      logInfo('Sending Report Update to Renderer')
       mainWindow.webContents.send('updateReport', {
         report: {
           ...report,
@@ -359,7 +362,7 @@ async function createChainedSuiteResult(type = 'normal', data) {
 // Default, Input, Lighthouse
 async function createDefaultReport(suite, url, selector, chain = false) {
   return new Promise(async resolve => {
-    console.log('Creating ' + suite + ' report.')
+    logInfo('Creating ' + suite + ' report.')
     try {
       // Load URL
       await puppeteerWindow.loadURL(url, { waitUntil: 'networkidel0', timeout: TIMEOUT })
@@ -388,11 +391,10 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       await page.waitFor(1000)
       if (chain) await page.waitFor(2500)
 
-      console.log(`Saved to file ${path}`)
+      logInfo(`Saved to file ${path}`)
       resolve(path)
     } catch (error) {
-      console.log('An Error occured creating ' + suite + ' report. ' + error)
-      logError(error)
+      logError('An Error occured creating ' + suite + ' report, ' + error)
       resolve(null)
     }
   })
@@ -409,7 +411,7 @@ async function createInputReport(
   chain = false
 ) {
   return new Promise(async resolve => {
-    console.log('Creating ' + suite + ' input report.')
+    logInfo('Creating ' + suite + ' input report.')
     try {
       // Load URL
       await puppeteerWindow.loadURL(testURL, { waitUntil: 'networkidel0', timeout: TIMEOUT })
@@ -443,11 +445,10 @@ async function createInputReport(
       await page.waitFor(1000)
       if (chain) await page.waitFor(2500)
 
-      console.log(`Saved to file ${path}`)
+      logInfo(`Saved to file ${path}`)
       resolve(path)
     } catch (error) {
-      console.log('An Error occured creating ' + suite + ' report. ' + error)
-      logError(error)
+      logError('An Error occured creating ' + suite + ' report, ' + error)
       resolve(null)
     }
   })
@@ -459,7 +460,7 @@ async function createLighthouseReport() {
     let imagePath = null
 
     // Create Report
-    console.log('Creating lighthouse report.')
+    logInfo('Creating lighthouse report.')
 
     // Load URL
     await puppeteerWindow.loadURL('https://web.dev/measure/', {
@@ -506,7 +507,7 @@ async function createLighthouseReport() {
     // Wait
     await page.waitFor(1000)
 
-    console.log(`Saved to file ${imagePath}`)
+    logInfo(`Saved to file ${imagePath}`)
 
     // Push Report to Results
     processedResults.push({
@@ -526,7 +527,7 @@ async function createLighthouseReport() {
     // Return
     return true
   } catch (error) {
-    logError(error)(error)
+    logError('An error occured creating lighthouse report, ' + error)
     return false
   }
 }

@@ -17,7 +17,7 @@ const FONTS = {
 }
 const MARGIN = 40
 const PRINTER = new PdfPrinter(FONTS)
-const ROOT_PATH = app.getPath('documents') * '/OCC'
+const ROOT_PATH = app.getPath('documents') + '/OCC'
 const PDF_PATH = ROOT_PATH + '/reports.pdf'
 
 // ==========================================================

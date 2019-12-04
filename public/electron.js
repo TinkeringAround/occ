@@ -1,3 +1,4 @@
+require('hazardous')
 const { app, BrowserWindow, ipcMain, dialog } = require('electron')
 const path = require('path')
 const fs = require('fs')
@@ -5,7 +6,7 @@ const isDev = require('electron-is-dev')
 const JSZip = require('jszip')
 
 // Utlity & PDF
-const { logError } = require('./src/logger')
+const { logError, logInfo } = require('./src/logger')
 const { initializeMenu } = require('./src/menu')
 const {
   createPuppeteerWindow,
@@ -76,6 +77,7 @@ function createWindow() {
 
     // Set Report Window Variables on Report
     setWindow(null)
+    showWorker(null)
   })
   mainWindow.on('ready-to-show', () => mainWindow.show())
 
@@ -119,14 +121,10 @@ app.on('ready', async () => {
     logError(error)
   }
 })
-
 app.on('window-all-closed', () => {
   saveConfigurationToDisk()
   app.quit()
 })
-
-app.on('quit', saveConfigurationToDisk)
-
 app.on('activate', () => {
   if (mainWindow === null) createWindow()
 })
@@ -138,9 +136,18 @@ ipcMain.on('updateConfig', (event, newConfig) => updateConfiguration(newConfig))
 ipcMain.on('closeWindow', closeWindow)
 
 // Report
-ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
-ipcMain.on('cancelReport', (event, report) => cancelReport(report))
-ipcMain.on('exportReport', (event, report, suites) => exportReport(report, suites))
+ipcMain.on('createReport', (event, report, suites) => {
+  logInfo('Report Job received.')
+  createReport(report, suites)
+})
+ipcMain.on('cancelReport', (event, report) => {
+  logInfo('Cancelling Report.')
+  cancelReport(report)
+})
+ipcMain.on('exportReport', (event, report, suites) => {
+  logInfo('Exporting Report.')
+  exportReport(report, suites)
+})
 
 // ==========================================================
 async function updateConfiguration(newConfig) {
