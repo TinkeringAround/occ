@@ -5,6 +5,7 @@ const isDev = require('electron-is-dev')
 const JSZip = require('jszip')
 
 // Utlity & PDF
+const { initializeMenu } = require('./src/menu')
 const {
   initializeReport,
   setWindow,
@@ -16,18 +17,18 @@ const {
 const { createPDF } = require('./src/pdf')
 
 // Consts
-const ROOT_PATH = process.cwd()
+const ROOT_PATH = app.getPath('documents') + '/OCC'
 const CONFIG_PATH = ROOT_PATH + '/config.json'
 
 // ==========================================================
 // #region Variables & Configuration
-let mainWindow, puppeteerWindow
+let mainWindow
 var config = {
   settings: {
     width: 1280,
     height: 960,
     showWorker: false,
-    export: 'images'
+    export: 'images and pdf'
   },
   reports: []
 }
@@ -38,8 +39,15 @@ var config = {
 function loadConfigFromFile() {
   try {
     if (fs.existsSync(CONFIG_PATH)) config = JSON.parse(fs.readFileSync(CONFIG_PATH))
-    else fs.appendFileSync(CONFIG_PATH, JSON.stringify(config))
-  } catch (error) {}
+    else createFolderAndConfigFile()
+  } catch (error) {
+    createFolderAndConfigFile()()
+  }
+}
+
+function createFolderAndConfigFile() {
+  fs.mkdirSync(ROOT_PATH)
+  fs.appendFileSync(CONFIG_PATH, JSON.stringify(config))
 }
 
 function saveConfigurationToDisk() {
@@ -56,6 +64,7 @@ function createWindow() {
       nodeIntegration: false,
       preload: __dirname + '/src/preload.js'
     }
+    // icon: __dirname + "/assets/icon.icns"
   })
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
@@ -80,11 +89,17 @@ function createWindow() {
 ;(async () => {
   // Setup Puppeteer
   await initializeReport()
+
+  // Initialize Menu
+  initializeMenu()
 })()
 
 app.on('ready', async () => {
-  // Load Settings
+  // Load Configuration
   loadConfigFromFile()
+
+  // Create Directories for Images
+  if (!fs.existsSync(ROOT_PATH + '/images')) fs.mkdirSync(ROOT_PATH + '/images')
 
   // Add Properties
   global.config = config

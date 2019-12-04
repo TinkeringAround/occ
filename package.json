@@ -1,9 +1,11 @@
 {
   "name": "occ",
+  "productName": "One Click Checker",
   "version": "0.1.0",
   "description": "One Click Checker",
   "author": "Thomas Maier",
   "build": {
+    "productName": "One Click Checker",
     "appId": "<com.electronapp>"
   },
   "main": "public/electron.js",

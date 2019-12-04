@@ -1,13 +1,14 @@
 const { app, BrowserWindow, Notification } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
+const fs = require('fs')
 const uuid = require('uuid/v1')
 
 // Utility & Packages
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // Consts
-const ROOT_PATH = process.cwd()
+const ROOT_PATH = app.getPath('documents') + '/OCC'
 const TIMEOUT = 300000 // 5 Minutes
 const RESOLUTION = { width: 1280, height: 960 }
 
@@ -27,8 +28,10 @@ var processedCanceled = false
 // #region Setup
 exports.initializeReport = async () => {
   try {
+    // Create Browser
     browser = await pie.connect(app, puppeteer)
 
+    // Create Worker Window
     createPuppeteerWindow()
   } catch (error) {}
 }
