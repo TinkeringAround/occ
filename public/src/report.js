@@ -12,6 +12,7 @@ const { checkURL, contains, getSiteUrls } = require('./utility')
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const TIMEOUT = 300000 // 5 Minutes
 const RESOLUTION = { width: 1280, height: 960 }
+const WAIT_DURATION = 2000 // 2 Seconds
 
 // ==========================================================
 // #region Variables
@@ -29,9 +30,9 @@ var processedCanceled = false
 // #region Setup
 const initializeReport = async () => {
   try {
-    browser = await pie.connect(app, puppeteer)
+    browser = await pie.connect(app, puppeteer, 8315)
   } catch (error) {
-    logError('Initializing Report:' + error)
+    logError('Initializing Report:  ' + error)
   }
 }
 
@@ -370,11 +371,11 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       await page.setViewport(RESOLUTION)
 
       // Wait for Selector
-      await page.waitFor(1000)
+      await page.waitFor(WAIT_DURATION)
       if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
       else if (typeof selector == 'function')
         await page.waitForFunction(selector, { timeout: TIMEOUT })
-      await page.waitFor(1000)
+      await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
       const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
@@ -386,8 +387,8 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       })
 
       // Wait
-      await page.waitFor(1000)
-      if (chain) await page.waitFor(2500)
+      await page.waitFor(WAIT_DURATION)
+      if (chain) await page.waitFor(2 * WAIT_DURATION)
 
       logInfo(`Saved to file ${path}`)
       resolve(path)
@@ -419,16 +420,16 @@ async function createInputReport(
       await page.setViewport(RESOLUTION)
 
       // Enter URL and Press Button
-      await page.waitFor(1000)
+      await page.waitFor(WAIT_DURATION)
       await page.type(input, urlPrefix + url, { delay: 100 })
       await page.click(click)
 
       // Wait for Selector
-      await page.waitFor(1000)
+      await page.waitFor(WAIT_DURATION)
       if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
       else if (typeof selector == 'function')
         await page.waitForFunction(selector, { timeout: TIMEOUT })
-      await page.waitFor(1000)
+      await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
       const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
@@ -440,8 +441,8 @@ async function createInputReport(
       })
 
       // Wait
-      await page.waitFor(1000)
-      if (chain) await page.waitFor(2500)
+      await page.waitFor(WAIT_DURATION)
+      if (chain) await page.waitFor(2 * WAIT_DURATION)
 
       logInfo(`Saved to file ${path}`)
       resolve(path)
@@ -471,17 +472,17 @@ async function createLighthouseReport() {
     await page.setViewport(RESOLUTION)
 
     // Enter URL and Press Button
-    await page.waitFor(1000)
+    await page.waitFor(WAIT_DURATION)
     await page.type('input[type=url]', 'https://' + url, { delay: 100 })
     await page.click('#run-lh-button')
 
     // Wait for Selector
-    await page.waitFor(1000)
+    await page.waitFor(WAIT_DURATION)
     await page.waitForFunction(
       () => document.getElementsByClassName('lh-metrics-table')[0].childElementCount > 0,
       { timeout: TIMEOUT }
     )
-    await page.waitFor(1000)
+    await page.waitFor(WAIT_DURATION)
 
     // Get Report
     await puppeteerWindow.loadURL(
@@ -491,7 +492,7 @@ async function createLighthouseReport() {
         timeout: TIMEOUT
       }
     )
-    await page.waitFor(2000)
+    await page.waitFor(WAIT_DURATION)
 
     // Take screenshot
     imagePath = ROOT_PATH + '/images/' + uuid() + '.jpeg'
@@ -503,7 +504,7 @@ async function createLighthouseReport() {
     })
 
     // Wait
-    await page.waitFor(1000)
+    await page.waitFor(WAIT_DURATION)
 
     logInfo(`Saved to file ${imagePath}`)
 

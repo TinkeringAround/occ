@@ -1,9 +1,10 @@
 {
   "name": "occ",
   "productName": "One Click Checker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "One Click Checker",
   "author": "Thomas Maier",
+  "repository": "https://github.com/TinkeringAround/occ.git",
   "build": {
     "productName": "OCC",
     "appId": "<com.electronapp>",
@@ -45,7 +46,6 @@
   "scripts": {
     "build": "yarn react-build && yarn electron-build",
     "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\"",
-    "electron-build": "electron-builder",
     "release": "yarn react-build && electron-builder --publish=always",
     "react-start": "react-scripts start",
     "react-build": "react-scripts build",

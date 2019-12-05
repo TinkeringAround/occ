@@ -47,7 +47,7 @@ const App: FC = () => {
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null) // Configuration
 
   const [report, setReport] = useState<TReport | null>(null) // Open Report
-  const [reportInProgress, setReportInProgress] = useState<TReport | null>(null) // If Report ist currently processed
+  const [reportInProgress, setReportInProgress] = useState<TReport | null>(null) // If Report is currently processed
 
   // Confirmation Dialog
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
