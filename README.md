@@ -17,5 +17,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## TODO
 
-- Timeout as Settings Option
 - (Separate Reports from Settings) => Improve Performance

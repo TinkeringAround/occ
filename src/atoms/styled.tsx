@@ -1,9 +1,6 @@
 import styled from 'styled-components'
 import { Box } from 'grommet'
 
-// Types
-import { TColors, colors } from '../styles'
-
 // ==========================================================
 export const SButton = styled(Box)<{ disabled?: boolean }>`
   border-radius: 15px;
