@@ -47,7 +47,7 @@ const App: FC = () => {
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null) // Configuration
 
   const [report, setReport] = useState<TReport | null>(null) // Open Report
-  const [reportInProgress, setReportInProgress] = useState<boolean>(false) // If Report ist currently processed
+  const [reportInProgress, setReportInProgress] = useState<TReport | null>(null) // If Report ist currently processed
 
   // Confirmation Dialog
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
@@ -66,7 +66,7 @@ const App: FC = () => {
       })
 
       createReportInMain(report, suites)
-      setReportInProgress(true)
+      setReportInProgress(report)
     }
   }
   const updateReport = (
@@ -97,8 +97,8 @@ const App: FC = () => {
           setReport(newReports[index])
         }
 
-        if (updatedReport.progress === true || updatedReport.progress === false)
-          setReportInProgress(false)
+        if (typeof updatedReport.progress === 'boolean') setReportInProgress(null)
+
         setConfiguration({
           ...configuration,
           reports: newReports
@@ -146,7 +146,7 @@ const App: FC = () => {
     }
   }
   const showConfirmationDialog = (event: any) => {
-    if (reportInProgress) {
+    if (reportInProgress != null) {
       setShowConfirmation(true)
       event.returnValue = 'prevent'
     }

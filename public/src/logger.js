@@ -8,12 +8,12 @@ const LOG_PATH = ROOT_PATH + '/log.txt'
 
 // ==========================================================
 const logError = error => {
-  const errorMessage = 'Error:\n' + error + '\n' + os.EOL
+  const errorMessage = getTimestamp() + '   ERROR   {  ' + error + '  }' + os.EOL
   writeToLogFile(errorMessage)
 }
 
 const logInfo = info => {
-  const infoMessage = 'Info:\n' + info + '\n' + os.EOL
+  const infoMessage = getTimestamp() + '   INFO   {  ' + info + '  }' + os.EOL
   writeToLogFile(infoMessage)
 }
 
@@ -25,6 +25,22 @@ const writeToLogFile = message => {
       fs.closeSync(fd)
     } else fs.appendFileSync(LOG_PATH, message)
   } catch (error) {}
+}
+
+function getTimestamp() {
+  var a = new Date(Date.now())
+  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  var year = a.getFullYear()
+  var month = months[a.getMonth()]
+  var date = a.getDate()
+
+  var hour = a.getHours()
+  var min = a.getMinutes()
+  var sec = a.getSeconds()
+
+  var time = hour + ':' + min + ':' + sec + ', ' + date + '. ' + month + ' ' + year
+  return time
 }
 
 // ==========================================================

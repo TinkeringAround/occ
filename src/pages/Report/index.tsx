@@ -39,7 +39,12 @@ const Report: FC = () => {
     if (cancelled) setCancelled(false)
   }, [report])
 
-  const reportIsRunning = report != null && reportInProgress && typeof report.progress === 'number'
+  const reportIsRunning =
+    report != null &&
+    reportInProgress != null &&
+    reportInProgress.date === report.date &&
+    reportInProgress.url === report.url &&
+    typeof report.progress === 'number'
 
   return (
     <Box pad="2rem" style={{ position: 'relative' }}>

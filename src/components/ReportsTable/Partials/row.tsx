@@ -72,9 +72,18 @@ const ReportsTableRow: FC<Props> = ({
     if (cancelled) setCancelled(false)
   }, [report])
 
-  const reportIsRunning = reportInProgress && typeof report.progress === 'number' && !cancelled
+  const reportIsRunning =
+    reportInProgress != null &&
+    reportInProgress.date === report.date &&
+    reportInProgress.url === report.url &&
+    typeof report.progress === 'number' &&
+    !cancelled
   const reportFailed =
-    report.progress === false || (!reportInProgress && typeof report.progress === 'number')
+    report.progress === false ||
+    (((reportInProgress != null && reportInProgress.date !== report.date) ||
+      reportInProgress == null) &&
+      typeof report.progress === 'number') ||
+    cancelled
 
   return (
     <Row
@@ -128,7 +137,7 @@ const ReportsTableRow: FC<Props> = ({
           </Fragment>
         )}
 
-        {!reportInProgress && (
+        {!reportIsRunning && (
           <Box
             width="1.5rem"
             height="1.5rem"

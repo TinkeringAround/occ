@@ -8,6 +8,7 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 - [Puppeteer in Electron](https://github.com/TrevorSundberg/puppeteer-in-electron/tree/d1794c257daa7b585f8f397352c8521f5ebd53c5)
 - [Generate App Icon](https://medium.com/fantageek/changing-electron-app-icon-acf26906c5ad)
 - [Set App Icon on Mac](https://stackoverflow.com/questions/31529772/how-to-set-app-icon-for-electron-atom-shell-app)
+- [Dstribution of Puppeteer in Electron](https://stackoverflow.com/questions/58213258/how-to-use-puppeteer-core-with-electron)
 
 ## Design Inspirations
 

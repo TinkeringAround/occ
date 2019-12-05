@@ -7,9 +7,9 @@
   "build": {
     "productName": "OCC",
     "appId": "<com.electronapp>",
-    "asarUnpack": "node_modules/get-port-cli"
+    "asar": false
   },
-  "main": "public/electron.js",
+  "main": "./public/electron.js",
   "homepage": "./",
   "private": true,
   "dependencies": {
@@ -22,6 +22,7 @@
     "cross-env": "^6.0.3",
     "curl": "^0.1.4",
     "electron-is-dev": "^1.1.0",
+    "get-port-cli": "^2.0.0",
     "grommet": "^2.8.0",
     "hazardous": "^0.3.0",
     "image-size": "^0.8.3",

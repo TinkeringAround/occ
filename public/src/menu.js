@@ -2,7 +2,7 @@ const { app, Menu, shell } = require('electron')
 const isDev = require('electron-is-dev')
 
 // Utility
-const { logError, logInfo } = require('./logger')
+const { logError } = require('./logger')
 
 // ==========================================================
 const isMac = process.platform === 'darwin'
@@ -58,7 +58,6 @@ const template = [
 // ==========================================================
 exports.initializeMenu = () => {
   try {
-    logInfo('Initializing Menu')
     const menu = Menu.buildFromTemplate(template)
     Menu.setApplicationMenu(menu)
   } catch (error) {

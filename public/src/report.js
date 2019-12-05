@@ -1,8 +1,8 @@
-require('hazardous')
 const { app, BrowserWindow, Notification } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
+require('hazardous')
 
 // Utility & Packages
 const { logError, logInfo } = require('./logger')
@@ -29,9 +29,7 @@ var processedCanceled = false
 // #region Setup
 const initializeReport = async () => {
   try {
-    logInfo('Initializing Report')
     browser = await pie.connect(app, puppeteer)
-    logInfo('Browser-Object: ' + browser)
   } catch (error) {
     logError('Initializing Report:' + error)
   }
@@ -64,7 +62,7 @@ const createReport = async (report, suites) => {
       processedSuites = suites
 
       const urlIsValid = await checkURL(url)
-      logInfo('URL Validation Result: ', urlIsValid ? 'VALID' : 'INVALID')
+      logInfo(`Report Job received for ${url}. URL is ${urlIsValid ? 'VALID' : 'INVALID'}.`)
 
       if (urlIsValid) {
         // #region Crawl Subsites & Setup Progressing Variables
@@ -237,7 +235,7 @@ const createReport = async (report, suites) => {
 async function updateReportProgress(report, progress, results) {
   try {
     if (mainWindow) {
-      logInfo('Sending Report Update to Renderer')
+      logInfo(`Sending Report Update to Renderer.`)
       mainWindow.webContents.send('updateReport', {
         report: {
           ...report,

@@ -1,6 +1,7 @@
 import React, { FC, useState, useContext } from 'react'
 import { Box, TextInput, Keyboard } from 'grommet'
 import styled from 'styled-components'
+import { HeartSpinner } from 'react-spinners-kit'
 
 // Styles
 import { colors } from '../../styles'
@@ -81,20 +82,27 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         height="50px"
         width="50px"
         margin="0 0 0 2rem"
-        background={!reportInProgress ? 'white' : colors['lightGrey']}
+        background={reportInProgress == null ? 'white' : colors['lightGrey']}
+        disabled={reportInProgress != null}
         onClick={() => {
-          if (!reportInProgress) toggleMode()
+          if (reportInProgress == null) toggleMode()
         }}
       >
-        <Icon
-          type="plus"
-          color={!reportInProgress ? 'lightblue' : 'darkGrey'}
-          size="1rem"
-          style={{
-            transform: `rotate(${mode === 'newReport' ? '45' : '0'}deg)`,
-            transition: 'all 0.5s ease'
-          }}
-        />
+        {reportInProgress == null && (
+          <Icon
+            type="plus"
+            color={reportInProgress == null ? 'lightblue' : 'darkGrey'}
+            size="1rem"
+            style={{
+              transform: `rotate(${mode === 'newReport' ? '45' : '0'}deg)`,
+              transition: 'all 0.5s ease'
+            }}
+          />
+        )}
+
+        {reportInProgress != null && (
+          <HeartSpinner size={1} sizeUnit="rem" color={colors['darkGrey']} loading />
+        )}
       </SButton>
     </Box>
   )
