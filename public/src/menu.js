@@ -27,7 +27,7 @@ const template = [
   {
     label: 'View',
     submenu: [
-      ...(!isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
+      ...(isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
       { role: 'togglefullscreen' }
     ]
   },

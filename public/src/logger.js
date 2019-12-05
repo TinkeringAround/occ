@@ -7,9 +7,11 @@ const ROOT_PATH = app.getPath('documents') + '/OCC'
 const LOG_PATH = ROOT_PATH + '/log.txt'
 
 // ==========================================================
-const logError = error => {
+const logError = (error, window = null) => {
   const errorMessage = getTimestamp() + '   ERROR   {  ' + error + '  }' + os.EOL
   writeToLogFile(errorMessage)
+
+  if (window) window.webContents.send('errorOnMain', error)
 }
 
 const logInfo = info => {

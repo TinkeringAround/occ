@@ -18,5 +18,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## TODO
 
 - Timeout as Settings Option
-- On Error in Main => Send to Renderer and Display as Error Dialog
 - (Separate Reports from Settings) => Improve Performance

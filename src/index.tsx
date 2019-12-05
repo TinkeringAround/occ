@@ -39,6 +39,7 @@ import {
   exportReportInMain
 } from './utility/fs'
 import { sortReportsByTimestring } from './utility/time'
+import ErrorDialog from './components/ErrorDialog'
 
 // ==========================================================
 const App: FC = () => {
@@ -52,6 +53,9 @@ const App: FC = () => {
   // Confirmation Dialog
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
   const [closeWindow, setCloseWindow] = useState<boolean>(false)
+
+  // Error Handling & Dialog
+  const [errorInMain, setErrorInMain] = useState<string | null>(null)
 
   // ==========================================================
   // #region Report Context
@@ -69,43 +73,7 @@ const App: FC = () => {
       setReportInProgress(report)
     }
   }
-  const updateReport = (
-    event: any,
-    arg: {
-      report: TReport
-      results: Array<TResult>
-    }
-  ) => {
-    if (configuration) {
-      const { report: updatedReport, results } = arg
-      const index = configuration.reports.findIndex(
-        x => x.date === updatedReport.date && x.url === updatedReport.url
-      )
-      if (index >= 0) {
-        var newReports: Array<TReport> = Array.from(configuration.reports)
-        newReports[index] = {
-          ...newReports[index],
-          progress: updatedReport.progress,
-          results: results
-        }
 
-        if (
-          report != null &&
-          report.url === updatedReport.url &&
-          report.date === updatedReport.date
-        ) {
-          setReport(newReports[index])
-        }
-
-        if (typeof updatedReport.progress === 'boolean') setReportInProgress(null)
-
-        setConfiguration({
-          ...configuration,
-          reports: newReports
-        })
-      }
-    }
-  }
   const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
       const index = configuration.reports.findIndex(
@@ -145,14 +113,56 @@ const App: FC = () => {
       }
     }
   }
+  const exportReport = (report: TReport, suites: Array<TSuites>) =>
+    exportReportInMain(report, suites)
+  // #endregion
+
+  // ==========================================================
+  // #region Main Event Handler
+  const updateReport = (
+    event: any,
+    arg: {
+      report: TReport
+      results: Array<TResult>
+    }
+  ) => {
+    if (configuration) {
+      const { report: updatedReport, results } = arg
+      const index = configuration.reports.findIndex(
+        x => x.date === updatedReport.date && x.url === updatedReport.url
+      )
+      if (index >= 0) {
+        var newReports: Array<TReport> = Array.from(configuration.reports)
+        newReports[index] = {
+          ...newReports[index],
+          progress: updatedReport.progress,
+          results: results
+        }
+
+        if (
+          report != null &&
+          report.url === updatedReport.url &&
+          report.date === updatedReport.date
+        ) {
+          setReport(newReports[index])
+        }
+
+        if (typeof updatedReport.progress === 'boolean') setReportInProgress(null)
+
+        setConfiguration({
+          ...configuration,
+          reports: newReports
+        })
+      }
+    }
+  }
   const showConfirmationDialog = (event: any) => {
     if (reportInProgress != null) {
       setShowConfirmation(true)
       event.returnValue = 'prevent'
     }
   }
-  const exportReport = (report: TReport, suites: Array<TSuites>) =>
-    exportReportInMain(report, suites)
+  const handleErrorInMain = (event: any, error: string) => setErrorInMain(error)
   // #endregion
 
   // ==========================================================
@@ -169,7 +179,6 @@ const App: FC = () => {
       })
     }
   }
-
   const updateSettings = (settings: TSettings) => {
     if (configuration) {
       setConfiguration({
@@ -181,7 +190,7 @@ const App: FC = () => {
   // #endregion
 
   // ==========================================================
-  // #region State Handler
+  // #region FC State Handler
   useEffect(() => {
     if (!configuration) {
       const initialConfig: TConfiguration = loadConfigurationFromMain()
@@ -198,6 +207,8 @@ const App: FC = () => {
     window.addEventListener('resize', updateWindowSize)
     // @ts-ignore
     window.electron.ipcRenderer.on('updateReport', updateReport)
+    // @ts-ignore
+    window.electron.ipcRenderer.on('errorOnMain', handleErrorInMain)
     return () => {
       window.removeEventListener('beforeunload', showConfirmationDialog)
       window.removeEventListener('resize', updateWindowSize)
@@ -253,6 +264,7 @@ const App: FC = () => {
             updateSettings: updateSettings
           }}
         >
+          {/* Main */}
           {configuration && (
             <Layout>
               <PoseGroup flipMove={false}>
@@ -273,10 +285,17 @@ const App: FC = () => {
             </Layout>
           )}
 
+          {/* Confirmation Dialog */}
           <Confirmation
             show={showConfirmation}
             accept={() => setCloseWindow(true)}
             cancel={() => setShowConfirmation(false)}
+          />
+
+          {/* Error Dialog */}
+          <ErrorDialog
+            message={!showConfirmation ? errorInMain : null}
+            close={() => setErrorInMain(null)}
           />
         </SettingsContext.Provider>
       </ReportContext.Provider>

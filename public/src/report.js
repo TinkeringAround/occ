@@ -65,6 +65,7 @@ const createReport = async (report, suites) => {
       const urlIsValid = await checkURL(url)
       logInfo(`Report Job received for ${url}. URL is ${urlIsValid ? 'VALID' : 'INVALID'}.`)
 
+      // #region Suite Creation
       if (urlIsValid) {
         // #region Crawl Subsites & Setup Progressing Variables
         processedURLS = contains(suites, ['w3', 'achecker', 'w3-css']) ? await getSiteUrls(url) : []
@@ -220,15 +221,15 @@ const createReport = async (report, suites) => {
         // #endregion
       } else {
         updateReportProgress(processedReport, false, processedResults)
-        logError('URL ' + processedReport.url + ' is invalid.')
+        logError('URL ' + processedReport.url + ' is invalid.', mainWindow)
 
         processedReport = null
         processedCanceled = false
       }
+      // #endregion
     } catch (error) {
-      logError('An error occured during creating the Report, ' + error)
+      logError('An error occured during creating the Report, ' + error, mainWindow)
       updateReportProgress(processedReport, false, processedResults)
-      logError(error)
     }
   }
 }

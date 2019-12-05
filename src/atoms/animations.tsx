@@ -118,7 +118,7 @@ const SBackground = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 90;
+  z-index: 50;
 
   width: 100vw;
   height: 100vh;
@@ -134,4 +134,28 @@ export const AConfirmation = posed(SConfirmation)({
 export const ABackground = posed(SBackground)({
   exit: { opacity: 0, transition: { duration: CONFIRMATION_DURATION } },
   enter: { opacity: 1, transition: { duration: CONFIRMATION_DURATION } }
+})
+
+// ===================================================================
+const SErrorDialog = styled(Box)`
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 80;
+
+  width: 350px;
+  height: 175px;
+
+  padding: 1rem;
+
+  background: ${colors['white']};
+  box-shadow: 0px 0px 20px 1px rgba(200, 214, 216, 0.25);
+  border-radius: 15px;
+
+  justify-content: space-between;
+`
+
+export const AErrorDialog = posed(SErrorDialog)({
+  exit: { opacity: 0, top: '0rem', transition: { duration: CONFIRMATION_DURATION } },
+  enter: { opacity: 1, top: '2rem', transition: { duration: CONFIRMATION_DURATION } }
 })

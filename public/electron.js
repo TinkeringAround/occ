@@ -6,7 +6,7 @@ const JSZip = require('jszip')
 require('hazardous')
 
 // Utlity & PDF
-const { logError, logInfo } = require('./src/logger')
+const { logError } = require('./src/logger')
 const { initializeMenu } = require('./src/menu')
 const {
   createPuppeteerWindow,
@@ -89,9 +89,7 @@ function createWindow() {
 
 // ==========================================================
 // #region MAIN & APP HANDLER
-process.on('uncaughtException', error => {
-  logError(`Main process: Uncaught Exception: ${error}`)
-})
+process.on('uncaughtException', error => logError(`Main process: Uncaught Exception: ${error}`))
 ;(async () => {
   try {
     // Setup Puppeteer
@@ -226,7 +224,7 @@ async function exportReport(report, suites) {
       fs.writeFileSync(path + '.zip', finishedZip)
     }
   } catch (error) {
-    logError(error)
+    logError(error, mainWindow)
   }
 }
 // #endregion
