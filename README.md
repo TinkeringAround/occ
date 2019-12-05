@@ -14,3 +14,9 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 - [Financial App](https://dribbble.com/shots/6958853-Financial-app-UI/attachments/1607?mode=media)
 - [File Manager](https://dribbble.com/shots/5076788--Module-inc-File-Manager/attachments/1125554)
+
+## TODO
+
+- Timeout as Settings Option
+- On Error in Main => Send to Renderer and Display as Error Dialog
+- (Separate Reports from Settings) => Improve Performance
