@@ -3,6 +3,7 @@ import styled from 'styled-components'
 
 // Styles
 import { colors } from '../styles'
+import { Box, Text } from 'grommet'
 
 // Atoms
 const SSelect = styled.select`
@@ -34,19 +35,27 @@ interface Props {
   options: Array<string>
   value: string
   select: (selection: string) => void
+  label?: string
 }
 
 // ==========================================================
-const Dropdown: FC<Props> = ({ options, value, select }) => (
-  <SSelect
-    id={'Selection-' + value}
-    value={value}
-    onChange={(event: any) => select(event.target.value)}
-  >
-    {options.map((option: string, index: number) => (
-      <option key={'Option-' + index}>{option}</option>
-    ))}
-  </SSelect>
+const Dropdown: FC<Props> = ({ options, value, select, label = null }) => (
+  <Box>
+    {label && (
+      <Text size="1rem" weight="bold" color={colors['grey']} margin="0 0 .25rem .25rem">
+        {label}
+      </Text>
+    )}
+    <SSelect
+      id={'Selection-' + value}
+      value={value}
+      onChange={(event: any) => select(event.target.value)}
+    >
+      {options.map((option: string, index: number) => (
+        <option key={'Option-' + index}>{option}</option>
+      ))}
+    </SSelect>
+  </Box>
 )
 
 export default Dropdown

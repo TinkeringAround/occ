@@ -10,7 +10,6 @@ const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // Consts
 const ROOT_PATH = app.getPath('documents') + '/OCC'
-const TIMEOUT = 300000 // 5 Minutes
 const RESOLUTION = { width: 1280, height: 960 }
 const WAIT_DURATION = 2000 // 2 Seconds
 
@@ -35,17 +34,15 @@ const initializeReport = async () => {
     logError('Initializing Report:  ' + error)
   }
 }
-
-const createPuppeteerWindow = showWorker => {
+const createPuppeteerWindow = () => {
   puppeteerWindow = new BrowserWindow({
     width: 1920,
     height: 1080,
-    show: showWorker,
+    show: global.config.settings.showWorker,
     closable: false,
     resizable: false
   })
 }
-
 const setWindow = window => (mainWindow = window)
 const showWorker = showWorker => {
   if (showWorker == null) puppeteerWindow.destroy()
@@ -365,7 +362,10 @@ async function createDefaultReport(suite, url, selector, chain = false) {
     logInfo('Creating ' + suite + ' report.')
     try {
       // Load URL
-      await puppeteerWindow.loadURL(url, { waitUntil: 'networkidel0', timeout: TIMEOUT })
+      await puppeteerWindow.loadURL(url, {
+        waitUntil: 'networkidel0',
+        timeout: global.config.settings.timeout
+      })
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
@@ -373,9 +373,10 @@ async function createDefaultReport(suite, url, selector, chain = false) {
 
       // Wait for Selector
       await page.waitFor(WAIT_DURATION)
-      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
+      if (typeof selector == 'string')
+        await page.waitForSelector(selector, { timeout: global.config.settings.timeout })
       else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: TIMEOUT })
+        await page.waitForFunction(selector, { timeout: global.config.settings.timeout })
       await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
@@ -414,7 +415,10 @@ async function createInputReport(
     logInfo('Creating ' + suite + ' input report.')
     try {
       // Load URL
-      await puppeteerWindow.loadURL(testURL, { waitUntil: 'networkidel0', timeout: TIMEOUT })
+      await puppeteerWindow.loadURL(testURL, {
+        waitUntil: 'networkidel0',
+        timeout: global.config.settings.timeout
+      })
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
@@ -427,9 +431,10 @@ async function createInputReport(
 
       // Wait for Selector
       await page.waitFor(WAIT_DURATION)
-      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
+      if (typeof selector == 'string')
+        await page.waitForSelector(selector, { timeout: global.config.settings.timeout })
       else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: TIMEOUT })
+        await page.waitForFunction(selector, { timeout: global.config.settings.timeout })
       await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
@@ -465,7 +470,7 @@ async function createLighthouseReport() {
     // Load URL
     await puppeteerWindow.loadURL('https://web.dev/measure/', {
       waitUntil: 'networkidel0',
-      timeout: TIMEOUT
+      timeout: global.config.settings.timeout
     })
 
     // Get Page Object
@@ -481,7 +486,7 @@ async function createLighthouseReport() {
     await page.waitFor(WAIT_DURATION)
     await page.waitForFunction(
       () => document.getElementsByClassName('lh-metrics-table')[0].childElementCount > 0,
-      { timeout: TIMEOUT }
+      { timeout: global.config.settings.timeout }
     )
     await page.waitFor(WAIT_DURATION)
 
@@ -490,7 +495,7 @@ async function createLighthouseReport() {
       'https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https://' + url,
       {
         waitUntil: 'networkidel0',
-        timeout: TIMEOUT
+        timeout: global.config.settings.timeout
       }
     )
     await page.waitFor(WAIT_DURATION)

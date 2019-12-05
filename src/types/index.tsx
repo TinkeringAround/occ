@@ -10,9 +10,11 @@ export type TSettings = {
   height: number
   showWorker: boolean
   export: TExportOptions
+  timeout: TTimeoutOptions
 }
 
 export type TExportOptions = 'images' | 'pdf' | 'images and pdf'
+export type TTimeoutOptions = '60000' | '180000' | '300000' | '600000'
 
 // ==========================================================
 export type TReport = {

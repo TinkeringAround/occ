@@ -43,7 +43,7 @@ const Checkbox: FC<Props> = ({
     <Box
       width={size}
       height={size}
-      background={checked ? colors[color] : colors['darkGrey']}
+      background={checked ? colors[color] : colors['grey']}
       justify="center"
       align="center"
       style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
@@ -54,7 +54,7 @@ const Checkbox: FC<Props> = ({
     <Text
       margin="0 0 0 .5rem"
       size={fontSize}
-      color={checked ? colors[color] : colors['lightGrey']}
+      color={checked ? colors[color] : colors['grey']}
       weight="bold"
     >
       {label}

@@ -30,7 +30,8 @@ var config = {
     width: 1280,
     height: 960,
     showWorker: false,
-    export: 'images and pdf'
+    export: 'images and pdf',
+    timeout: 300000
   },
   reports: []
 }
@@ -92,6 +93,15 @@ function createWindow() {
 process.on('uncaughtException', error => logError(`Main process: Uncaught Exception: ${error}`))
 ;(async () => {
   try {
+    // Load Configuration
+    loadConfigFromFile()
+
+    // Create Directories for Images
+    if (!fs.existsSync(ROOT_PATH + '/images')) fs.mkdirSync(ROOT_PATH + '/images')
+
+    // Add Properties
+    global.config = config
+
     // Setup Puppeteer
     await initializeReport()
 
@@ -104,31 +114,16 @@ process.on('uncaughtException', error => logError(`Main process: Uncaught Except
 
 app.on('ready', async () => {
   try {
-    // Load Configuration
-    loadConfigFromFile()
-
-    // Create Directories for Images
-    if (!fs.existsSync(ROOT_PATH + '/images')) fs.mkdirSync(ROOT_PATH + '/images')
-
-    // Add Properties
-    global.config = config
-
-    // Create BrowserWindow & Set in Report.js
+    // Create BrowserWindow & Set in Report.js & Create PuppeteerWindow/WorkerWindow in Report.js
     createWindow()
-
-    // Apply Config Settings to PuppeteerWindow
-    createPuppeteerWindow(config.settings.showWorker)
+    createPuppeteerWindow()
   } catch (error) {
     logError(error)
   }
 })
-app.on('window-all-closed', () => {
-  saveConfigurationToDisk()
-  app.quit()
-})
-app.on('activate', () => {
-  if (mainWindow === null) createWindow()
-})
+app.on('window-all-closed', () => app.quit())
+app.on('quit', saveConfigurationToDisk)
+app.on('activate', () => (mainWindow == null ? createWindow() : null))
 // #endregion
 
 // ==========================================================
