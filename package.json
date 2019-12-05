@@ -44,7 +44,7 @@
     "wait-on": "^3.3.0"
   },
   "scripts": {
-    "build": "yarn react-build && yarn electron-build",
+    "build": "yarn react-build && yarn electron-builder",
     "start": "concurrently \"cross-env BROWSER=none yarn react-start\" \"wait-on http://localhost:3000 && electron .\"",
     "release": "yarn react-build && electron-builder --publish=always",
     "react-start": "react-scripts start",
