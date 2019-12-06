@@ -11,7 +11,7 @@ const logError = (error, window = null) => {
   const errorMessage = getTimestamp() + '   ERROR   {  ' + error + '  }' + os.EOL
   writeToLogFile(errorMessage)
 
-  if (window) window.webContents.send('errorOnMain', error)
+  if (window != null) window.webContents.send('errorOnMain', errorMessage)
 }
 
 const logInfo = info => {

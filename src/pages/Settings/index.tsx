@@ -9,6 +9,7 @@ import { colors } from '../../styles'
 
 // Context
 import settingsContext from '../../context/settings-context'
+import reportContext from '../../context/report-context'
 
 // Atoms
 import Checkbox from '../../atoms/checkbox'
@@ -16,6 +17,7 @@ import Dropdown from '../../atoms/dropdown'
 
 // ==========================================================
 const Settings: FC = () => {
+  const { reportInProgress } = useContext(reportContext)
   const { settings, updateSettings } = useContext(settingsContext)
 
   // Worker
@@ -138,6 +140,7 @@ const Settings: FC = () => {
                 size="1.25rem"
                 fontSize="1rem"
                 margin="0 0 0 .25rem"
+                disabled={reportInProgress != null}
               />
             </Box>
           </Box>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Notification } = require('electron')
+const { app, BrowserWindow, Notification, screen } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
@@ -12,6 +12,7 @@ const { checkURL, contains, getSiteUrls } = require('./utility')
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const RESOLUTION = { width: 1280, height: 960 }
 const WAIT_DURATION = 2000 // 2 Seconds
+const INITIAL_URL = 'https://github.com/TinkeringAround/occ'
 
 // ==========================================================
 // #region Variables
@@ -35,12 +36,22 @@ const initializeReport = async () => {
   }
 }
 const createPuppeteerWindow = () => {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
   puppeteerWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
+    width: width,
+    height: height,
     show: global.config.settings.showWorker,
     closable: false,
-    resizable: false
+    resizable: false,
+    minimizable: false,
+    fullscreenable: false,
+    frame: false
+  })
+
+  puppeteerWindow.loadURL(INITIAL_URL, {
+    waitUntil: 'networkidel0',
+    timeout: global.config.settings.timeout
   })
 }
 const setWindow = window => (mainWindow = window)
@@ -116,7 +127,7 @@ const createReport = async (report, suites) => {
         // W-Three HTML Validator
         if (!processedCanceled && contains(suites, ['w3'])) {
           __result = await createChainedSuiteResult('normal', {
-            suite: 'w-three',
+            suite: 'w3',
             testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
             selector: '#results'
           })
@@ -377,6 +388,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
         await page.waitForSelector(selector, { timeout: global.config.settings.timeout })
       else if (typeof selector == 'function')
         await page.waitForFunction(selector, { timeout: global.config.settings.timeout })
+
       await page.waitFor(WAIT_DURATION)
 
       // Take screenshot

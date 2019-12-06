@@ -88,16 +88,18 @@ exports.createPDF = async results => {
     // Create Contents
     for (const result of results) {
       result.images.forEach(image => {
-        const imageSize = sizeOf(image.path)
+        if (image.path != null) {
+          const imageSize = sizeOf(image.path)
 
-        content.push({ text: getSuiteName(result.suite), style: 'header' })
-        content.push({ text: image.url, style: 'subtitle' })
-        content.push({
-          image: image.path,
-          width: 1280 - 2 * MARGIN,
-          height: imageSize.height,
-          margin: [MARGIN / 2, 0, 0, 6 * MARGIN]
-        })
+          content.push({ text: getSuiteName(result.suite), style: 'header' })
+          content.push({ text: image.url, style: 'subtitle' })
+          content.push({
+            image: image.path,
+            width: 1280 - 2 * MARGIN,
+            height: imageSize.height,
+            margin: [MARGIN / 2, 0, 0, 6 * MARGIN]
+          })
+        }
       })
     }
 

@@ -29,7 +29,6 @@ var config = {
   settings: {
     width: 1280,
     height: 960,
-    showWorker: false,
     export: 'images and pdf',
     timeout: 300000
   },

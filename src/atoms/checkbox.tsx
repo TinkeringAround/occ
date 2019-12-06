@@ -19,6 +19,8 @@ interface Props {
 
   color?: TColors
   iconColor?: TColors
+
+  disabled?: boolean
 }
 
 // ==========================================================
@@ -30,20 +32,23 @@ const Checkbox: FC<Props> = ({
   size = '1.25rem',
   fontSize = '1rem',
   color = 'lightblue',
-  iconColor = 'white'
+  iconColor = 'white',
+  disabled = false
 }) => (
   <Box
     margin={margin}
     pad="0.25rem"
     direction="row"
     align="center"
-    onClick={() => onChange(!checked)}
-    style={{ cursor: 'pointer' }}
+    onClick={() => {
+      if (!disabled) onChange(!checked)
+    }}
+    style={{ cursor: disabled ? 'default' : 'pointer' }}
   >
     <Box
       width={size}
       height={size}
-      background={checked ? colors[color] : colors['grey']}
+      background={disabled ? colors['lightGrey'] : checked ? colors[color] : colors['grey']}
       justify="center"
       align="center"
       style={{ borderRadius: 15, transition: 'all 0.25s ease' }}
@@ -54,7 +59,7 @@ const Checkbox: FC<Props> = ({
     <Text
       margin="0 0 0 .5rem"
       size={fontSize}
-      color={checked ? colors[color] : colors['grey']}
+      color={disabled ? colors['lightGrey'] : checked ? colors[color] : colors['grey']}
       weight="bold"
     >
       {label}
