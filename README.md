@@ -17,5 +17,4 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## TODO
 
-- Add House Cleaning for no longer used Images
 - Optional (Separate Reports from Settings => Improve Performance)
