@@ -6,7 +6,7 @@ const JSZip = require('jszip')
 require('hazardous')
 
 // Utlity & PDF
-const { logError } = require('./src/logger')
+const { logError, cleanLogFile } = require('./src/logger')
 const { initializeMenu } = require('./src/menu')
 const {
   createPuppeteerWindow,
@@ -17,11 +17,12 @@ const {
   showWorker
 } = require('./src/report')
 const { createPDF } = require('./src/pdf')
-const { MIN_HEIGHT, MIN_WIDTH } = require('./src/const')
+const { MIN_HEIGHT, MIN_WIDTH, MIN_IMAGE_COUNT } = require('./src/const')
 
 // Consts
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const CONFIG_PATH = ROOT_PATH + '/config.json'
+const IMAGES_PATH = ROOT_PATH + '/images'
 
 // ==========================================================
 // #region Variables & Configuration
@@ -70,7 +71,7 @@ function createWindow() {
       nodeIntegration: false,
       preload: __dirname + '/src/preload.js'
     },
-    icon: __dirname + '/assets/AppIcon.icns'
+    icon: __dirname + '/assets/icons.icns'
   })
   mainWindow.loadURL(
     isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
@@ -99,8 +100,12 @@ process.on('uncaughtException', error => logError(`Main process: Uncaught Except
     // Load Configuration
     loadConfigFromFile()
 
-    // Create Directories for Images
-    if (!fs.existsSync(ROOT_PATH + '/images')) fs.mkdirSync(ROOT_PATH + '/images')
+    // Create Directories for Images & House Cleaning
+    if (!fs.existsSync(IMAGES_PATH)) fs.mkdirSync(IMAGES_PATH)
+    else deleteUnusedImages()
+
+    // Clean Log File
+    cleanLogFile()
 
     // Add Properties
     global.config = config
@@ -236,6 +241,44 @@ async function exportReport(report, suites) {
     }
   } catch (error) {
     logError(error, mainWindow)
+  }
+}
+// #endregion
+
+// ==========================================================
+// #region HOUSE CLEANING
+function deleteUnusedImages() {
+  try {
+    var images = []
+
+    // Collect all images
+    config.reports.forEach(report =>
+      report.results.forEach(result => result.images.forEach(image => images.push(image.path)))
+    )
+
+    if (images.length >= MIN_IMAGE_COUNT) {
+      const files = fs.readdirSync(IMAGES_PATH)
+
+      if (files.length > images.length) {
+        const unusedImages = []
+
+        files.forEach(file => {
+          if (file.includes('.jpeg')) {
+            let inUse = false
+
+            images.forEach(image => {
+              if (image.includes(file)) inUse = true
+            })
+
+            if (!inUse) unusedImages.push(file)
+          }
+        })
+
+        unusedImages.forEach(image => fs.unlinkSync(IMAGES_PATH + '/' + image))
+      }
+    }
+  } catch (error) {
+    logError(error)
   }
 }
 // #endregion

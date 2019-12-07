@@ -45,8 +45,18 @@ function getTimestamp() {
   return time
 }
 
+function cleanLogFile() {
+  try {
+    if (fs.existsSync(LOG_PATH)) {
+      const stats = fs.statSync(LOG_PATH)
+      if (stats['size'] / 1000000.0 > 1000) fs.writeFileSync(LOG_PATH, '')
+    }
+  } catch (error) {}
+}
+
 // ==========================================================
 module.exports = {
   logError,
-  logInfo
+  logInfo,
+  cleanLogFile
 }
