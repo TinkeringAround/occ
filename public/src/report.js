@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Notification, screen } = require('electron')
+const { app, BrowserWindow, Notification, screen, powerSaveBlocker } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
@@ -18,6 +18,7 @@ const INITIAL_URL = 'https://github.com/TinkeringAround/occ'
 // #region Variables
 var browser, mainWindow, puppeteerWindow
 
+var processID = null
 var processedReport = null
 var processedSuites = []
 var processedURLS = []
@@ -75,6 +76,9 @@ const createReport = async (report, suites) => {
 
       // #region Suite Creation
       if (urlIsValid) {
+        // Setup Power Blocker
+        processID = powerSaveBlocker.start('prevent-app-suspension')
+
         // #region Crawl Subsites & Setup Progressing Variables
         processedURLS = contains(suites, ['w3', 'achecker', 'w3-css']) ? await getSiteUrls(url) : []
         processedResults = []
@@ -226,6 +230,9 @@ const createReport = async (report, suites) => {
         updateReportProgress(processedReport, !processedCanceled, processedResults)
         processedReport = null
         processedCanceled = false
+
+        // Stop Power Blocker
+        powerSaveBlocker.stop(processID)
         // #endregion
       } else {
         updateReportProgress(processedReport, false, processedResults)
@@ -238,6 +245,8 @@ const createReport = async (report, suites) => {
     } catch (error) {
       logError('An error occured during creating the Report, ' + error, mainWindow)
       updateReportProgress(processedReport, false, processedResults)
+      // Stop Power Blocker
+      if (powerSaveBlocker.isStarted(processID)) powerSaveBlocker.stop(processID)
     }
   }
 }
