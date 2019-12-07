@@ -23,6 +23,8 @@ import { APage, ALoadingSpinner } from './atoms/animations'
 // Components
 import LoadingSpinner from './components/LoadingSpinner'
 import Confirmation from './components/Confirmation'
+import ErrorDialog from './components/ErrorDialog'
+import WindowBar from './components/WindowBar'
 
 // Pages
 import Home from './pages/Home'
@@ -37,9 +39,9 @@ import {
   cancelProcessedReportInMain,
   closeWindowInMain,
   exportReportInMain
-} from './utility/fs'
+} from './utility/ipc'
 import { sortReportsByTimestring } from './utility/time'
-import ErrorDialog from './components/ErrorDialog'
+import { sizes } from './styles'
 
 // ==========================================================
 const App: FC = () => {
@@ -173,8 +175,14 @@ const App: FC = () => {
         reports: configuration.reports,
         settings: {
           ...configuration.settings,
-          width: window.innerWidth,
-          height: window.innerHeight
+          width:
+            window.innerWidth < sizes['windowMinWidth']
+              ? sizes['windowMinWidth']
+              : window.innerWidth,
+          height:
+            window.innerHeight < sizes['windowMinHeight']
+              ? sizes['windowMinHeight']
+              : window.innerHeight
         }
       })
     }
@@ -264,6 +272,9 @@ const App: FC = () => {
             updateSettings: updateSettings
           }}
         >
+          {/* Window Bar */}
+          <WindowBar />
+
           {/* Main */}
           {configuration && (
             <Layout>

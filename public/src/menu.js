@@ -18,19 +18,20 @@ const template = [
         }
       ]
     : []),
-  // { role: 'fileMenu' }
+  // File
   {
     label: 'File',
     submenu: [isMac ? { role: 'close' } : { role: 'quit' }]
   },
   // View Menu
-  {
-    label: 'View',
-    submenu: [
-      ...(isDev ? [{ role: 'toggledevtools' }, { type: 'separator' }] : []),
-      { role: 'togglefullscreen' }
-    ]
-  },
+  ...(isDev
+    ? [
+        {
+          label: 'View',
+          submenu: [{ role: 'toggledevtools' }, { type: 'separator' }]
+        }
+      ]
+    : []),
   // Window Menu
   {
     label: 'Window',

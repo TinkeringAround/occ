@@ -6,6 +6,16 @@ export const closeWindowInMain: () => void = () => {
   window.electron.ipcRenderer.send('closeWindow')
 }
 
+export const minimizeWindowInMain: () => void = () => {
+  // @ts-ignore
+  window.electron.ipcRenderer.send('minimizeWindow')
+}
+
+export const fullscreenWindowInMain: () => void = () => {
+  // @ts-ignore
+  window.electron.ipcRenderer.send('fullscreenWindow')
+}
+
 // ==========================================================
 export const loadConfigurationFromMain: () => TConfiguration = () => {
   // @ts-ignore

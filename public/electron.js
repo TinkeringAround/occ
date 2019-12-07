@@ -21,6 +21,8 @@ const { createPDF } = require('./src/pdf')
 // Consts
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const CONFIG_PATH = ROOT_PATH + '/config.json'
+const MIN_HEIGHT = 650
+const MIN_WIDTH = 960
 
 // ==========================================================
 // #region Variables & Configuration
@@ -61,7 +63,10 @@ function createWindow() {
     show: false,
     width: config.settings.width,
     height: config.settings.height,
+    minWidth: MIN_WIDTH,
+    minHeight: MIN_HEIGHT,
     center: true,
+    frame: false,
     webPreferences: {
       nodeIntegration: false,
       preload: __dirname + '/src/preload.js'
@@ -127,8 +132,13 @@ app.on('activate', () => (mainWindow == null ? createWindow() : null))
 
 // ==========================================================
 // #region RENDERER HANDLER
-ipcMain.on('updateConfig', (event, newConfig) => updateConfiguration(newConfig))
+// Window
 ipcMain.on('closeWindow', closeWindow)
+ipcMain.on('minimizeWindow', minimizeWindow)
+ipcMain.on('fullscreenWindow', toggleFullscreen)
+
+// Configuration
+ipcMain.on('updateConfig', (event, newConfig) => updateConfiguration(newConfig))
 
 // Report
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
@@ -177,6 +187,14 @@ function closeWindow() {
     showWorker(null)
     mainWindow.destroy()
   }
+}
+
+function minimizeWindow() {
+  if (mainWindow) mainWindow.minimize()
+}
+
+function toggleFullscreen() {
+  if (mainWindow) mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
 }
 
 async function exportReport(report, suites) {
