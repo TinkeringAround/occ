@@ -254,7 +254,6 @@ const createReport = async (report, suites) => {
 async function updateReportProgress(report, progress, results) {
   try {
     if (mainWindow) {
-      logInfo(`Sending Report Update to Renderer.`)
       mainWindow.webContents.send('updateReport', {
         report: {
           ...report,
@@ -262,6 +261,17 @@ async function updateReportProgress(report, progress, results) {
         },
         results: results
       })
+    }
+  } catch (error) {
+    logError(error)
+  }
+}
+
+async function updateRunningSuite(suite) {
+  try {
+    if (mainWindow) {
+      logInfo(`Starting Suite ${suite}...`)
+      mainWindow.webContents.send('updateRunningSuite', suite)
     }
   } catch (error) {
     logError(error)
@@ -285,6 +295,9 @@ async function createSimpleSuiteResult(type = 'normal', data) {
     const { suite, testURL, selector, input, click, urlPrefix = '' } = data
     const { url } = processedReport
     let imagePath = null
+
+    // Update Running Suite
+    updateRunningSuite(suite)
 
     // Create Report
     if (type == 'normal') imagePath = await createDefaultReport(suite, testURL, selector)
@@ -319,6 +332,9 @@ async function createChainedSuiteResult(type = 'normal', data) {
     const { suite, testURL, selector, input, click, urlPrefix = '' } = data
     const { url } = processedReport
     let images = []
+
+    // Update Running Suite
+    updateRunningSuite(suite)
 
     // Create Report
     if (type == 'normal') {

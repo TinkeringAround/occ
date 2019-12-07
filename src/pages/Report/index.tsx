@@ -17,6 +17,7 @@ import { AProgressIndicator } from '../../atoms/animations'
 
 // Utility
 import ReportSuites from './Partials/suites'
+import { getSuiteName } from '../../utility/suites'
 
 // ==========================================================
 const Report: FC = () => {
@@ -42,8 +43,8 @@ const Report: FC = () => {
   const reportIsRunning =
     report != null &&
     reportInProgress != null &&
-    reportInProgress.date === report.date &&
-    reportInProgress.url === report.url &&
+    reportInProgress.report.date === report.date &&
+    reportInProgress.report.url === report.url &&
     typeof report.progress === 'number'
 
   return (
@@ -52,11 +53,13 @@ const Report: FC = () => {
         <Fragment>
           {/* Running Icon */}
           <PoseGroup flipMove={false} preEnterPose="exit">
-            {reportIsRunning === true && (
+            {reportIsRunning === true && reportInProgress != null && (
               <AProgressIndicator key="Report-ProgressIndicator">
                 <FillSpinner size={1} sizeUnit="rem" color="white" />
                 <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
-                  {cancelled ? 'Cancelling...' : 'Processing ' + report.progress + '%'}
+                  {cancelled
+                    ? 'Cancelling...'
+                    : report.progress + '% ' + getSuiteName(reportInProgress.suite)}
                 </Text>
               </AProgressIndicator>
             )}

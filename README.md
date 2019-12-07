@@ -17,5 +17,5 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## TODO
 
-- Improved Updating System => More Infos about running Suite and Suite Progression
+- Add House Cleaning for no longer used Images
 - Optional (Separate Reports from Settings => Improve Performance)

@@ -74,13 +74,13 @@ const ReportsTableRow: FC<Props> = ({
 
   const reportIsRunning =
     reportInProgress != null &&
-    reportInProgress.date === report.date &&
-    reportInProgress.url === report.url &&
+    reportInProgress.report.date === report.date &&
+    reportInProgress.report.url === report.url &&
     typeof report.progress === 'number' &&
     !cancelled
   const reportFailed =
     report.progress === false ||
-    (((reportInProgress != null && reportInProgress.date !== report.date) ||
+    (((reportInProgress != null && reportInProgress.report.date !== report.date) ||
       reportInProgress == null) &&
       typeof report.progress === 'number') ||
     cancelled

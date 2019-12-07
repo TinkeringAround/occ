@@ -50,7 +50,10 @@ const App: FC = () => {
   const [configuration, setConfiguration] = useState<TConfiguration | null>(null) // Configuration
 
   const [report, setReport] = useState<TReport | null>(null) // Open Report
-  const [reportInProgress, setReportInProgress] = useState<TReport | null>(null) // If Report is currently processed
+  const [reportInProgress, setReportInProgress] = useState<{
+    report: TReport
+    suite: TSuites
+  } | null>(null) // If Report is currently processed
 
   // Confirmation Dialog
   const [showConfirmation, setShowConfirmation] = useState<boolean>(false)
@@ -72,10 +75,12 @@ const App: FC = () => {
       })
 
       createReportInMain(report, suites)
-      setReportInProgress(report)
+      setReportInProgress({
+        report: report,
+        suite: suites[0]
+      })
     }
   }
-
   const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
       const index = configuration.reports.findIndex(
@@ -117,6 +122,9 @@ const App: FC = () => {
   }
   const exportReport = (report: TReport, suites: Array<TSuites>) =>
     exportReportInMain(report, suites)
+  const updateRunningSuite = (event: any, suite: TSuites) => {
+    if (reportInProgress) setReportInProgress({ ...reportInProgress, suite: suite })
+  }
   // #endregion
 
   // ==========================================================
@@ -145,9 +153,8 @@ const App: FC = () => {
           report != null &&
           report.url === updatedReport.url &&
           report.date === updatedReport.date
-        ) {
+        )
           setReport(newReports[index])
-        }
 
         if (typeof updatedReport.progress === 'boolean') setReportInProgress(null)
 
@@ -217,6 +224,8 @@ const App: FC = () => {
     window.electron.ipcRenderer.on('updateReport', updateReport)
     // @ts-ignore
     window.electron.ipcRenderer.on('errorOnMain', handleErrorInMain)
+    // @ts-ignore
+    window.electron.ipcRenderer.on('updateRunningSuite', updateRunningSuite)
     return () => {
       window.removeEventListener('beforeunload', showConfirmationDialog)
       window.removeEventListener('resize', updateWindowSize)

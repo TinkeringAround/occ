@@ -77,7 +77,7 @@ const SProgressIndicator = styled(Box)`
   top: 0;
   right: 2rem;
 
-  width: 200px;
+  width: 250px;
   height: 40px;
 
   background: ${colors['lightblue']};
@@ -89,7 +89,7 @@ const SProgressIndicator = styled(Box)`
 `
 
 export const AProgressIndicator = posed(SProgressIndicator)({
-  exit: { opactiy: 0, x: 300, transition: { duration: 750 } },
+  exit: { opactiy: 0, x: 350, transition: { duration: 750 } },
   enter: { opactiy: 1, x: 0, transition: { duration: 750 } }
 })
 

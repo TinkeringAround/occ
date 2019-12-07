@@ -8,7 +8,10 @@ type ReportContextProps = {
   reports: Array<TReport>
 
   report: TReport | null
-  reportInProgress: TReport | null
+  reportInProgress: {
+    report: TReport
+    suite: TSuites
+  } | null
   addReport: (report: TReport, suites: Array<TSuites>) => void
   openReport: (report: TReport) => void
   deleteReport: (report: TReport) => void
