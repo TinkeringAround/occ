@@ -1,14 +1,15 @@
 {
   "name": "occ",
   "productName": "One Click Checker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "One Click Checker",
   "author": "Thomas Maier",
   "repository": "https://github.com/TinkeringAround/occ.git",
   "build": {
-    "productName": "OCC",
+    "productName": "One Click Checker",
     "appId": "<com.electronapp>",
-    "asar": false
+    "asarUnpack": "node_modules/get-cli-port",
+    "icon": "./public/assets/AppIcon.icns"
   },
   "main": "./public/electron.js",
   "homepage": "./",

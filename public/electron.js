@@ -17,12 +17,11 @@ const {
   showWorker
 } = require('./src/report')
 const { createPDF } = require('./src/pdf')
+const { MIN_HEIGHT, MIN_WIDTH } = require('./src/const')
 
 // Consts
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const CONFIG_PATH = ROOT_PATH + '/config.json'
-const MIN_HEIGHT = 650
-const MIN_WIDTH = 960
 
 // ==========================================================
 // #region Variables & Configuration
