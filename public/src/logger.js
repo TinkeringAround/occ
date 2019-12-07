@@ -2,6 +2,9 @@ const { app } = require('electron')
 const fs = require('fs')
 const os = require('os')
 
+// Utility
+const { MAX_FILE_SIZE } = require('./const')
+
 // Consts
 const ROOT_PATH = app.getPath('documents') + '/OCC'
 const LOG_PATH = ROOT_PATH + '/log.txt'
@@ -49,7 +52,7 @@ function cleanLogFile() {
   try {
     if (fs.existsSync(LOG_PATH)) {
       const stats = fs.statSync(LOG_PATH)
-      if (stats['size'] / 1000000.0 > 1000) fs.writeFileSync(LOG_PATH, '')
+      if (stats['size'] / 1000000.0 > MAX_FILE_SIZE) fs.writeFileSync(LOG_PATH, '')
     }
   } catch (error) {}
 }
