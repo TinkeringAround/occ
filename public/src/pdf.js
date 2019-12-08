@@ -1,10 +1,10 @@
-const { app } = require('electron')
 const fs = require('fs')
 const PdfPrinter = require('pdfmake')
-const sizeOf = require('image-size')
 
 // Utility
-const { logError } = require('./logger')
+const { logError, logInfo } = require('./logger')
+const { MARGIN, PDF_PATH } = require('./const')
+const { getSuiteName } = require('./utility')
 
 // Consts
 const FONTS = {
@@ -15,12 +15,10 @@ const FONTS = {
     bolditalics: 'Helvetica-BoldOblique'
   }
 }
-const MARGIN = 40
 const PRINTER = new PdfPrinter(FONTS)
-const ROOT_PATH = app.getPath('documents') + '/OCC'
-const PDF_PATH = ROOT_PATH + '/reports.pdf'
 
 // ==========================================================
+// #region Functions
 function getDD(content) {
   return {
     pageSize: {
@@ -48,40 +46,7 @@ function getDD(content) {
   }
 }
 
-// ==========================================================
-function getSuiteName(suite) {
-  switch (suite) {
-    case 'ssllabs':
-      return 'SSL Labs'
-    case 'securityheaders':
-      return 'Security Headers'
-    case 'seobility':
-      return 'Seobility'
-    case 'gtmetrix':
-      return 'GTMetrix'
-    case 'hardenize':
-      return 'Hardenize'
-    case 'favicon-checker':
-      return 'Favicon-Checker'
-    case 'w3':
-      return 'W3 HTML Validation'
-    case 'achecker':
-      return 'AChecker'
-    case 'varvy':
-      return 'Varvy'
-    case 'keycdn':
-      return 'KeyCDN'
-    case 'lighthouse':
-      return 'Lighthouse'
-    case 'w3-css':
-      return 'W3 CSS Validation'
-    default:
-      return 'Unknown'
-  }
-}
-
-// ==========================================================
-exports.createPDF = async results => {
+async function createPDF(results) {
   try {
     const content = []
 
@@ -89,6 +54,7 @@ exports.createPDF = async results => {
     for (const result of results) {
       result.images.forEach(image => {
         if (image.path != null) {
+          const sizeOf = require('image-size')
           const imageSize = sizeOf(image.path)
 
           content.push({ text: getSuiteName(result.suite), style: 'header' })
@@ -103,14 +69,19 @@ exports.createPDF = async results => {
       })
     }
 
-    // Create PDF
+    // Create and Save PDF
     var pdfDoc = PRINTER.createPdfKitDocument(getDD(content), {})
     pdfDoc.pipe(fs.createWriteStream(PDF_PATH))
     pdfDoc.end()
 
-    console.log(' Created PDF to ' + PDF_PATH)
+    logInfo(' Created PDF to ' + PDF_PATH)
     return PDF_PATH
   } catch (error) {
     logError(error)
   }
+}
+// #endregion
+// ==========================================================
+module.exports = {
+  createPDF
 }

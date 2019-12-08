@@ -1,35 +1,37 @@
-var Crawler = require('simplecrawler')
-const curl = require('curl')
-
 // Utility
-const { logError } = require('./logger')
+const { logError, logInfo } = require('./logger')
 
-//----------------------------------------------------------
-exports.contains = (array, search) => {
+// ==========================================================
+// #region Functions
+function contains(array, search) {
   var contains = false
-  array.forEach(element => {
+  array.forEach(element =>
     search.forEach(item => {
       if (element == item) contains = true
     })
-  })
+  )
   return contains
 }
 
-//----------------------------------------------------------
-exports.checkURL = url => {
+async function checkURL(url) {
+  const curl = require('curl')
+
   return new Promise(async function(resolve) {
     curl.get('https://' + url, function(error) {
-      if (error) resolve(false)
-      else resolve(true)
+      if (error) {
+        logError(error)
+        resolve(false)
+      } else resolve(true)
     })
   })
 }
 
-//----------------------------------------------------------
-exports.getSiteUrls = url => {
+async function getSiteUrls(url) {
+  var Crawler = require('simplecrawler')
+
   return new Promise(async function(resolve) {
     try {
-      console.log('Collecting urls for: ', url)
+      logInfo('Collecting urls for: ', url)
       const urls = []
 
       var crawler = new Crawler('https://' + url)
@@ -41,17 +43,58 @@ exports.getSiteUrls = url => {
       })
       crawler.on('fetchcomplete', (queueItem, data, res) => {
         if (queueItem.stateData.contentType && queueItem.stateData.contentType.includes('html')) {
-          console.log(queueItem.url)
+          logInfo(queueItem.url)
           urls.push(queueItem.url)
         }
       })
       crawler.on('complete', () => {
-        console.log('Collected ' + urls.length + ' sites.')
+        logInfo('Collected ' + urls.length + ' sites.')
         resolve(urls.map(urlWithHttps => urlWithHttps.replace(/^https?:\/\//, '')))
       })
       crawler.start()
     } catch (error) {
       logError(error)
+      resolve([])
     }
   })
+}
+
+function getSuiteName(suite) {
+  switch (suite) {
+    case 'ssllabs':
+      return 'SSL Labs'
+    case 'securityheaders':
+      return 'Security Headers'
+    case 'seobility':
+      return 'Seobility'
+    case 'gtmetrix':
+      return 'GTMetrix'
+    case 'hardenize':
+      return 'Hardenize'
+    case 'favicon-checker':
+      return 'Favicon-Checker'
+    case 'w3':
+      return 'W3 HTML Validation'
+    case 'achecker':
+      return 'AChecker'
+    case 'varvy':
+      return 'Varvy'
+    case 'keycdn':
+      return 'KeyCDN'
+    case 'lighthouse':
+      return 'Lighthouse'
+    case 'w3-css':
+      return 'W3 CSS Validation'
+    default:
+      return 'Unknown'
+  }
+}
+// #endregion
+
+// ==========================================================
+module.exports = {
+  contains,
+  checkURL,
+  getSiteUrls,
+  getSuiteName
 }

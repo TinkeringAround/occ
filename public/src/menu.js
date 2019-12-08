@@ -6,8 +6,6 @@ const { logError } = require('./logger')
 
 // ==========================================================
 const isMac = process.platform === 'darwin'
-
-// ==========================================================
 const template = [
   // App Menu
   ...(isMac
@@ -57,11 +55,11 @@ const template = [
 ]
 
 // ==========================================================
-exports.initializeMenu = () => {
-  try {
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
-  } catch (error) {
-    logError(error)
-  }
+// #region Setup
+try {
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+} catch (error) {
+  logError(error)
 }
+// #endregion

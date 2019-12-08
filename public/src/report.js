@@ -1,22 +1,17 @@
-const { app, BrowserWindow, Notification, screen, powerSaveBlocker } = require('electron')
+const { app, BrowserWindow, Notification, screen, powerSaveBlocker, ipcMain } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
 require('hazardous')
 
 // Utility & Packages
+const { WAIT_DURATION, DOCUMENTATION_URL, DEFAULT_RESOLUTION, ROOT_PATH } = require('./const')
 const { logError, logInfo } = require('./logger')
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
-// Consts
-const ROOT_PATH = app.getPath('documents') + '/OCC'
-const RESOLUTION = { width: 1280, height: 960 }
-const WAIT_DURATION = 2000 // 2 Seconds
-const INITIAL_URL = 'https://github.com/TinkeringAround/occ'
-
 // ==========================================================
 // #region Variables
-var browser, mainWindow, puppeteerWindow
+var browser, puppeteerWindow
 
 var processID = null
 var processedReport = null
@@ -28,15 +23,9 @@ var processedCanceled = false
 // #endregion
 
 // ==========================================================
-// #region Setup
-const initializeReport = async () => {
-  try {
-    browser = await pie.connect(app, puppeteer, 8315)
-  } catch (error) {
-    logError('Initializing Report:  ' + error)
-  }
-}
-const createPuppeteerWindow = () => {
+// #region Functions
+// #region Puppeteer Worker Window
+function createPuppeteerWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize
 
   puppeteerWindow = new BrowserWindow({
@@ -50,21 +39,22 @@ const createPuppeteerWindow = () => {
     frame: false
   })
 
-  puppeteerWindow.loadURL(INITIAL_URL, {
+  puppeteerWindow.loadURL(DOCUMENTATION_URL, {
     waitUntil: 'networkidel0',
     timeout: global.config.settings.timeout
   })
 }
-const setWindow = window => (mainWindow = window)
-const showWorker = showWorker => {
-  if (showWorker == null) puppeteerWindow.destroy()
-  else showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+
+function showWorker(showWorker) {
+  if (puppeteerWindow != null) {
+    if (showWorker == null) puppeteerWindow.destroy()
+    else showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
+  }
 }
 // #endregion
 
-// ==========================================================
 // #region REPORT HANDLER
-const createReport = async (report, suites) => {
+async function createReport(report, suites) {
   if (report && suites && browser && puppeteerWindow) {
     try {
       processedReport = report
@@ -245,6 +235,7 @@ const createReport = async (report, suites) => {
     } catch (error) {
       logError('An error occured during creating the Report, ' + error, mainWindow)
       updateReportProgress(processedReport, false, processedResults)
+
       // Stop Power Blocker
       if (powerSaveBlocker.isStarted(processID)) powerSaveBlocker.stop(processID)
     }
@@ -253,8 +244,8 @@ const createReport = async (report, suites) => {
 
 async function updateReportProgress(report, progress, results) {
   try {
-    if (mainWindow) {
-      mainWindow.webContents.send('updateReport', {
+    if (global.mainWindow) {
+      global.mainWindow.webContents.send('updateReport', {
         report: {
           ...report,
           progress: progress
@@ -269,16 +260,16 @@ async function updateReportProgress(report, progress, results) {
 
 async function updateRunningSuite(suite) {
   try {
-    if (mainWindow) {
+    if (global.mainWindow) {
       logInfo(`Starting Suite ${suite}...`)
-      mainWindow.webContents.send('updateRunningSuite', suite)
+      global.mainWindow.webContents.send('updateRunningSuite', suite)
     }
   } catch (error) {
     logError(error)
   }
 }
 
-const cancelReport = report => {
+function cancelReport(report) {
   if (
     processedReport != null &&
     processedReport.url == report.url &&
@@ -288,7 +279,6 @@ const cancelReport = report => {
 }
 // #endregion
 
-// ==========================================================
 // #region SUITES
 async function createSimpleSuiteResult(type = 'normal', data) {
   try {
@@ -405,7 +395,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport(RESOLUTION)
+      await page.setViewport(DEFAULT_RESOLUTION)
 
       // Wait for Selector
       await page.waitFor(WAIT_DURATION)
@@ -459,7 +449,7 @@ async function createInputReport(
 
       // Get Page Object
       const page = await pie.getPage(browser, puppeteerWindow)
-      await page.setViewport(RESOLUTION)
+      await page.setViewport(DEFAULT_RESOLUTION)
 
       // Enter URL and Press Button
       await page.waitFor(WAIT_DURATION)
@@ -512,7 +502,7 @@ async function createLighthouseReport() {
 
     // Get Page Object
     const page = await pie.getPage(browser, puppeteerWindow)
-    await page.setViewport(RESOLUTION)
+    await page.setViewport(DEFAULT_RESOLUTION)
 
     // Enter URL and Press Button
     await page.waitFor(WAIT_DURATION)
@@ -575,12 +565,27 @@ async function createLighthouseReport() {
 }
 // #endregion
 
+// #endregion
+
+// ==========================================================
+// #region Setup
+;(async () => {
+  try {
+    // Connect to Chrome Engine
+    browser = await pie.connect(app, puppeteer, 8315)
+
+    // Create Worker Window
+    createPuppeteerWindow()
+  } catch (error) {
+    logError('Initializing Report:  ' + error)
+  }
+})()
+
+ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
+ipcMain.on('cancelReport', (event, report) => cancelReport(report))
+// #endregion
+
 // ==========================================================
 module.exports = {
-  initializeReport,
-  createPuppeteerWindow,
-  setWindow,
-  showWorker,
-  createReport,
-  cancelReport
+  showWorker
 }
