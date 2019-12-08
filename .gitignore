@@ -12,6 +12,7 @@
 /designs
 /dist
 /build
+/public/src/env.js
 
 # misc
 .env

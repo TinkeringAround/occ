@@ -3,9 +3,9 @@ const path = require('path')
 const isDev = require('electron-is-dev')
 
 // Packages
-const { MIN_HEIGHT, MIN_WIDTH } = require('./const')
-const { logError } = require('./logger')
-const { showWorker } = require('./report')
+const { MIN_HEIGHT, MIN_WIDTH } = require('./src/const')
+const { logError } = require('./src/logger')
+const { showWorker } = require('./src/report')
 
 // Variables
 var mainWindow
@@ -25,7 +25,7 @@ function createWindow() {
         frame: false,
         webPreferences: {
           nodeIntegration: false,
-          preload: __dirname + '/preload.js'
+          preload: __dirname + '/src/preload.js'
         },
         icon: __dirname + '/assets/icons.icns'
       })
@@ -34,9 +34,6 @@ function createWindow() {
       )
       mainWindow.on('closed', () => {
         mainWindow = null
-        cancelReport()
-
-        // Set Report Window Variables on Report
         showWorker(null)
       })
       mainWindow.on('ready-to-show', () => mainWindow.show())

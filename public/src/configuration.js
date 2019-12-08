@@ -2,7 +2,7 @@ const { ipcMain } = require('electron')
 const fs = require('fs')
 
 // Packages
-const { DEFAULT_CONFIG, CONFIG_PATH, IMAGES_PATH, MIN_IMAGE_COUNT } = require('./const')
+const { ROOT_PATH, DEFAULT_CONFIG, CONFIG_PATH, IMAGES_PATH, MIN_IMAGE_COUNT } = require('./const')
 const { logError } = require('./logger')
 const { showWorker } = require('./report')
 

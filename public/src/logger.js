@@ -1,10 +1,10 @@
 const fs = require('fs')
 const os = require('os')
 const isDev = require('electron-is-dev')
-require('dotenv').config()
 
 // Utility
 const { MAX_FILE_SIZE, LOG_PATH } = require('./const')
+const { SENTRY_DSN } = require('./env')
 
 // ==========================================================
 // #region Functions
@@ -41,7 +41,7 @@ function cleanLogFile() {
     if (fs.existsSync(LOG_PATH)) {
       const stats = fs.statSync(LOG_PATH)
       if (stats['size'] / 1000000.0 > MAX_FILE_SIZE) fs.writeFileSync(LOG_PATH, '')
-    }
+    } else writeToLogFile('==========================================================')
   } catch (error) {}
 }
 
@@ -65,9 +65,7 @@ function getTimestamp() {
 // ==========================================================
 // #region Setup
 try {
-  logInfo('DSN:' + process.env.SENTRY_DSN)
-
-  if (!isDev && process.env.SENTRY_DSN) {
+  if (!isDev && SENTRY_DSN) {
     const Sentry = require('@sentry/electron')
     Sentry.init({ dsn: process.env.SENTRY_DSN })
   }

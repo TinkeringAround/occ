@@ -8,7 +8,7 @@ require('./src/const')
 const { logError } = require('./src/logger')
 require('./src/menu')
 const { saveConfig } = require('./src/configuration')
-const { createWindow } = require('./src/window')
+const { createWindow } = require('./window')
 require('./src/report')
 
 // ==========================================================
