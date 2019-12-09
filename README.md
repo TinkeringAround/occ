@@ -1,4 +1,4 @@
-![One Click Checker Logo](./designs/icon.png 'One Click Checker')
+![One Click Checker Logo](./designs/occ.png 'One Click Checker')
 
 # One-Click-Checker ❤️
 
