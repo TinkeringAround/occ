@@ -1,3 +1,5 @@
+![One Click Checker Logo](./designs/icon.png 'One Click Checker')
+
 # One-Click-Checker ❤️
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
@@ -14,7 +16,3 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 - [Financial App](https://dribbble.com/shots/6958853-Financial-app-UI/attachments/1607?mode=media)
 - [File Manager](https://dribbble.com/shots/5076788--Module-inc-File-Manager/attachments/1125554)
-
-## TODO
-
-- Optional (Separate Reports from Settings => Improve Performance)

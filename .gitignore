@@ -9,7 +9,6 @@
 /coverage
 
 # production
-/designs
 /dist
 /build
 /public/src/env.js
