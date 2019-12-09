@@ -8,14 +8,14 @@ require('./src/const')
 const { logError } = require('./src/logger')
 require('./src/menu')
 const { saveConfig } = require('./src/configuration')
-const { createWindow } = require('./window')
+const { createWindows } = require('./window')
 require('./src/report')
 require('./src/pdf')
 
 // ==========================================================
 process.on('uncaughtException', error => logError(`Main process: Uncaught Exception: ${error}`))
 
-app.on('ready', createWindow)
+app.on('ready', createWindows)
 app.on('window-all-closed', () => app.quit())
 app.on('quit', saveConfig)
-app.on('activate', createWindow)
+app.on('activate', createWindows)

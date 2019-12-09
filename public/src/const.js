@@ -17,8 +17,7 @@ module.exports = {
     settings: {
       width: 1280,
       height: 960,
-      export: 'images and pdf',
-      timeout: 300000
+      export: 'images and pdf'
     },
     reports: []
   },

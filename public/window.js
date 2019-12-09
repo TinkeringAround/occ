@@ -1,18 +1,18 @@
-const { BrowserWindow, ipcMain } = require('electron')
+const { BrowserWindow, ipcMain, screen } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
 
 // Packages
-const { MIN_HEIGHT, MIN_WIDTH } = require('./src/const')
+const { MIN_HEIGHT, MIN_WIDTH, DOCUMENTATION_URL } = require('./src/const')
 const { logError } = require('./src/logger')
-const { destroyWorker } = require('./src/report')
 
 // Variables
-var mainWindow
+var mainWindow = null,
+  workerWindow = null
 
 // ==========================================================
 // #region Functions
-function createWindow() {
+function createWindows() {
   try {
     if (mainWindow == null) {
       mainWindow = new BrowserWindow({
@@ -32,14 +32,35 @@ function createWindow() {
       mainWindow.loadURL(
         isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`
       )
-      mainWindow.on('closed', () => {
-        mainWindow = null
-        destroyWorker()
-      })
+      mainWindow.on('closed', () => (mainWindow = null))
       mainWindow.on('ready-to-show', () => mainWindow.show())
 
-      // Set Report Window Variables on Report
+      // Set Global MainWindow Object
       global.mainWindow = mainWindow
+    }
+
+    if (workerWindow == null) {
+      const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
+      workerWindow = new BrowserWindow({
+        width: width,
+        height: height,
+        show: false,
+        closable: false,
+        resizable: false,
+        minimizable: false,
+        fullscreenable: false,
+        frame: false
+      })
+
+      workerWindow.loadURL(DOCUMENTATION_URL, {
+        waitUntil: 'networkidel0',
+        timeout: global.config.settings.timeout
+      })
+      workerWindow.on('close', () => (workerWindow = null))
+
+      // Set Global WorkerWindow Object
+      global.workerWindow = workerWindow
     }
   } catch (error) {
     logError(error)
@@ -48,7 +69,7 @@ function createWindow() {
 
 function closeWindow() {
   if (mainWindow) {
-    destroyWorker()
+    workerWindow.destroy()
     mainWindow.destroy()
   }
 }
@@ -72,6 +93,7 @@ try {
 }
 // #endregion
 // ==========================================================
+
 module.exports = {
-  createWindow
+  createWindows
 }
