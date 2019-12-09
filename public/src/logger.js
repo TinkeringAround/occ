@@ -69,9 +69,12 @@ try {
     Sentry.init({ dsn: process.env.SENTRY_DSN })
   }
   cleanLogFile()
-} catch (error) {}
+} catch (error) {
+  logError(error)
+}
 // #endregion
 // ==========================================================
+
 module.exports = {
   logError,
   logInfo

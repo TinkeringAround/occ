@@ -1,3 +1,4 @@
+const { ipcMain, dialog } = require('electron')
 const fs = require('fs')
 const PdfPrinter = require('pdfmake')
 
@@ -19,6 +20,62 @@ const PRINTER = new PdfPrinter(FONTS)
 
 // ==========================================================
 // #region Functions
+async function exportReport(report, suites) {
+  try {
+    const path = dialog.showSaveDialogSync(mainWindow)
+    if (path) {
+      // Required Packages
+      const fs = require('fs')
+      const JSZip = require('jszip')
+
+      // Create Zip Object
+      zip = new JSZip()
+
+      // Add Images and Content for PDF
+      const pdfResults = []
+      for (const suite of suites) {
+        report.results.forEach(result => {
+          if (result.suite == suite) {
+            if (config.settings.export.includes('images')) {
+              result.images.forEach((image, index) => {
+                try {
+                  const binary = fs.readFileSync(image.path)
+                  const fileName = report.project + '-' + result.suite + '-' + index + '.jpeg'
+                  zip.folder(suite).file(fileName, binary)
+                } catch (imageError) {
+                  logError(imageError)
+                }
+              })
+            }
+
+            if (config.settings.export.includes('pdf')) pdfResults.push(result)
+          }
+        })
+      }
+
+      // Create PDF and Add to ZIP
+      if (config.settings.export.includes('pdf')) {
+        try {
+          const pdfPath = await createPDF(pdfResults)
+          if (pdfPath) {
+            zip.file('results.pdf', fs.createReadStream(pdfPath))
+            fs.unlinkSync(pdfPath)
+          }
+        } catch (pdfError) {
+          logError(pdfError)
+        }
+      }
+
+      // Save Zip to path
+      const finishedZip = await zip.generateAsync({ type: 'uint8array' })
+      fs.writeFileSync(path + '.zip', finishedZip)
+      logInfo(`Export ZIP to ${path} was successful.`)
+    }
+  } catch (error) {
+    logError(error, mainWindow)
+  }
+}
+
 function getDD(content) {
   return {
     pageSize: {
@@ -78,7 +135,7 @@ async function createPDF(results) {
     pdfDoc.pipe(fs.createWriteStream(PDF_PATH))
     pdfDoc.end()
 
-    logInfo(' Created PDF to ' + PDF_PATH)
+    logInfo('   Created PDF successfully.')
     return PDF_PATH
   } catch (error) {
     logError(error)
@@ -87,6 +144,5 @@ async function createPDF(results) {
 }
 // #endregion
 // ==========================================================
-module.exports = {
-  createPDF
-}
+
+ipcMain.on('exportReport', (event, report, suites) => exportReport(report, suites))

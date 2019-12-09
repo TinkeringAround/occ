@@ -609,6 +609,7 @@ ipcMain.on('createReport', (event, report, suites) => createReport(report, suite
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
 // #endregion
 // ==========================================================
+
 module.exports = {
   destroyWorker
 }

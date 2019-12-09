@@ -30,7 +30,9 @@ async function updateConfig(newConfig) {
       if (deletedReport) {
         deletedReport.results.forEach(result => {
           result.images.forEach(image => {
-            if (fs.existsSync(image.path)) fs.unlinkSync(image.path)
+            try {
+              if (fs.existsSync(image.path)) fs.unlinkSync(image.path)
+            } catch (error) {}
           })
         })
       }
@@ -103,14 +105,10 @@ try {
 
 global.config = config
 
-try {
-  ipcMain.on('updateConfig', (event, newConfig) => updateConfig(newConfig))
-} catch (error) {
-  logError(error)
-}
-
+ipcMain.on('updateConfig', (event, newConfig) => updateConfig(newConfig))
 // #endregion
 // ==========================================================
+
 module.exports = {
   updateConfig,
   saveConfig

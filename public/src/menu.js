@@ -54,11 +54,10 @@ const template = [
   }
 ]
 // ==========================================================
-// #region Setup
+
 try {
   const menu = Menu.buildFromTemplate(template)
   Menu.setApplicationMenu(menu)
 } catch (error) {
   logError(error)
 }
-// #endregion
