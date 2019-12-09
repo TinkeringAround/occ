@@ -64,6 +64,7 @@ const ReportAside: FC<Props> = ({ selectedSuites, cancelled, reportIsRunning, ca
         <Box>
           <SButton
             background={disableExport ? colors['grey'] : colors['lightblue']}
+            disabled={disableExport}
             pad="1rem"
             onClick={exportSelectedSuitesOfReport}
           >

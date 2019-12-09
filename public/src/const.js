@@ -26,10 +26,11 @@ module.exports = {
   MIN_HEIGHT: 650,
   MIN_WIDTH: 960,
   DEFAULT_RESOLUTION: { width: 1280, height: 960 },
+  MAX_PAGE_HEIGHT: 20000,
 
   // Report
   WAIT_DURATION: 2000, // 2 Seconds
-  TIMEOUT: 30000,
+  TIMEOUT: 300000,
 
   // House Cleaning
   MIN_IMAGE_COUNT: 250,

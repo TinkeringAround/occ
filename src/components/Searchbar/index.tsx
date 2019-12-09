@@ -101,7 +101,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         )}
 
         {reportInProgress != null && (
-          <FillSpinner size={0.8} sizeUnit="rem" color={colors['darkGrey']} loading />
+          <FillSpinner size={0.8} sizeUnit="rem" color={colors['grey']} loading />
         )}
       </SButton>
     </Box>

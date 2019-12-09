@@ -5,7 +5,13 @@ const uuid = require('uuid/v1')
 require('hazardous')
 
 // Utility & Packages
-const { WAIT_DURATION, DEFAULT_RESOLUTION, ROOT_PATH, TIMEOUT } = require('./const')
+const {
+  WAIT_DURATION,
+  DEFAULT_RESOLUTION,
+  TIMEOUT,
+  MAX_PAGE_HEIGHT,
+  IMAGES_PATH
+} = require('./const')
 const { logError, logInfo } = require('./logger')
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
@@ -24,16 +30,13 @@ var processedCanceled = false
 // ==========================================================
 // #region Functions
 
-// #region REPORT HANDLER
-
 // Start Stop
 async function createReport(report, suites) {
-  if (report && suites && browser && puppeteerWindow) {
+  if (report && suites && browser && global.workerWindow) {
     try {
       processedReport = report
       const { url } = processedReport
       processedReports = suites.length
-
       logInfo(`Report Job received for ${url}.`)
       updateRunningSuite('Validating URL...')
 
@@ -52,7 +55,7 @@ async function createReport(report, suites) {
 
           if (contains(suites, ['w3'])) processedReports += processedURLS.length - 1
           if (contains(suites, ['achecker'])) processedReports += processedURLS.length - 1
-          if (contains(suites, ['w3-css'])) processedReports += processedURLS.lenght - 1
+          if (contains(suites, ['w3-css'])) processedReports += processedURLS.length - 1
         }
         processedResults = []
         processedProgress = 0
@@ -259,9 +262,8 @@ async function updateRunningSuite(suite) {
     logError(error)
   }
 }
-// #endregion
 
-// #region SUITES
+// Suites Wrapper
 async function createSimpleSuiteResult(type = 'normal', data) {
   try {
     const { suite, testURL, selector, input, click, urlPrefix = '' } = data
@@ -382,7 +384,7 @@ async function createChainedSuiteResult(type = 'normal', data) {
   }
 }
 
-// Default, Input, Lighthouse
+// Suites: Default, Input, Lighthouse
 async function createDefaultReport(suite, url, selector, chain = false) {
   return new Promise(async resolve => {
     logInfo('Creating ' + suite + ' report.')
@@ -406,7 +408,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
-      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+      const path = IMAGES_PATH + '/' + uuid() + '.jpeg'
       await page.screenshot({
         path: path,
         type: 'jpeg',
@@ -461,13 +463,32 @@ async function createInputReport(
         await page.waitForFunction(selector, { timeout: TIMEOUT })
       await page.waitFor(WAIT_DURATION)
 
+      // Update Viewport
+      var height = 0
+      if (suite === 'w3-css') {
+        height = await page.evaluate(() => document.documentElement.offsetHeight)
+        height = height >= MAX_PAGE_HEIGHT ? MAX_PAGE_HEIGHT : height
+        await page.setViewport({ width: DEFAULT_RESOLUTION.width, height: height })
+      }
+
       // Take screenshot
-      const path = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+      const path = IMAGES_PATH + '/' + uuid() + '.jpeg'
+      const vp =
+        suite != 'w3-css'
+          ? { fullPage: true }
+          : {
+              clip: {
+                x: 0,
+                y: 0,
+                width: DEFAULT_RESOLUTION.width,
+                height: height
+              }
+            }
       await page.screenshot({
         path: path,
         type: 'jpeg',
         quality: 70,
-        fullPage: true
+        ...vp
       })
 
       // Wait
@@ -514,7 +535,7 @@ async function createLighthouseReport() {
     await page.waitFor(WAIT_DURATION)
 
     // Get Report
-    await puppeteerWindow.loadURL(
+    await global.workerWindow.loadURL(
       'https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https://' + url,
       {
         waitUntil: 'networkidel0',
@@ -524,7 +545,7 @@ async function createLighthouseReport() {
     await page.waitFor(WAIT_DURATION)
 
     // Take screenshot
-    imagePath = ROOT_PATH + '/images/' + uuid() + '.jpeg'
+    imagePath = IMAGES_PATH + '/' + uuid() + '.jpeg'
     await page.screenshot({
       path: imagePath,
       type: 'jpeg',
@@ -559,7 +580,6 @@ async function createLighthouseReport() {
     return false
   }
 }
-// #endregion
 
 // #endregion
 // ==========================================================

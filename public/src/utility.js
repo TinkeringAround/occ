@@ -36,7 +36,7 @@ async function getSiteUrls(url) {
 
       var crawler = new Crawler('https://' + url)
       crawler.maxConcurrency = 3
-      crawler.maxDepth = 3
+      crawler.maxDepth = 2
       crawler.addFetchCondition(parsedURL => {
         if (parsedURL.path.match(/\.(css|jpg|pdf|docx|js|png|ico)/i)) return false
         else return true
