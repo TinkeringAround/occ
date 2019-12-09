@@ -59,7 +59,11 @@ const Report: FC = () => {
                 <Text size="0.85rem" margin="0.5rem" weight="bold" color="white">
                   {cancelled
                     ? 'Cancelling...'
-                    : report.progress + '% ' + getSuiteName(reportInProgress.suite)}
+                    : report.progress +
+                      '% ' +
+                      (getSuiteName(reportInProgress.suite) != ''
+                        ? getSuiteName(reportInProgress.suite)
+                        : reportInProgress.suite)}
                 </Text>
               </AProgressIndicator>
             )}

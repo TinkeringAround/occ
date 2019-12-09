@@ -17,7 +17,6 @@ module.exports = {
     settings: {
       width: 1280,
       height: 960,
-      showWorker: false,
       export: 'images and pdf',
       timeout: 300000
     },
@@ -33,10 +32,10 @@ module.exports = {
   WAIT_DURATION: 2000, // 2 Seconds
 
   // House Cleaning
-  MIN_IMAGE_COUNT: 50,
+  MIN_IMAGE_COUNT: 250,
 
   // Logging
-  MAX_FILE_SIZE: 10, // 10 MB
+  MAX_FILE_SIZE: 5, // 5 MB
 
   // Documentation
   DOCUMENTATION_URL: 'https://github.com/TinkeringAround/occ',

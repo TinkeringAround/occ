@@ -35,7 +35,9 @@ async function exportReport(report, suites) {
                   const binary = fs.readFileSync(image.path)
                   const fileName = report.project + '-' + result.suite + '-' + index + '.jpeg'
                   zip.folder(suite).file(fileName, binary)
-                } catch (error) {}
+                } catch (imageError) {
+                  logError(imageError)
+                }
               })
             }
 
@@ -46,10 +48,16 @@ async function exportReport(report, suites) {
 
       // Create PDF and Add to ZIP
       if (config.settings.export.includes('pdf')) {
-        const { createPDF } = require('./src/pdf')
-        const pdfPath = await createPDF(pdfResults)
-        zip.file('results.pdf', fs.createReadStream(pdfPath))
-        fs.unlinkSync(pdfPath)
+        try {
+          const { createPDF } = require('./src/pdf')
+          const pdfPath = await createPDF(pdfResults)
+          if (pdfPath) {
+            zip.file('results.pdf', fs.createReadStream(pdfPath))
+            fs.unlinkSync(pdfPath)
+          }
+        } catch (pdfError) {
+          logError(pdfError)
+        }
       }
 
       // Save Zip to path
@@ -62,7 +70,6 @@ async function exportReport(report, suites) {
 }
 
 // #endregion
-
 // ==========================================================
 // #region Setup
 process.on('uncaughtException', error => logError(`Main process: Uncaught Exception: ${error}`))

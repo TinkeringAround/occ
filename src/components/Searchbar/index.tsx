@@ -1,7 +1,7 @@
 import React, { FC, useState, useContext } from 'react'
 import { Box, TextInput, Keyboard } from 'grommet'
 import styled from 'styled-components'
-import { HeartSpinner } from 'react-spinners-kit'
+import { FillSpinner } from 'react-spinners-kit'
 
 // Styles
 import { colors } from '../../styles'
@@ -101,7 +101,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
         )}
 
         {reportInProgress != null && (
-          <HeartSpinner size={1} sizeUnit="rem" color={colors['darkGrey']} loading />
+          <FillSpinner size={0.8} sizeUnit="rem" color={colors['darkGrey']} loading />
         )}
       </SButton>
     </Box>

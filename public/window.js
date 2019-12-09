@@ -5,7 +5,7 @@ const isDev = require('electron-is-dev')
 // Packages
 const { MIN_HEIGHT, MIN_WIDTH } = require('./src/const')
 const { logError } = require('./src/logger')
-const { showWorker } = require('./src/report')
+const { destroyWorker } = require('./src/report')
 
 // Variables
 var mainWindow
@@ -34,7 +34,7 @@ function createWindow() {
       )
       mainWindow.on('closed', () => {
         mainWindow = null
-        showWorker(null)
+        destroyWorker()
       })
       mainWindow.on('ready-to-show', () => mainWindow.show())
 
@@ -48,7 +48,7 @@ function createWindow() {
 
 function closeWindow() {
   if (mainWindow) {
-    showWorker(null)
+    destroyWorker()
     mainWindow.destroy()
   }
 }
@@ -61,7 +61,6 @@ function toggleFullscreen() {
   if (mainWindow) mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize()
 }
 // #endregion
-
 // ==========================================================
 // #region Setup
 try {
@@ -72,7 +71,6 @@ try {
   logError(error)
 }
 // #endregion
-
 // ==========================================================
 module.exports = {
   createWindow

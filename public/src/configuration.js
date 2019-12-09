@@ -4,7 +4,6 @@ const fs = require('fs')
 // Packages
 const { ROOT_PATH, DEFAULT_CONFIG, CONFIG_PATH, IMAGES_PATH, MIN_IMAGE_COUNT } = require('./const')
 const { logError } = require('./logger')
-const { showWorker } = require('./report')
 
 // ==========================================================
 var config = DEFAULT_CONFIG
@@ -40,9 +39,6 @@ async function updateConfig(newConfig) {
     // Update Config
     config = newConfig
     saveConfig()
-
-    // Apply new Settings
-    showWorker(config.settings.showWorker)
 
     // Update Global Properties
     global.config = config
@@ -93,7 +89,6 @@ function cleanImagesFolder() {
   }
 }
 // #endregion
-
 // ==========================================================
 // #region Setup
 try {
@@ -115,7 +110,6 @@ try {
 }
 
 // #endregion
-
 // ==========================================================
 module.exports = {
   updateConfig,

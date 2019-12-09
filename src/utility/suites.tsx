@@ -23,7 +23,7 @@ export const OptimizationSuites: TSuiteCategory = {
 }
 
 // ==========================================================
-export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
+export const getSuiteName: (suite: TSuites | string) => string = (suite: TSuites | string) => {
   switch (suite) {
     case 'ssllabs':
       return 'SSL Labs'
@@ -49,6 +49,8 @@ export const getSuiteName: (suite: TSuites) => string = (suite: TSuites) => {
       return 'Lighthouse'
     case 'w3-css':
       return 'W3 CSS Validation'
+    default:
+      return ''
   }
 }
 

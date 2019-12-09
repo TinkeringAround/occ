@@ -20,7 +20,7 @@ const logError = (error, window = null) => {
 
 const logInfo = info => {
   try {
-    const infoMessage = getTimestamp() + '   INFO   {  ' + info + '  }'
+    const infoMessage = getTimestamp() + '   INFO    {  ' + info + '  }'
     console.debug(infoMessage)
     writeToLogFile(infoMessage + os.EOL)
   } catch (err) {}
@@ -41,7 +41,7 @@ function cleanLogFile() {
     if (fs.existsSync(LOG_PATH)) {
       const stats = fs.statSync(LOG_PATH)
       if (stats['size'] / 1000000.0 > MAX_FILE_SIZE) fs.writeFileSync(LOG_PATH, '')
-    } else writeToLogFile('==========================================================')
+    } else writeToLogFile('==========================================================\n')
   } catch (error) {}
 }
 
@@ -51,17 +51,16 @@ function getTimestamp() {
 
   var year = a.getFullYear()
   var month = months[a.getMonth()]
-  var date = a.getDate()
+  var date = a.getDate() < 10 ? '0' + a.getDate() : a.getDate()
 
-  var hour = a.getHours()
-  var min = a.getMinutes()
-  var sec = a.getSeconds()
+  var hour = a.getHours() < 10 ? '0' + a.getHours() : a.getHours()
+  var min = a.getMinutes() < 10 ? '0' + a.getMinutes() : a.getMinutes()
+  var sec = a.getSeconds() < 10 ? '0' + a.getSeconds() : a.getSeconds()
 
   var time = hour + ':' + min + ':' + sec + ', ' + date + '. ' + month + ' ' + year
   return time
 }
 // #endregion
-
 // ==========================================================
 // #region Setup
 try {
@@ -71,9 +70,7 @@ try {
   }
   cleanLogFile()
 } catch (error) {}
-
 // #endregion
-
 // ==========================================================
 module.exports = {
   logError,

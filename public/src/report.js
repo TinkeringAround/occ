@@ -15,13 +15,12 @@ var browser, puppeteerWindow
 
 var processID = null
 var processedReport = null
-var processedSuites = []
+var processedReports = 0
 var processedURLS = []
 var processedResults = []
 var processedProgress = 0
 var processedCanceled = false
 // #endregion
-
 // ==========================================================
 // #region Functions
 // #region Puppeteer Worker Window
@@ -31,7 +30,7 @@ function createPuppeteerWindow() {
   puppeteerWindow = new BrowserWindow({
     width: width,
     height: height,
-    show: global.config.settings.showWorker,
+    show: false,
     closable: false,
     resizable: false,
     minimizable: false,
@@ -45,11 +44,8 @@ function createPuppeteerWindow() {
   })
 }
 
-function showWorker(showWorker) {
-  if (puppeteerWindow != null) {
-    if (showWorker == null) puppeteerWindow.destroy()
-    else showWorker ? puppeteerWindow.showInactive() : puppeteerWindow.hide()
-  }
+function destroyWorker() {
+  if (puppeteerWindow != null) puppeteerWindow.destroy()
 }
 // #endregion
 
@@ -59,10 +55,13 @@ async function createReport(report, suites) {
     try {
       processedReport = report
       const { url } = processedReport
-      processedSuites = suites
+      processedReports = suites.length
+
+      logInfo(`Report Job received for ${url}.`)
+      updateRunningSuite('Validating URL...')
 
       const urlIsValid = await checkURL(url)
-      logInfo(`Report Job received for ${url}. URL is ${urlIsValid ? 'VALID' : 'INVALID'}.`)
+      logInfo(`URL is ${urlIsValid ? 'VALID' : 'INVALID'}.`)
 
       // #region Suite Creation
       if (urlIsValid) {
@@ -70,7 +69,14 @@ async function createReport(report, suites) {
         processID = powerSaveBlocker.start('prevent-app-suspension')
 
         // #region Crawl Subsites & Setup Progressing Variables
-        processedURLS = contains(suites, ['w3', 'achecker', 'w3-css']) ? await getSiteUrls(url) : []
+        if (contains(suites, ['w3', 'achecker', 'w3-css'])) {
+          updateRunningSuite('Collection Pages...')
+          processedURLS = await getSiteUrls(url)
+
+          if (contains(suites, ['w3'])) processedReports += processedURLS.length - 1
+          if (contains(suites, ['achecker'])) processedReports += processedURLS.length - 1
+          if (contains(suites, ['w3-css'])) processedReports += processedURLS.lenght - 1
+        }
         processedResults = []
         processedProgress = 0
         // #endregion
@@ -305,7 +311,7 @@ async function createSimpleSuiteResult(type = 'normal', data) {
     processedProgress += 1
     updateReportProgress(
       processedReport,
-      ~~((processedProgress / processedSuites.length) * 100),
+      ~~((processedProgress / processedReports) * 100),
       processedResults
     )
 
@@ -329,33 +335,53 @@ async function createChainedSuiteResult(type = 'normal', data) {
     // Create Report
     if (type == 'normal') {
       for (const sub of processedURLS) {
-        const subImagePath = await createDefaultReport(
-          suite,
-          testURL.replace('SUBURL', sub),
-          selector,
-          true
-        )
-        images.push({
-          url: sub,
-          path: subImagePath
-        })
+        if (!processedCanceled) {
+          const subImagePath = await createDefaultReport(
+            suite,
+            testURL.replace('SUBURL', sub),
+            selector,
+            true
+          )
+          images.push({
+            url: sub,
+            path: subImagePath
+          })
+
+          // Update
+          processedProgress += 1
+          updateReportProgress(
+            processedReport,
+            ~~((processedProgress / processedReports) * 100),
+            processedResults
+          )
+        }
       }
     } else if (type == 'input') {
       for (const sub of processedURLS) {
-        const subImagePath = await createInputReport(
-          suite,
-          sub,
-          testURL,
-          input,
-          click,
-          selector,
-          urlPrefix,
-          true
-        )
-        images.push({
-          url: sub,
-          path: subImagePath
-        })
+        if (!processedCanceled) {
+          const subImagePath = await createInputReport(
+            suite,
+            sub,
+            testURL,
+            input,
+            click,
+            selector,
+            urlPrefix,
+            true
+          )
+          images.push({
+            url: sub,
+            path: subImagePath
+          })
+
+          // Update
+          processedProgress += 1
+          updateReportProgress(
+            processedReport,
+            ~~((processedProgress / processedReports) * 100),
+            processedResults
+          )
+        }
       }
     }
 
@@ -367,10 +393,9 @@ async function createChainedSuiteResult(type = 'normal', data) {
     })
 
     // Update
-    processedProgress += 1
     updateReportProgress(
       processedReport,
-      ~~((processedProgress / processedSuites.length) * 100),
+      ~~((processedProgress / processedReports) * 100),
       processedResults
     )
 
@@ -419,7 +444,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       await page.waitFor(WAIT_DURATION)
       if (chain) await page.waitFor(2 * WAIT_DURATION)
 
-      logInfo(`Saved to file ${path}`)
+      logInfo(`   Saved to file ${path}`)
       resolve(path)
     } catch (error) {
       logError('An Error occured creating ' + suite + ' report, ' + error)
@@ -477,7 +502,7 @@ async function createInputReport(
       await page.waitFor(WAIT_DURATION)
       if (chain) await page.waitFor(2 * WAIT_DURATION)
 
-      logInfo(`Saved to file ${path}`)
+      logInfo(`   Saved to file ${path}`)
       resolve(path)
     } catch (error) {
       logError('An Error occured creating ' + suite + ' report, ' + error)
@@ -539,7 +564,7 @@ async function createLighthouseReport() {
     // Wait
     await page.waitFor(WAIT_DURATION)
 
-    logInfo(`Saved to file ${imagePath}`)
+    logInfo(`   Saved to file ${imagePath}`)
 
     // Push Report to Results
     processedResults.push({
@@ -552,7 +577,7 @@ async function createLighthouseReport() {
     processedProgress += 1
     updateReportProgress(
       processedReport,
-      ~~((processedProgress / processedSuites.length) * 100),
+      ~~((processedProgress / processedReports) * 100),
       processedResults
     )
 
@@ -566,7 +591,6 @@ async function createLighthouseReport() {
 // #endregion
 
 // #endregion
-
 // ==========================================================
 // #region Setup
 ;(async () => {
@@ -584,8 +608,7 @@ async function createLighthouseReport() {
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
 // #endregion
-
 // ==========================================================
 module.exports = {
-  showWorker
+  destroyWorker
 }

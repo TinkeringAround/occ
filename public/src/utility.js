@@ -31,7 +31,7 @@ async function getSiteUrls(url) {
 
   return new Promise(async function(resolve) {
     try {
-      logInfo('Collecting urls for: ', url)
+      logInfo('Collecting urls for: ' + url)
       const urls = []
 
       var crawler = new Crawler('https://' + url)
@@ -43,7 +43,7 @@ async function getSiteUrls(url) {
       })
       crawler.on('fetchcomplete', (queueItem, data, res) => {
         if (queueItem.stateData.contentType && queueItem.stateData.contentType.includes('html')) {
-          logInfo(queueItem.url)
+          logInfo('   ' + queueItem.url)
           urls.push(queueItem.url)
         }
       })
@@ -90,7 +90,6 @@ function getSuiteName(suite) {
   }
 }
 // #endregion
-
 // ==========================================================
 module.exports = {
   contains,

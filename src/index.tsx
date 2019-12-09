@@ -52,7 +52,7 @@ const App: FC = () => {
   const [report, setReport] = useState<TReport | null>(null) // Open Report
   const [reportInProgress, setReportInProgress] = useState<{
     report: TReport
-    suite: TSuites
+    suite: TSuites | string
   } | null>(null) // If Report is currently processed
 
   // Confirmation Dialog
@@ -122,7 +122,7 @@ const App: FC = () => {
   }
   const exportReport = (report: TReport, suites: Array<TSuites>) =>
     exportReportInMain(report, suites)
-  const updateRunningSuite = (event: any, suite: TSuites) => {
+  const updateRunningSuite = (event: any, suite: TSuites | string) => {
     if (reportInProgress) setReportInProgress({ ...reportInProgress, suite: suite })
   }
   // #endregion

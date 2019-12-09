@@ -53,18 +53,22 @@ async function createPDF(results) {
     // Create Contents
     for (const result of results) {
       result.images.forEach(image => {
-        if (image.path != null) {
-          const sizeOf = require('image-size')
-          const imageSize = sizeOf(image.path)
+        try {
+          if (image.path != null) {
+            const sizeOf = require('image-size')
+            const imageSize = sizeOf(image.path)
 
-          content.push({ text: getSuiteName(result.suite), style: 'header' })
-          content.push({ text: image.url, style: 'subtitle' })
-          content.push({
-            image: image.path,
-            width: 1280 - 2 * MARGIN,
-            height: imageSize.height,
-            margin: [MARGIN / 2, 0, 0, 6 * MARGIN]
-          })
+            content.push({ text: getSuiteName(result.suite), style: 'header' })
+            content.push({ text: image.url, style: 'subtitle' })
+            content.push({
+              image: image.path,
+              width: 1280 - 2 * MARGIN,
+              height: imageSize.height,
+              margin: [MARGIN / 2, 0, 0, 6 * MARGIN]
+            })
+          }
+        } catch (imageError) {
+          logError(imageError)
         }
       })
     }
@@ -78,6 +82,7 @@ async function createPDF(results) {
     return PDF_PATH
   } catch (error) {
     logError(error)
+    return null
   }
 }
 // #endregion
