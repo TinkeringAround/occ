@@ -26,7 +26,7 @@ module.exports = {
   MIN_HEIGHT: 650,
   MIN_WIDTH: 960,
   DEFAULT_RESOLUTION: { width: 1280, height: 960 },
-  MAX_PAGE_HEIGHT: 20000,
+  MAX_PAGE_HEIGHT: 10000,
 
   // Report
   WAIT_DURATION: 2000, // 2 Seconds
