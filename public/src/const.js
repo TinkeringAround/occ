@@ -29,6 +29,7 @@ module.exports = {
 
   // Report
   WAIT_DURATION: 2000, // 2 Seconds
+  TIMEOUT: 30000,
 
   // House Cleaning
   MIN_IMAGE_COUNT: 250,

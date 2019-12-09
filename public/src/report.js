@@ -1,17 +1,17 @@
-const { app, BrowserWindow, Notification, screen, powerSaveBlocker, ipcMain } = require('electron')
+const { app, Notification, powerSaveBlocker, ipcMain } = require('electron')
 const pie = require('puppeteer-in-electron')
 const puppeteer = require('puppeteer-core')
 const uuid = require('uuid/v1')
 require('hazardous')
 
 // Utility & Packages
-const { WAIT_DURATION, DOCUMENTATION_URL, DEFAULT_RESOLUTION, ROOT_PATH } = require('./const')
+const { WAIT_DURATION, DEFAULT_RESOLUTION, ROOT_PATH, TIMEOUT } = require('./const')
 const { logError, logInfo } = require('./logger')
 const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // ==========================================================
 // #region Variables
-var browser, puppeteerWindow
+var browser
 
 var processID = null
 var processedReport = null
@@ -23,33 +23,10 @@ var processedCanceled = false
 // #endregion
 // ==========================================================
 // #region Functions
-// #region Puppeteer Worker Window
-function createPuppeteerWindow() {
-  const { width, height } = screen.getPrimaryDisplay().workAreaSize
-
-  puppeteerWindow = new BrowserWindow({
-    width: width,
-    height: height,
-    show: false,
-    closable: false,
-    resizable: false,
-    minimizable: false,
-    fullscreenable: false,
-    frame: false
-  })
-
-  puppeteerWindow.loadURL(DOCUMENTATION_URL, {
-    waitUntil: 'networkidel0',
-    timeout: global.config.settings.timeout
-  })
-}
-
-function destroyWorker() {
-  if (puppeteerWindow != null) puppeteerWindow.destroy()
-}
-// #endregion
 
 // #region REPORT HANDLER
+
+// Start Stop
 async function createReport(report, suites) {
   if (report && suites && browser && puppeteerWindow) {
     try {
@@ -247,7 +224,16 @@ async function createReport(report, suites) {
     }
   }
 }
+function cancelReport(report) {
+  if (
+    processedReport != null &&
+    processedReport.url == report.url &&
+    processedReport.date == report.date
+  )
+    processedCanceled = true
+}
 
+// Updating
 async function updateReportProgress(report, progress, results) {
   try {
     if (global.mainWindow) {
@@ -263,7 +249,6 @@ async function updateReportProgress(report, progress, results) {
     logError(error)
   }
 }
-
 async function updateRunningSuite(suite) {
   try {
     if (global.mainWindow) {
@@ -273,15 +258,6 @@ async function updateRunningSuite(suite) {
   } catch (error) {
     logError(error)
   }
-}
-
-function cancelReport(report) {
-  if (
-    processedReport != null &&
-    processedReport.url == report.url &&
-    processedReport.date == report.date
-  )
-    processedCanceled = true
 }
 // #endregion
 
@@ -322,7 +298,6 @@ async function createSimpleSuiteResult(type = 'normal', data) {
     return false
   }
 }
-
 async function createChainedSuiteResult(type = 'normal', data) {
   try {
     const { suite, testURL, selector, input, click, urlPrefix = '' } = data
@@ -413,21 +388,20 @@ async function createDefaultReport(suite, url, selector, chain = false) {
     logInfo('Creating ' + suite + ' report.')
     try {
       // Load URL
-      await puppeteerWindow.loadURL(url, {
+      await global.workerWindow.loadURL(url, {
         waitUntil: 'networkidel0',
-        timeout: global.config.settings.timeout
+        timeout: TIMEOUT
       })
 
       // Get Page Object
-      const page = await pie.getPage(browser, puppeteerWindow)
+      const page = await pie.getPage(browser, global.workerWindow)
       await page.setViewport(DEFAULT_RESOLUTION)
 
       // Wait for Selector
       await page.waitFor(WAIT_DURATION)
-      if (typeof selector == 'string')
-        await page.waitForSelector(selector, { timeout: global.config.settings.timeout })
+      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
       else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: global.config.settings.timeout })
+        await page.waitForFunction(selector, { timeout: TIMEOUT })
 
       await page.waitFor(WAIT_DURATION)
 
@@ -452,7 +426,6 @@ async function createDefaultReport(suite, url, selector, chain = false) {
     }
   })
 }
-
 async function createInputReport(
   suite,
   url,
@@ -467,13 +440,13 @@ async function createInputReport(
     logInfo('Creating ' + suite + ' input report.')
     try {
       // Load URL
-      await puppeteerWindow.loadURL(testURL, {
+      await global.workerWindow.loadURL(testURL, {
         waitUntil: 'networkidel0',
-        timeout: global.config.settings.timeout
+        timeout: TIMEOUT
       })
 
       // Get Page Object
-      const page = await pie.getPage(browser, puppeteerWindow)
+      const page = await pie.getPage(browser, global.workerWindow)
       await page.setViewport(DEFAULT_RESOLUTION)
 
       // Enter URL and Press Button
@@ -483,10 +456,9 @@ async function createInputReport(
 
       // Wait for Selector
       await page.waitFor(WAIT_DURATION)
-      if (typeof selector == 'string')
-        await page.waitForSelector(selector, { timeout: global.config.settings.timeout })
+      if (typeof selector == 'string') await page.waitForSelector(selector, { timeout: TIMEOUT })
       else if (typeof selector == 'function')
-        await page.waitForFunction(selector, { timeout: global.config.settings.timeout })
+        await page.waitForFunction(selector, { timeout: TIMEOUT })
       await page.waitFor(WAIT_DURATION)
 
       // Take screenshot
@@ -510,7 +482,6 @@ async function createInputReport(
     }
   })
 }
-
 async function createLighthouseReport() {
   try {
     const { url } = processedReport
@@ -520,13 +491,13 @@ async function createLighthouseReport() {
     logInfo('Creating lighthouse report.')
 
     // Load URL
-    await puppeteerWindow.loadURL('https://web.dev/measure/', {
+    await global.workerWindow.loadURL('https://web.dev/measure/', {
       waitUntil: 'networkidel0',
-      timeout: global.config.settings.timeout
+      timeout: TIMEOUT
     })
 
     // Get Page Object
-    const page = await pie.getPage(browser, puppeteerWindow)
+    const page = await pie.getPage(browser, global.workerWindow)
     await page.setViewport(DEFAULT_RESOLUTION)
 
     // Enter URL and Press Button
@@ -538,7 +509,7 @@ async function createLighthouseReport() {
     await page.waitFor(WAIT_DURATION)
     await page.waitForFunction(
       () => document.getElementsByClassName('lh-metrics-table')[0].childElementCount > 0,
-      { timeout: global.config.settings.timeout }
+      { timeout: TIMEOUT }
     )
     await page.waitFor(WAIT_DURATION)
 
@@ -547,7 +518,7 @@ async function createLighthouseReport() {
       'https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https://' + url,
       {
         waitUntil: 'networkidel0',
-        timeout: global.config.settings.timeout
+        timeout: TIMEOUT
       }
     )
     await page.waitFor(WAIT_DURATION)
@@ -592,14 +563,11 @@ async function createLighthouseReport() {
 
 // #endregion
 // ==========================================================
-// #region Setup
+
 ;(async () => {
   try {
     // Connect to Chrome Engine
     browser = await pie.connect(app, puppeteer, 8315)
-
-    // Create Worker Window
-    createPuppeteerWindow()
   } catch (error) {
     logError('Initializing Report:  ' + error)
   }
@@ -607,9 +575,3 @@ async function createLighthouseReport() {
 
 ipcMain.on('createReport', (event, report, suites) => createReport(report, suites))
 ipcMain.on('cancelReport', (event, report) => cancelReport(report))
-// #endregion
-// ==========================================================
-
-module.exports = {
-  destroyWorker
-}

@@ -42,8 +42,6 @@
     "serialize-javascript": "^2.1.1",
     "simplecrawler": "^1.1.8",
     "styled-components": "^4.4.1",
-    "threads": "^1.0.0-beta.8",
-    "tiny-worker": "^2.3.0",
     "typescript": "3.7.2",
     "uuid": "^3.3.3",
     "wait-on": "^3.3.0"
