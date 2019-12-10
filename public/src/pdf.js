@@ -22,7 +22,7 @@ const PRINTER = new PdfPrinter(FONTS)
 // #region Functions
 async function exportReport(report, suites) {
   try {
-    const path = dialog.showSaveDialogSync(mainWindow)
+    const path = dialog.showSaveDialogSync(global.mainWindow)
     if (path) {
       // Required Packages
       const fs = require('fs')
@@ -72,7 +72,8 @@ async function exportReport(report, suites) {
       logInfo(`Export ZIP to ${path} was successful.`)
     }
   } catch (error) {
-    logError(error, mainWindow)
+    logError('An error occured bundling the ZIP.', global.mainWindow)
+    logError('   ' + error)
   }
 }
 
@@ -138,7 +139,8 @@ async function createPDF(results) {
     logInfo('   Created PDF successfully.')
     return PDF_PATH
   } catch (error) {
-    logError(error)
+    logError('An error occured creating the PDF.', global.mainWindow)
+    logError('   ' + error)
     return null
   }
 }

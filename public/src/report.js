@@ -61,6 +61,13 @@ async function createReport(report, suites) {
         processedProgress = 0
         // #endregion
 
+        // #region Special Reports
+        // Lighthouse
+        if (!processedCanceled && contains(suites, ['lighthouse'])) {
+          __result = await createLighthouseReport()
+        }
+        // #endregion
+
         // #region Default Reports
         // SSL Labs
         if (!processedCanceled && contains(suites, ['ssllabs'])) {
@@ -183,13 +190,6 @@ async function createReport(report, suites) {
         }
         // #endregion
 
-        // #region Special Reports
-        // Lighthouse
-        if (!processedCanceled && contains(suites, ['lighthouse'])) {
-          __result = await createLighthouseReport()
-        }
-        // #endregion
-
         // #region Finish Report & Send Notification
         // Send Notification
         if (Notification.isSupported() && !processedCanceled) {
@@ -203,6 +203,7 @@ async function createReport(report, suites) {
         }
 
         logInfo('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
+        if (processedCanceled) logError('Report has been cancelled.', global.mainWindow)
         updateReportProgress(processedReport, !processedCanceled, processedResults)
         processedReport = null
         processedCanceled = false
@@ -212,14 +213,15 @@ async function createReport(report, suites) {
         // #endregion
       } else {
         updateReportProgress(processedReport, false, processedResults)
-        logError('URL ' + processedReport.url + ' is invalid.', mainWindow)
+        logError('The url ' + processedReport.url + ' is invalid.', global.mainWindow)
 
         processedReport = null
         processedCanceled = false
       }
       // #endregion
     } catch (error) {
-      logError('An error occured during creating the Report, ' + error, mainWindow)
+      logError('An error occured during creating the report.', global.mainWindow)
+      logError('   ' + error)
       updateReportProgress(processedReport, false, processedResults)
 
       // Stop Power Blocker
@@ -498,7 +500,7 @@ async function createInputReport(
       logInfo(`   Saved to file ${path}`)
       resolve(path)
     } catch (error) {
-      logError('An Error occured creating ' + suite + ' report, ' + error)
+      logError('An Error occured creating ' + suite + ' input report, ' + error)
       resolve(null)
     }
   })
@@ -510,6 +512,8 @@ async function createLighthouseReport() {
 
     // Create Report
     logInfo('Creating lighthouse report.')
+    // Update Running Suite
+    updateRunningSuite('lighthouse')
 
     // Load URL
     await global.workerWindow.loadURL('https://web.dev/measure/', {

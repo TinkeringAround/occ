@@ -61,7 +61,7 @@ const Report: FC = () => {
                     ? 'Cancelling...'
                     : report.progress +
                       '% ' +
-                      (getSuiteName(reportInProgress.suite) != ''
+                      (getSuiteName(reportInProgress.suite) !== ''
                         ? getSuiteName(reportInProgress.suite)
                         : reportInProgress.suite)}
                 </Text>

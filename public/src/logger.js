@@ -14,7 +14,7 @@ const logError = (error, window = null) => {
     console.error(errorMessage)
     writeToLogFile(errorMessage + os.EOL)
 
-    if (window != null) window.webContents.send('errorOnMain', errorMessage)
+    if (window != null) window.webContents.send('errorOnMain', error)
   } catch (err) {}
 }
 
