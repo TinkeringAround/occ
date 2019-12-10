@@ -45,7 +45,7 @@ function createWindows() {
       workerWindow = new BrowserWindow({
         width: width,
         height: height,
-        show: false,
+        show: true,
         closable: false,
         resizable: false,
         minimizable: false,
@@ -68,7 +68,7 @@ function createWindows() {
 }
 
 function closeWindow() {
-  if (mainWindow) {
+  if (mainWindow && workerWindow) {
     workerWindow.destroy()
     mainWindow.destroy()
   }

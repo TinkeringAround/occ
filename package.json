@@ -1,7 +1,7 @@
 {
   "name": "occ",
   "productName": "One Click Checker",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "One Click Checker",
   "author": "Thomas Maier",
   "repository": "https://github.com/TinkeringAround/occ.git",

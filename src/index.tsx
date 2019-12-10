@@ -169,7 +169,7 @@ const App: FC = () => {
     if (reportInProgress != null) {
       setShowConfirmation(true)
       event.returnValue = 'prevent'
-    }
+    } else closeWindowInMain()
   }
   const handleErrorInMain = (event: any, error: string) => setErrorInMain(error)
   // #endregion
