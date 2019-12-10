@@ -45,7 +45,7 @@ function createWindows() {
       workerWindow = new BrowserWindow({
         width: width,
         height: height,
-        show: true,
+        show: false,
         closable: false,
         resizable: false,
         minimizable: false,
