@@ -1,6 +1,14 @@
 import { TConfiguration, TReport, TSuites } from '../types'
 
 // ==========================================================
+export const getAppVersion: () => string = () => {
+  //@ts-ignore
+  const response = window.electron.ipcRenderer.sendSync('version')
+  console.log(response.data)
+  return response ? response.data : ''
+}
+
+// ==========================================================
 export const closeWindowInMain: () => void = () => {
   // @ts-ignore
   window.electron.ipcRenderer.send('closeWindow')

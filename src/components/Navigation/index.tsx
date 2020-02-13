@@ -14,6 +14,7 @@ import reportContext from '../../context/report-context'
 
 // Components
 import Item from './Partials/Item'
+import AppVersion from '../AppVersion'
 
 // Atoms
 const Aside = styled.aside`
@@ -64,6 +65,9 @@ const Navigation: FC = () => {
           />
         ))}
       </Box>
+
+      {/* App Version */}
+      <AppVersion />
     </Aside>
   )
 }
