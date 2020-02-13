@@ -17,7 +17,7 @@ const { checkURL, contains, getSiteUrls } = require('./utility')
 
 // ==========================================================
 // #region Variables
-var browser
+var browser, page
 
 var processID = null
 var processedReport = null
@@ -25,7 +25,7 @@ var processedReports = 0
 var processedURLS = []
 var processedResults = []
 var processedProgress = 0
-var processedCanceled = false
+var processedCancelled = false
 // #endregion
 // ==========================================================
 // #region Functions
@@ -37,7 +37,7 @@ async function createReport(report, suites) {
       processedReport = report
       const { url } = processedReport
       processedReports = suites.length
-      logInfo(`Report Job received for ${url}.`)
+      logInfo(`============> Report Job received for ${url}.`)
       updateRunningSuite('Validating URL...')
 
       const urlIsValid = await checkURL(url)
@@ -49,7 +49,7 @@ async function createReport(report, suites) {
         processID = powerSaveBlocker.start('prevent-app-suspension')
 
         // #region Crawl Subsites & Setup Progressing Variables
-        if (contains(suites, ['w3', 'achecker', 'w3-css'])) {
+        if (!processedCancelled && contains(suites, ['w3', 'achecker', 'w3-css'])) {
           updateRunningSuite('Collection Pages...')
           processedURLS = await getSiteUrls(url)
 
@@ -63,14 +63,14 @@ async function createReport(report, suites) {
 
         // #region Special Reports
         // Lighthouse
-        if (!processedCanceled && contains(suites, ['lighthouse'])) {
+        if (!processedCancelled && contains(suites, ['lighthouse'])) {
           __result = await createLighthouseReport()
         }
         // #endregion
 
         // #region Default Reports
         // SSL Labs
-        if (!processedCanceled && contains(suites, ['ssllabs'])) {
+        if (!processedCancelled && contains(suites, ['ssllabs'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'ssllabs',
             testURL: 'https://www.ssllabs.com/ssltest/analyze.html?d=' + url + '&hideResults=on',
@@ -79,7 +79,7 @@ async function createReport(report, suites) {
         }
 
         // Security Headers
-        if (!processedCanceled && contains(suites, ['securityheaders'])) {
+        if (!processedCancelled && contains(suites, ['securityheaders'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'securityheaders',
             testURL: 'https://securityheaders.com/?q=' + url + '&hide=on&followRedirects=on',
@@ -88,7 +88,7 @@ async function createReport(report, suites) {
         }
 
         // Seobility
-        if (!processedCanceled && contains(suites, ['seobility'])) {
+        if (!processedCancelled && contains(suites, ['seobility'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'seobility',
             testURL: 'https://freetools.seobility.net/de/seocheck/' + url,
@@ -97,7 +97,7 @@ async function createReport(report, suites) {
         }
 
         // Favicon-Checker
-        if (!processedCanceled && contains(suites, ['favicon-checker'])) {
+        if (!processedCancelled && contains(suites, ['favicon-checker'])) {
           __result = await createSimpleSuiteResult('normal', {
             suite: 'favicon-checker',
             testURL:
@@ -112,7 +112,7 @@ async function createReport(report, suites) {
         }
 
         // W-Three HTML Validator
-        if (!processedCanceled && contains(suites, ['w3'])) {
+        if (!processedCancelled && contains(suites, ['w3'])) {
           __result = await createChainedSuiteResult('normal', {
             suite: 'w3',
             testURL: 'https://validator.w3.org/nu/?doc=https%3A%2F%2FSUBURL',
@@ -123,7 +123,7 @@ async function createReport(report, suites) {
 
         // #region Input Reports
         // GTMetrix
-        if (!processedCanceled && contains(suites, ['gtmetrix'])) {
+        if (!processedCancelled && contains(suites, ['gtmetrix'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'gtmetrix',
             testURL: 'https://gtmetrix.com',
@@ -134,7 +134,7 @@ async function createReport(report, suites) {
         }
 
         // Hardenize
-        if (!processedCanceled && contains(suites, ['hardenize'])) {
+        if (!processedCancelled && contains(suites, ['hardenize'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'hardenize',
             testURL: 'https://www.hardenize.com',
@@ -145,7 +145,7 @@ async function createReport(report, suites) {
         }
 
         // Varvy
-        if (!processedCanceled && contains(suites, ['varvy'])) {
+        if (!processedCancelled && contains(suites, ['varvy'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'varvy',
             testURL: 'https://varvy.com',
@@ -156,7 +156,7 @@ async function createReport(report, suites) {
         }
 
         // KeyDCN
-        if (!processedCanceled && contains(suites, ['keycdn'])) {
+        if (!processedCancelled && contains(suites, ['keycdn'])) {
           __result = await createSimpleSuiteResult('input', {
             suite: 'keycdn',
             testURL: 'https://tools.keycdn.com/speed',
@@ -168,7 +168,7 @@ async function createReport(report, suites) {
         }
 
         // AChecker
-        if (!processedCanceled && contains(suites, ['achecker'])) {
+        if (!processedCancelled && contains(suites, ['achecker'])) {
           __result = await createChainedSuiteResult('input', {
             suite: 'achecker',
             testURL: 'https://achecker.ca/checker/index.php',
@@ -179,7 +179,7 @@ async function createReport(report, suites) {
         }
 
         // W3 CSS
-        if (!processedCanceled && contains(suites, ['w3-css'])) {
+        if (!processedCancelled && contains(suites, ['w3-css'])) {
           __result = await createChainedSuiteResult('input', {
             suite: 'w3-css',
             testURL: 'https://jigsaw.w3.org/css-validator/',
@@ -192,7 +192,7 @@ async function createReport(report, suites) {
 
         // #region Finish Report & Send Notification
         // Send Notification
-        if (Notification.isSupported() && !processedCanceled) {
+        if (Notification.isSupported() && !processedCancelled) {
           const not = new Notification({
             title: 'One Click Checker',
             subtitle: `Report for ${processedReport.url} has finished.`,
@@ -202,11 +202,11 @@ async function createReport(report, suites) {
           not.show()
         }
 
-        logInfo('Final Update, Report was ' + (processedCanceled ? 'cancelled.' : 'finished.'))
-        if (processedCanceled) logError('Report has been cancelled.', global.mainWindow)
-        updateReportProgress(processedReport, !processedCanceled, processedResults)
+        logInfo('Final Update, Report was ' + (processedCancelled ? 'cancelled.' : 'finished.'))
+        if (processedCancelled) logError('Report has been cancelled.', global.mainWindow)
+        updateReportProgress(processedReport, !processedCancelled, processedResults)
         processedReport = null
-        processedCanceled = false
+        processedCancelled = false
 
         // Stop Power Blocker
         powerSaveBlocker.stop(processID)
@@ -216,7 +216,7 @@ async function createReport(report, suites) {
         logError('The url ' + processedReport.url + ' is invalid.', global.mainWindow)
 
         processedReport = null
-        processedCanceled = false
+        processedCancelled = false
       }
       // #endregion
     } catch (error) {
@@ -229,13 +229,14 @@ async function createReport(report, suites) {
     }
   }
 }
-function cancelReport(report) {
+async function cancelReport(report) {
   if (
     processedReport != null &&
     processedReport.url == report.url &&
     processedReport.date == report.date
-  )
-    processedCanceled = true
+  ) {
+    processedCancelled = true
+  }
 }
 
 // Updating
@@ -280,20 +281,22 @@ async function createSimpleSuiteResult(type = 'normal', data) {
     else if ('input')
       imagePath = await createInputReport(suite, url, testURL, input, click, selector, urlPrefix)
 
-    // Push Report to Results
-    processedResults.push({
-      url: url,
-      suite: suite,
-      images: [{ url: url, path: imagePath }]
-    })
+    if (imagePath) {
+      // Push Report to Results
+      processedResults.push({
+        url: url,
+        suite: suite,
+        images: [{ url: url, path: imagePath }]
+      })
 
-    // Update
-    processedProgress += 1
-    updateReportProgress(
-      processedReport,
-      ~~((processedProgress / processedReports) * 100),
-      processedResults
-    )
+      // Update
+      processedProgress += 1
+      updateReportProgress(
+        processedReport,
+        ~~((processedProgress / processedReports) * 100),
+        processedResults
+      )
+    }
 
     // Return
     return true
@@ -314,30 +317,33 @@ async function createChainedSuiteResult(type = 'normal', data) {
     // Create Report
     if (type == 'normal') {
       for (const sub of processedURLS) {
-        if (!processedCanceled) {
+        if (!processedCancelled) {
           const subImagePath = await createDefaultReport(
             suite,
             testURL.replace('SUBURL', sub),
             selector,
             true
           )
-          images.push({
-            url: sub,
-            path: subImagePath
-          })
 
-          // Update
-          processedProgress += 1
-          updateReportProgress(
-            processedReport,
-            ~~((processedProgress / processedReports) * 100),
-            processedResults
-          )
+          if (subImagePath) {
+            images.push({
+              url: sub,
+              path: subImagePath
+            })
+
+            // Update
+            processedProgress += 1
+            updateReportProgress(
+              processedReport,
+              ~~((processedProgress / processedReports) * 100),
+              processedResults
+            )
+          }
         }
       }
     } else if (type == 'input') {
       for (const sub of processedURLS) {
-        if (!processedCanceled) {
+        if (!processedCancelled) {
           const subImagePath = await createInputReport(
             suite,
             sub,
@@ -348,35 +354,40 @@ async function createChainedSuiteResult(type = 'normal', data) {
             urlPrefix,
             true
           )
-          images.push({
-            url: sub,
-            path: subImagePath
-          })
 
-          // Update
-          processedProgress += 1
-          updateReportProgress(
-            processedReport,
-            ~~((processedProgress / processedReports) * 100),
-            processedResults
-          )
+          if (subImagePath) {
+            images.push({
+              url: sub,
+              path: subImagePath
+            })
+
+            // Update
+            processedProgress += 1
+            updateReportProgress(
+              processedReport,
+              ~~((processedProgress / processedReports) * 100),
+              processedResults
+            )
+          }
         }
       }
     }
 
-    // Push Report to Results
-    processedResults.push({
-      url: url,
-      suite: suite,
-      images: images
-    })
+    if (images.length > 0) {
+      // Push Report to Results
+      processedResults.push({
+        url: url,
+        suite: suite,
+        images: images
+      })
 
-    // Update
-    updateReportProgress(
-      processedReport,
-      ~~((processedProgress / processedReports) * 100),
-      processedResults
-    )
+      // Update
+      updateReportProgress(
+        processedReport,
+        ~~((processedProgress / processedReports) * 100),
+        processedResults
+      )
+    }
 
     // Return
     return true
@@ -398,7 +409,7 @@ async function createDefaultReport(suite, url, selector, chain = false) {
       })
 
       // Get Page Object
-      const page = await pie.getPage(browser, global.workerWindow)
+      page = await pie.getPage(browser, global.workerWindow)
       await page.setViewport(DEFAULT_RESOLUTION)
 
       // Wait for Selector
@@ -450,7 +461,7 @@ async function createInputReport(
       })
 
       // Get Page Object
-      const page = await pie.getPage(browser, global.workerWindow)
+      page = await pie.getPage(browser, global.workerWindow)
       await page.setViewport(DEFAULT_RESOLUTION)
 
       // Enter URL and Press Button
@@ -522,7 +533,7 @@ async function createLighthouseReport() {
     })
 
     // Get Page Object
-    const page = await pie.getPage(browser, global.workerWindow)
+    page = await pie.getPage(browser, global.workerWindow)
     await page.setViewport(DEFAULT_RESOLUTION)
 
     // Enter URL and Press Button
