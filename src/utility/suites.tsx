@@ -5,25 +5,25 @@ import { TSuites, TSuiteCategory, TResult } from '../types'
 export const ServerSuites: TSuiteCategory = {
   name: 'Server',
   suites: ['ssllabs', 'securityheaders', 'hardenize'],
-  durations: [10, 2, 5]
+  durations: [6, 1, 2]
 }
 
 export const SeoSuites: TSuiteCategory = {
   name: 'SEO & Accessibility',
   suites: ['seobility', 'varvy', 'achecker'],
-  durations: [5, 5, 30]
+  durations: [2, 2, 30]
 }
 
 export const PerformanceSuites: TSuiteCategory = {
   name: 'Performance',
   suites: ['lighthouse', 'gtmetrix', 'keycdn'],
-  durations: [5, 5, 5]
+  durations: [3, 3, 2]
 }
 
 export const OptimizationSuites: TSuiteCategory = {
   name: 'Optimization',
   suites: ['favicon-checker', 'w3', 'w3-css'],
-  durations: [3, 30, 30]
+  durations: [2, 40, 40]
 }
 
 // ==========================================================

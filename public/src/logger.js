@@ -1,6 +1,6 @@
 const fs = require('fs')
 const os = require('os')
-const { ipcMain } = require('electron')
+const { app, ipcMain } = require('electron')
 
 // Utility
 const { MAX_FILE_SIZE, LOG_PATH } = require('./const')
@@ -65,7 +65,7 @@ function getTimestamp() {
 try {
   ipcMain.on('version', event => {
     event.returnValue = {
-      data: process.env.npm_package_version,
+      data: app.getVersion(),
       error: null
     }
   })
