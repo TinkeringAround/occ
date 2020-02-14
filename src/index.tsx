@@ -38,10 +38,14 @@ import {
   createReportInMain,
   cancelProcessedReportInMain,
   closeWindowInMain,
-  exportReportInMain
+  exportReportInMain,
+  restartApplication
 } from './utility/ipc'
 import { sortReportsByTimestring } from './utility/time'
 import { sizes } from './styles'
+
+// Consts
+const LOADING_SPINNER_DURATION = 850
 
 // ==========================================================
 const App: FC = () => {
@@ -65,7 +69,7 @@ const App: FC = () => {
   // ==========================================================
   // #region Report Context
   const addReport = (report: TReport, suites: Array<TSuites>) => {
-    if (configuration) {
+    if (configuration && navigator.onLine) {
       const newReports = Array.from(configuration.reports)
       newReports.push(report)
       const sortedReports = sortReportsByTimestring(newReports)
@@ -79,7 +83,7 @@ const App: FC = () => {
         report: report,
         suite: suites[0]
       })
-    }
+    } else setErrorInMain('No Network Connection to start the Report.')
   }
   const deleteReport = (deletedReport: TReport) => {
     if (configuration) {
@@ -205,6 +209,13 @@ const App: FC = () => {
   // #endregion
 
   // ==========================================================
+  // #region Network Connection
+  const networkConnectionChanged = () => {
+    if (reportInProgress && !navigator.onLine) restartApplication()
+  }
+  // #endregion
+
+  // ==========================================================
   // #region FC State Handler
   useEffect(() => {
     if (!configuration) {
@@ -219,30 +230,38 @@ const App: FC = () => {
 
   useEffect(() => {
     window.addEventListener('beforeunload', showConfirmationDialog)
+
+    // Resize
     window.addEventListener('resize', updateWindowSize)
+
+    // Network Connection
+    window.addEventListener('offline', networkConnectionChanged)
+
+    // IPC Renderer - UpdateReport, Error, UpdateRunningReport
     // @ts-ignore
     window.electron.ipcRenderer.on('updateReport', updateReport)
     // @ts-ignore
     window.electron.ipcRenderer.on('errorOnMain', handleErrorInMain)
     // @ts-ignore
     window.electron.ipcRenderer.on('updateRunningSuite', updateRunningSuite)
+
+    // Return/Remove Event Listeners
     return () => {
       window.removeEventListener('beforeunload', showConfirmationDialog)
       window.removeEventListener('resize', updateWindowSize)
+      window.removeEventListener('offline', networkConnectionChanged)
       // @ts-ignore
       window.electron.ipcRenderer.removeAllListeners()
     }
   })
 
   useEffect(() => {
-    if (configuration) {
-      updateConfigInMain(configuration)
-    }
+    if (configuration) updateConfigInMain(configuration)
   }, [configuration])
 
   useEffect(() => {
     setLoading(true)
-    setTimeout(() => setLoading(false), 1000)
+    setTimeout(() => setLoading(false), LOADING_SPINNER_DURATION)
   }, [page])
 
   useEffect(() => {
@@ -281,7 +300,7 @@ const App: FC = () => {
             updateSettings: updateSettings
           }}
         >
-          {/* Window Bar */}
+          {/* Window Bar - Minimize, MAximize, Close*/}
           <WindowBar />
 
           {/* Main */}

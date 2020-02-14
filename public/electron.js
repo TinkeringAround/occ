@@ -11,6 +11,7 @@ const { saveConfig } = require('./src/configuration')
 const { createWindows } = require('./window')
 require('./src/report')
 require('./src/pdf')
+require('./src/network')
 
 // ==========================================================
 process.on('uncaughtException', error => logError(`Main process: Uncaught Exception: ${error}`))
