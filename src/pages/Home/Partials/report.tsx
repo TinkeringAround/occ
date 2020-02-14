@@ -56,7 +56,7 @@ const Report: FC<Props> = ({ toggleModus }) => {
     const newReport: TReport = {
       progress: 0,
       project: project,
-      url: url,
+      url: url.replace(/https?:\/\//i, ''),
       date: Date.now().toString(),
       results: []
     }
