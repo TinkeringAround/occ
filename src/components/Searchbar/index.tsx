@@ -58,7 +58,7 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
           color={mode === 'normal' ? 'lightblue' : 'darkGrey'}
           size="1.25rem"
           margin="0 .5rem 0 1.5rem"
-          onClick={mode === 'normal' ? filterReports : null}
+          onClick={mode === 'normal' ? () => filterReports(options) : null}
         />
         <Box flex="grow" margin={{ right: '1rem' }}>
           <Keyboard
@@ -75,6 +75,25 @@ const Searchbar: FC<Props> = ({ mode, toggleMode, filterReports }) => {
             />
           </Keyboard>
         </Box>
+        {options !== '' && (
+          <Icon
+            type="plus"
+            color={mode === 'normal' ? 'grey' : 'darkGrey'}
+            size="1.25rem"
+            margin="0 1.5rem 0 0"
+            onClick={
+              mode === 'normal'
+                ? () => {
+                    setOptions('')
+                    filterReports('')
+                  }
+                : null
+            }
+            style={{
+              transform: `rotate(45deg)`
+            }}
+          />
+        )}
       </SBar>
 
       {/* Add */}

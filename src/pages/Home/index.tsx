@@ -21,6 +21,9 @@ import Report from './Partials/report'
 // Styles
 import { colors } from '../../styles'
 
+// Consts
+const FILTER_DURATION = 850
+
 // ==========================================================
 const Home: FC = () => {
   const { reports } = useContext(reportContext)
@@ -30,17 +33,22 @@ const Home: FC = () => {
   const [isFiltering, setIsFiltering] = useState<boolean>(false)
 
   const toggleMode = () => (mode === 'normal' ? setMode('newReport') : setMode('normal'))
-  const filterReports = (searchOptions: string) => {
-    setIsFiltering(true)
-    setSearchOptions(searchOptions)
-    if (searchOptions === '') setFilteredReports(null)
-    else {
-      const filterResult: Array<TReport> = reports.filter(
-        (x: TReport) =>
-          x.url.toLowerCase().includes(searchOptions.toLowerCase()) ||
-          x.project.toLowerCase().includes(searchOptions.toLowerCase())
-      )
-      setFilteredReports(filterResult)
+  const filterReports = (query: string) => {
+    if (query === '' && filteredReports == null) {
+    } else {
+      setIsFiltering(true)
+      setSearchOptions(query)
+      if (query === '') setFilteredReports(null)
+      else {
+        const filterResult: Array<TReport> = reports.filter(
+          (x: TReport) =>
+            x.url.toLowerCase().includes(query.toLowerCase()) ||
+            x.project.toLowerCase().includes(query.toLowerCase())
+        )
+        setFilteredReports(filterResult)
+      }
+
+      setTimeout(() => setIsFiltering(false), FILTER_DURATION)
     }
   }
 
@@ -48,13 +56,9 @@ const Home: FC = () => {
     if (filteredReports != null) {
       setIsFiltering(true)
       filterReports(searchOptions)
-      setTimeout(() => setIsFiltering(false), 1000)
+      setTimeout(() => setIsFiltering(false), FILTER_DURATION)
     }
   }, [reports])
-
-  useEffect(() => {
-    if (isFiltering) setTimeout(() => setIsFiltering(false), 1000)
-  }, [filteredReports])
 
   const minHeight = `calc(${window.innerHeight - 50}px - 5rem)`
 
