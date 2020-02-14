@@ -15,7 +15,6 @@
   "homepage": "./",
   "private": true,
   "dependencies": {
-    "@sentry/electron": "1.0.0",
     "@types/jest": "24.0.23",
     "@types/node": "12.12.11",
     "@types/react-dom": "16.9.4",

@@ -1,11 +1,9 @@
 const fs = require('fs')
 const os = require('os')
-const isDev = require('electron-is-dev')
 const { ipcMain } = require('electron')
 
 // Utility
 const { MAX_FILE_SIZE, LOG_PATH } = require('./const')
-const { SENTRY_DSN } = require('./env')
 
 // ==========================================================
 // #region Functions
@@ -65,11 +63,6 @@ function getTimestamp() {
 // ==========================================================
 // #region Setup
 try {
-  if (!isDev && SENTRY_DSN) {
-    const Sentry = require('@sentry/electron')
-    Sentry.init({ dsn: process.env.SENTRY_DSN })
-  }
-
   ipcMain.on('version', event => {
     event.returnValue = {
       data: process.env.npm_package_version,
