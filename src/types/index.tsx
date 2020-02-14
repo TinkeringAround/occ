@@ -32,6 +32,7 @@ export type TSuiteCategories = {
 export type TSuiteCategory = {
   name: string
   suites: Array<TSuites>
+  durations: Array<number>
 }
 
 export type TSuites =

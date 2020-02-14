@@ -90,6 +90,28 @@ const Report: FC<Props> = ({ toggleModus }) => {
     setOptimizationSuites([false, false])
   }
 
+  const sumSelectedSuitesDurations: () => string = () => {
+    let duration: number = 0
+
+    serverSuites.forEach((selectedServerSuite: boolean, index: number) => {
+      if (selectedServerSuite) duration += ServerSuites.durations[index]
+    })
+
+    seoSuites.forEach((selectedSeoSuite: boolean, index: number) => {
+      if (selectedSeoSuite) duration += SeoSuites.durations[index]
+    })
+
+    performanceSuites.forEach((selectedPerformanceSuite: boolean, index: number) => {
+      if (selectedPerformanceSuite) duration += PerformanceSuites.durations[index]
+    })
+
+    optimizationSuites.forEach((selectedOptimizationSuite: boolean, index: number) => {
+      if (selectedOptimizationSuite) duration += OptimizationSuites.durations[index]
+    })
+
+    return `${duration}`
+  }
+
   // ==========================================================
   const toggleServer = () => {
     const allAreTrue = allTrue(serverSuites)
@@ -124,6 +146,7 @@ const Report: FC<Props> = ({ toggleModus }) => {
     setOptimizationSuites(newOptimizationSuites)
   }
 
+  // ==========================================================
   return (
     <Box width="100%" pad="0 2rem" direction="row" justify="between">
       {/* Formular */}
@@ -172,7 +195,20 @@ const Report: FC<Props> = ({ toggleModus }) => {
       </Box>
 
       {/* Suites Checkboxes */}
-      <Box width="60%" direction="row" justify="between" wrap>
+      <Box width="60%" direction="row" justify="between" wrap style={{ position: 'relative' }}>
+        {/* Estimation */}
+        {sumSelectedSuitesDurations() !== '0' && (
+          <Text
+            margin="2.5rem 0 0 0.5rem"
+            size="1.25rem"
+            color={colors['darkGrey']}
+            weight="bold"
+            style={{ position: 'absolute', top: '-5rem', right: 0 }}
+          >
+            {`~ ${sumSelectedSuitesDurations()} Minutes`}
+          </Text>
+        )}
+
         {/* Server Suites */}
         <ReportSuite
           type="server"

@@ -4,22 +4,26 @@ import { TSuites, TSuiteCategory, TResult } from '../types'
 // ==========================================================
 export const ServerSuites: TSuiteCategory = {
   name: 'Server',
-  suites: ['ssllabs', 'securityheaders', 'hardenize']
+  suites: ['ssllabs', 'securityheaders', 'hardenize'],
+  durations: [10, 2, 5]
 }
 
 export const SeoSuites: TSuiteCategory = {
   name: 'SEO & Accessibility',
-  suites: ['seobility', 'varvy', 'achecker']
+  suites: ['seobility', 'varvy', 'achecker'],
+  durations: [5, 5, 30]
 }
 
 export const PerformanceSuites: TSuiteCategory = {
   name: 'Performance',
-  suites: ['lighthouse', 'gtmetrix', 'keycdn']
+  suites: ['lighthouse', 'gtmetrix', 'keycdn'],
+  durations: [5, 5, 5]
 }
 
 export const OptimizationSuites: TSuiteCategory = {
   name: 'Optimization',
-  suites: ['favicon-checker', 'w3', 'w3-css']
+  suites: ['favicon-checker', 'w3', 'w3-css'],
+  durations: [3, 30, 30]
 }
 
 // ==========================================================
